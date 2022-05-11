@@ -1,0 +1,2 @@
+# skustor
+Inventory data repository.
