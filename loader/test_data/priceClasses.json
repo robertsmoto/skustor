@@ -1,0 +1,22 @@
+{
+    "priceClass": {
+        "id": "93a035c8-7203-45fa-9055-44c58dc4af25",
+        "multiplierType": "grossMargin",
+        "amount": 90
+    },
+    "priceClasses": [
+        {
+            "id": "edf8b456-0673-4895-ae49-637b2da602e5",
+            "multiplierType": "markup",
+            "amount": 20
+        },{
+            "id": "7db7c4da-5d6f-426f-9707-458f7ad36f14",
+            "multiplierType": "flatRate",
+            "amount": 1500
+        },{
+            "id": "c2671371-4e83-466c-a460-52d26f5b3d51",
+            "multiplierType": "grossMargin",
+            "amount": 50
+        }
+    ]
+}

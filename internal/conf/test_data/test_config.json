@@ -1,0 +1,32 @@
+{
+    "dbSwimExpress": {
+        "dnam": "swimexpress",
+        "host": "localhost",
+        "port": 5432,
+        "user": "swimexpress_dbuser",
+        "pass": "756#%$ulr",
+        "pkey": "",
+        "sslm": "disable"
+    },
+    "dbSodaVault": {
+        "dnam": "sodavault",
+        "host": "localhost",
+        "port": 5432,
+        "user": "sodavault_dbuser",
+        "pass": "Swimmingisg00dforyou.",
+        "pkey": "",
+        "sslm": "disable"
+    },
+    "doSpaces": {
+        "useSpaces": true,
+        "accessKey": "YDI52ZS4AW2NDEABYWBS",
+        "secret": "0vGYAUN5uKmga8d4kjXGsMNoCeyPEi3NW6nf0IS8YeE",
+        "bucketName": "sodavault-stage",
+        "customDomain": "cdn-stage.sodavault.com",
+        "regionName": "fra1",
+        "endpointUrl": "https://fra1.digitaloceanspaces.com"
+    },
+    "tempFileDir": "/home/robertsmoto/dev/temp/sodavault",
+    "var01": 0,
+    "var02": 1
+}

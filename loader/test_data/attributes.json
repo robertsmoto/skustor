@@ -1,0 +1,50 @@
+{
+    "attribute": {
+        "parent": "",
+        "id": "7bdcf300-bf61-4464-8626-0906dec01db5",
+        "name": "Shoe Sizes",
+        "decription": "Shoe Sizes",
+        "keywords": "",
+        "imageUrl": "",
+        "imageAlt": ""
+    },
+    "attributes": [
+        {
+            "parent": "7bdcf300-bf61-4464-8626-0906dec01db5",
+            "id": "58ec8f06-fb10-4103-84a4-eafbfc6d45ae",
+            "name": "Women's Shoe Sizes",
+            "decription": "US and UK shoe sizes for women.",
+            "keywords": "",
+            "imageUrl": "",
+            "imageAlt": ""
+        },{
+            "parent": "7bdcf300-bf61-4464-8626-0906dec01db5",
+            "id": "3df59d48-c673-4c4b-986a-eaf4d254cfc2",
+            "name": "Men's Shoe Sizes",
+            "decription": "US and UK shoe sizes for men.",
+            "keywords": "",
+            "imageUrl": "",
+            "imageAlt": "",
+            "terms": [
+                {
+                    "termId": "8a0e5493-dacf-482f-bab9-4833ab9dd055",
+                    "order": 5
+                },{
+                    "termId": "cf81578b-72ee-4b72-846a-c430fddbbc70",
+                    "order": 6
+                },{
+                    "termId": "6d9fa615-d0ff-451a-9ecc-b97742cfc3d5",
+                    "order": 7
+                }
+            ]
+        },{
+            "parent": "7bdcf300-bf61-4464-8626-0906dec01db5",
+            "id": "79419d9d-6320-45a7-89f3-fa6215359cf8",
+            "name": "Kid's Shoe Sizes",
+            "decription": "US and UK shoe soes for kids.",
+            "keywords": "",
+            "imageUrl": "",
+            "imageAlt": ""
+        }
+    ]
+}

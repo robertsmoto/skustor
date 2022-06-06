@@ -1,2 +1,2 @@
-# skustor
-Inventory data repository.
+# golang-test
+My first golang project.
