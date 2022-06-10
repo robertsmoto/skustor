@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-    "github.com/robertsmoto/skustor/internal/conf"
+    "github.com/robertsmoto/skustor/configs/conf"
 )
 
 func TestValidateUrl(t *testing.T) {

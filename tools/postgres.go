@@ -1,10 +1,10 @@
-package postgres
+package tools
 
 import (
-    "github.com/robertsmoto/skustor/internal/conf"
     "database/sql"
     "fmt"
 
+    "github.com/robertsmoto/skustor/configs/conf"
     _ "github.com/lib/pq"
 )
 
