@@ -4,7 +4,7 @@ import (
     "database/sql"
     "fmt"
 
-    "github.com/robertsmoto/skustor/configs/conf"
+    "github.com/robertsmoto/skustor/configs"
     _ "github.com/lib/pq"
 )
 
