@@ -1,0 +1,48 @@
+{
+    "department": {
+        "parent": "",
+        "id": "507679a3-eb21-479b-8250-c10f7a0fce25",
+        "name": "Department 01",
+        "decription": "Men's Clothes",
+        "keywords": "men, clothes, apparel",
+        "imageUrl": "http://go.dev/blog/go-brand/logos.jpg",
+        "imageAlt": "Department 01 photo.",
+        "partIds": [
+            "3e761c49-836d-462b-bc07-be0b090ed7d3",
+            "39a7aee9-317e-4940-b91c-ec7cdbd00edd",
+            "d0975aab-d345-4041-b437-d8e7a2333166"
+        ]
+    },
+    "departments": [
+        {
+            "parent": "",
+            "id": "7bdcf300-bf61-4464-8626-0906dec01db5",
+            "name": "Department 02",
+            "decription": "Women's Clothes",
+            "keywords": "women, clothes, apparel",
+            "imageUrl": "http://go.dev/blog/go-brand/logos.jpg",
+            "imageAlt": "Department 02 photo.",
+            "productIds": [
+                "5b07d1e6-7385-4e8e-b685-b123e1f70df2",
+                "d873a3a7-6dc0-4db7-8dac-d2e96ef97d13",
+                "96c89572-dfdb-487d-bed5-b76165cc0373"
+            ]
+        },{
+            "parent": "7bdcf300-bf61-4464-8626-0906dec01db5",
+            "id": "8c473483-b09e-4cd0-b27d-27a0d52a3c99",
+            "name": "Women's Shirts",
+            "decription": "Women's Shirts",
+            "deywords": "women, clothes, apparel, shirts",
+            "imageUrl": "http://go.dev/blog/go-brand/logos.jpg",
+            "imageAlt": "Women's shirts on display in a retail store."
+        },{
+            "parent": "7bdcf300-bf61-4464-8626-0906dec01db5",
+            "id": "58ec8f06-fb10-4103-84a4-eafbfc6d45ae",
+            "name": "Women's Jeans",
+            "decription": "Women's Jeans",
+            "keywords": "women, clothes, apparel, jeans",
+            "imageUrl": "http://go.dev/blog/go-brand/logos.jpg",
+            "imageAlt": "Woman shopping for jeans in a store."
+        }
+    ]
+}

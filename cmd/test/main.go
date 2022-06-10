@@ -1,8 +1,8 @@
 package main
 
 import (
-    "example.com/internal/conf"
-    "example.com/repos/postgres"
+    "example.com/configs/conf"
+    "example.com/tools/postgres"
     "fmt"
     "strings"
 )

@@ -1,0 +1,42 @@
+{
+    "mailingAddress": {
+        "locationId": "53ced63c-d2f3-47a1-8835-f7fc51f3080e",
+        "id": "507679a3-eb21-479b-8250-c10f7a0fce25",
+        "street1": "4960 Worley Avenue",
+        "street2": "Suite #408",
+        "city": "Big Island",
+        "state": "VA",
+        "zipCode": "24526",
+        "country": "USA"
+    },
+    "mailingAddresses": [
+        {
+            "locationId": "db0e8b6d-2fe8-4fcd-9702-216478253cb9",
+            "id": "bc00ba13-15a4-4fa9-bf12-ed7b3c52f805",
+            "street1": "1274 Formula Lane",
+            "street2": "",
+            "city": "Frisco",
+            "state": "TX",
+            "zipCode": "75034",
+            "country": "USA"
+        },{
+            "locationId": "6f876eb5-ff72-4c21-81a8-6dff246023e0",
+            "id": "39b0dbce-f5a3-4c94-8303-7fa23c8f2801",
+            "street1": "1955 Musgrave Street",
+            "street2": "",
+            "city": "Decatur",
+            "state": "GA",
+            "zipCode": "30030",
+            "country": "USA"
+        },{
+            "locationId": "c1c4dbe1-9c7c-4dbc-b756-615dfffae3e2",
+            "id": "a991acc3-2012-476f-b73e-fb9b83b8bf33",
+            "street1": "416 Cinnamon Lane",
+            "street2": "",
+            "city": "San Antonio",
+            "state": "TX",
+            "zipCode": "78231",
+            "country": "USA"
+        }
+    ]
+}

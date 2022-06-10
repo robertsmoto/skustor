@@ -1,0 +1,108 @@
+{
+    "companyNodes": [
+        {
+            "id": "7bdcf300-bf61-4464-8626-0906dec01db5",
+            "name": "Big Shoes",
+            "decription": "Shoe manufacturer and retailer.",
+            "phone": "big, shoes, retail, manufacturer",
+            "email": "info@bshoes.com",
+            "website": "https://www.bshoes.com",
+            "contactIds": [
+                "ee445cf2-6231-4ffa-af82-143685b80462",
+                "bf57b0d5-7504-40a8-bedb-3101bda3efbe",
+                "591abdfd-3ce8-4df1-b79c-3f4dff5c8ce5",
+                "534c470d-a12c-4910-bc3d-772a66d2b552"
+            ]
+        },{
+            "id": "7bdcf300-bf61-4464-8626-0906dec01db5",
+            "name": "Brown Boots",
+            "decription": "Boot manufacturer and retailer.",
+            "phone": "brown, boot, retail, manufacturer",
+            "email": "info@bboot.com",
+            "website": "https://www.bboot.com",
+            "contacts": [
+                {
+                    "id": "3b49cb80-06ce-4579-ad70-d413a879d157", 
+                    "salutation": "Mrs.",
+                    "firstname": "Jenny",
+                    "lastname": "Smith",
+                    "nickname": "Jen",
+                    "phone": "217-598-1204",
+                    "mobile": "847-992-9818",
+                    "email": "jsmith@bboot.com",
+                    "address": {
+                        "id": "",
+                        "street2": "",
+                        "city": "",
+                        "state": "",
+                        "zipCode": "",
+                        "country": ""
+                    },
+                    "billingAddress": {
+                        "id": "d3d667df-5a3f-4de4-ba72-36c43d4b3775",
+                        "street1": "3485 University Hill Road",
+                        "street2": "",
+                        "city": "Sadorus",
+                        "state": "IL",
+                        "zipCode": "61872",
+                        "country": "USA"
+                    },
+                    "shippingAddress": {
+                        "id": "2bd86e15-94ed-4936-b6b2-6ccaa0be5a76",
+                        "street1": "4661 Stuart Street",
+                        "street2": "",
+                        "city": "Portland",
+                        "state": "PA",
+                        "zipCode": "97205",
+                        "country": "USA"
+                    }
+                },
+                {
+                    "id": "99340c94-a48e-47ea-b352-684ed8ac920d", 
+                    "salutation": "Mr.",
+                    "firstname": "Dan",
+                    "lastname": "Cole",
+                    "nickname": "",
+                    "phone": "860-946-5746",
+                    "mobile": "203-912-3675",
+                    "email": "dcole@bboot.com",
+                    "address": {
+                        "id": "7acaf5f1-d065-4c54-8b28-8c43c1f6c34f",
+                        "street1": "817 McVaney Road",
+                        "street2": "Suite G44",
+                        "city": "Forest City",
+                        "state": "NC",
+                        "zipCode": "28043",
+                        "country": "USA"
+                    }
+                }
+            ]
+        },{
+            "id": "6b2a5463-8dcb-468c-8d2b-dea245eb827d",
+            "name": "Ace Textiles",
+            "decription": "Manufacture of casual apparel.",
+            "phone": "770-382-0504",
+            "email": "info@acetextiles.com",
+            "website": "https://www.acetextiles.com",
+            "contactIds": [
+                "ee445cf2-6231-4ffa-af82-143685b80462",
+                "bf57b0d5-7504-40a8-bedb-3101bda3efbe",
+                "591abdfd-3ce8-4df1-b79c-3f4dff5c8ce5",
+                "534c470d-a12c-4910-bc3d-772a66d2b552"
+            ]
+        },{
+            "id": "83e2ccf4-839e-4333-a067-738bdbac8be4",
+            "name": "GG Handbags and Accessories",
+            "decription": "Manufacturer and retiler of leather handbags and accessories.",
+            "phone": "678-719-7062",
+            "email": "info@ggaccessories.com",
+            "website": "https://ggaccessories.com",
+            "contactIds": [
+                "ee445cf2-6231-4ffa-af82-143685b80462",
+                "bf57b0d5-7504-40a8-bedb-3101bda3efbe",
+                "591abdfd-3ce8-4df1-b79c-3f4dff5c8ce5",
+                "534c470d-a12c-4910-bc3d-772a66d2b552"
+            ]
+        }
+    ]
+}
