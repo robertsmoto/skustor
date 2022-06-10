@@ -10,7 +10,7 @@ import (
 func TestLoadConfig(t *testing.T) {
 	// tests a file exists, can be read and is in the correct json format
 
-	SvConf := configs.Config{}
+	SvConf := Config{}
 	err := SvConf.LoadJson("./test_data/test_config.json")
 	if err != nil {
 		t.Error(err)
