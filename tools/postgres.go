@@ -1,7 +1,7 @@
 package postgres
 
 import (
-    "example.com/internal/conf"
+    "github.com/robertsmoto/skustor/internal/conf"
     "database/sql"
     "fmt"
 

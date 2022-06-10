@@ -1,8 +1,8 @@
 package main
 
 import (
-    "example.com/configs/conf"
-    "example.com/tools/postgres"
+    "github.com/robertsmoto/skustor/configs/conf"
+    "github.com/robertsmoto/skustor/tools/postgres"
     "fmt"
     "strings"
 )

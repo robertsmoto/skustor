@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-    "example.com/configs/conf"
+    "github.com/robertsmoto/skustor/configs/conf"
 	"github.com/go-playground/validator/v10"
 	_ "github.com/lib/pq"
 	"github.com/pborman/uuid"
