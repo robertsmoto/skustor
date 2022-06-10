@@ -1,4 +1,4 @@
-package cmd
+package test
 
 import (
     "github.com/robertsmoto/skustor/configs/conf"
