@@ -6,7 +6,7 @@
             "title": "Image 01 Title",
             "alt": "Image 01 Alt",
             "caption": "Image 01 Caption",
-            "order": 1,
+            "position": 1,
             "featured": 1
         },{
             "id": "987ca9f0-cec7-4587-aed3-fe531aa03898",
@@ -14,7 +14,7 @@
             "title": "Image 02 Title",
             "alt": "Image 02 Alt",
             "caption": "Image 02 Caption",
-            "order": 2,
+            "position": 2,
             "featured": 0
         },{
             "id": "9a25e491-7f8a-453c-8283-9eab8a671f59",
@@ -22,7 +22,7 @@
             "title": "Image 03 Title",
             "alt": "Image 03 Alt",
             "caption": "Image 03 Caption",
-            "order": 3,
+            "position": 3,
             "featured": 0
         },{
             "id": "a95cc951-b269-4975-a26e-63baad1c7f0a",
@@ -30,7 +30,7 @@
             "title": "Image 04 Title",
             "alt": "Image 04 Alt",
             "caption": "Image 04 Caption",
-            "order": 4,
+            "position": 4,
             "featured": 0
         }
     ]

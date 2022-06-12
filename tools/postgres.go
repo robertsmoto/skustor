@@ -1,50 +1,68 @@
 package tools
 
 import (
-    "database/sql"
-    "fmt"
+	"database/sql"
+	"fmt"
+	"log"
 
-    "github.com/robertsmoto/skustor/configs"
-    _ "github.com/lib/pq"
+	_ "github.com/lib/pq"
+	"github.com/robertsmoto/skustor/configs"
 )
 
+type Confer interface {
+    Conf() (err error)
+}
+type SqlOpener interface {
+    SqlOpen() (db *sql.DB, err error)
+}
+type SqlConferOpener interface {
+    Confer
+    SqlOpener
+}
+func Open(loc SqlConferOpener) (db *sql.DB, err error){
+    err = loc.Conf()
+    db, err = loc.SqlOpen()
+    return db, err
+}
 
-var Conf = conf.Conf
+type PostgresDev struct {
+    Host string
+    Port int
+    User string
+    Pass string
+    Dnam string
+    Sslm string
 
-func Connect() {
-
-    fmt.Println(Conf)
-    psqlInfo := fmt.Sprintf(
-        "host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
-        Conf.DbSwimExpress.Host, 
-        Conf.DbSwimExpress.Port,
-        Conf.DbSwimExpress.User,
-        Conf.DbSwimExpress.Pass,
-        Conf.DbSwimExpress.Dnam,
-        Conf.DbSwimExpress.Sslm,
-    )
-
-    db, err := sql.Open("postgres", psqlInfo)
-
-    sqlStatement := `
-        SELECT id, source_headline_url
-        FROM headlines_headlinepost`
-    rows, err := db.Query(sqlStatement)
-
+}
+func (s *PostgresDev) Conf() (err error) {
+	config := configs.Config{}
+    err = configs.Load(&config)
+    s.Host = config.DbDevelopment.Host
+    s.Port = config.DbDevelopment.Port
+    s.User = config.DbDevelopment.User
+    s.Pass = config.DbDevelopment.Pass
+    s.Dnam = config.DbDevelopment.Dnam
+    s.Sslm = config.DbDevelopment.Sslm
     if err != nil {
-        panic(err)
+        log.Print("Error configuring postgres development db.", err)
+        fmt.Println("##s -->", s)
     }
-
-    for rows.Next(){
-
-		var id int
-        var source_headline_url string
-
-		if err := rows.Scan(&id, &source_headline_url); err != nil {
-			panic(err)
-		}
-
-        fmt.Printf("%d: %s", id, source_headline_url)
-        fmt.Println()
-    }
+    return err
+}
+func (s *PostgresDev) SqlOpen() (db *sql.DB, err error) {
+	// Connect to the postgres development database
+    conn := fmt.Sprintf(
+		"host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
+		s.Host,
+		s.Port,
+		s.User,
+		s.Pass,
+		s.Dnam,
+		s.Sslm,
+	)
+	db, err = sql.Open("postgres", conn)
+	if err != nil {
+		log.Print("Unable to connect to the postgres db", err)
+	}
+	return db, err
 }

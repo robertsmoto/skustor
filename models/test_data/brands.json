@@ -4,51 +4,93 @@
         {
             "parentId": "",
             "id": "eeb75266-7f4a-4d8e-9a8a-2c0ada73e7b1",
-            "name": "Levis 122",
-            "description": "American clothing company 123.",
-            "keywords": "levi, strauss, american, denim, jeans",
-            "imageUrl": "http://go.dev/blog/go-brand/logos.jpg",
-            "imageAlt": "Levis brand logo.",
+            "name": "Gabriels",
+            "description": "American clothing company.",
+            "keywords": "Gabriels, american, denim, jeans",
+            "linkUrl": "https://www.gabriels.com",
+            "linkText": "Gabriels Clothing Company",
             "productIds": [
                 "f1e7aa62-1537-47c8-8824-8a2e274fbb83",
                 "6b4f8150-348f-41a3-aaba-da8f88ce57e6",
                 "e367f745-2c78-4bc8-bedc-abf18d917511"
+            ],
+            "imageNodes": [
+                {
+                    "id": "6248a89d-e2cc-4f02-bda8-0d45859c8d00",
+                    "url": "https://cdn-stage.sodavault.com/media/111111111111/svLogo.png",
+                    "title": "Gabriels Clothing Company Logo",
+                    "alt": "Gabriels Clothing Company Logo",
+                    "caption": "America's clothing comapany since 1889.",
+                    "order": 0,
+                    "featured": 0
+                }
             ]
         },{
             "parentId": "7bdcf300-bf61-4464-8626-0906dec01db5",
             "id": "58ec8f06-fb10-4103-84a4-eafbfc6d45ae",
-            "name": "American Eagle",
+            "name": "American Sparrow",
             "decription": "Rooted in authenticity, powered by positivity.",
-            "keywords": "american, eagle, apparel",
-            "imageUrl": "http://go.dev/blog/go-brand/logos.jpg",
-            "imageAlt": "American Eagle brand logo.",
-            "linkUrl": "https://www.americaneagle.com",
-            "linkText": "American Eagle webiste"
+            "keywords": "american, sparrow, apparel",
+            "linkUrl": "https://www.americansparrow.com",
+            "linkText": "American Sparrow Clothing Company",
+            "imageNodes": [
+                {
+                    "id": "ec1495ac-7076-4f94-9de3-b8f73d2a9aea",
+                    "url": "https://cdn-stage.sodavault.com/media/111111111111/svLogo.png",
+                    "title": "American Sparrow Clothing Company Logo",
+                    "alt": "American Sparrow Clothing Company Logo",
+                    "caption": "American Sparrow rooted in positivity.",
+                    "order": 0,
+                    "featured": 0
+                }
+            ]
         },{
             "parentId": "7bdcf300-bf61-4464-8626-0906dec01db5",
             "id": "3df59d48-c673-4c4b-986a-eaf4d254cfc2",
-            "name": "Guess",
+            "name": "Answer",
             "decription": "American clothing brand and retailer.",
-            "keywords": "guess, american, denim, jeans, apparel",
-            "imageUrl": "http://go.dev/blog/go-brand/logos.jpg",
-            "imageAlt": "Guess brand logo.",
+            "keywords": "answer, american, denim, jeans, apparel",
+            "linkUrl": "https://www.answerapparel.com",
+            "linkText": "Answer Clothing Company",
             "productIds": [
                 "a1ad91f1-9350-4b57-b559-faecef39eeae",
                 "fb76028b-9d8f-4352-95f3-40972ab8e17d",
                 "84bb7843-1bb7-4fa1-9caa-aec8b393c816"
+            ],
+            "imageNodes": [
+                {
+                    "id": "ba7b2619-4648-4d86-8eb0-71322d8b3e9d",
+                    "url": "https://cdn-stage.sodavault.com/media/111111111111/svLogo.png",
+                    "title": "Answer Clothing Company",
+                    "alt": "Answer Clothing Company",
+                    "caption": "You have questions, we have the Answer.",
+                    "order": 0,
+                    "featured": 0
+                }
             ]
         },{
             "parentId": "7bdcf300-bf61-4464-8626-0906dec01db5",
             "id": "79419d9d-6320-45a7-89f3-fa6215359cf8",
-            "name": "Calvin Klein",
-            "decription": "American fashion house established in 1968.",
-            "keywords": "leather, accessories, american, fashion",
-            "imageUrl": "http://go.dev/blog/go-brand/logos.jpg",
-            "imageAlt": "Calvin Klein brand logo.",
+            "name": "Calvin Klause",
+            "decription": "German fashion house established in 1968.",
+            "keywords": "leather, accessories, german, fashion",
+            "linkUrl": "https://www.ckclothing.com",
+            "linkText": "Calvin Klause Clothing Company",
             "productIds": [
                 "98dbd8b0-43aa-4191-961f-1bf3201ed02a",
                 "2aa703d9-8e06-4d42-94d6-5b119736e52a",
                 "221bb76b-ae1f-4806-b3d4-6be3762176c9"
+            ],
+            "imageNodes": [
+                {
+                    "id": "9fdeab24-45e6-4ddb-bc41-d17f7d530eb2",
+                    "url": "https://cdn-stage.sodavault.com/media/111111111111/svLogo.png",
+                    "title": "Calvin Klause Clothing Company Logo",
+                    "alt": "Calvin Klause Clothing Company Logo",
+                    "caption": "Calvin Klause modern German style.",
+                    "order": 0,
+                    "featured": 0
+                }
             ]
         }
     ]

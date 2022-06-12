@@ -3,8 +3,34 @@ package configs
 import (
 	"encoding/json"
 	"errors"
+	//"log"
 	"os"
+	"path/filepath"
 )
+
+type Opener interface {
+	Open(filePath string) (fileStream []byte, err error)
+}
+type Loader interface {
+	Load(fileStream []byte) (err error)
+}
+type OpenerLoader interface {
+	Opener
+	Loader
+}
+
+func Load(conf OpenerLoader) (err error) {
+	filePath := os.Getenv("CONFPATH")
+	if filePath == "" {
+		os.Setenv("CONFPATH", "/home/robertsmoto/dev/skustor/configs/conf.json")
+		filePath = os.Getenv("CONFPATH")
+	}
+	filePath, _ = filepath.Abs(filePath)
+
+	file, err := conf.Open(filePath)
+	err = conf.Load(file)
+	return err
+}
 
 type db struct {
 	Dnam string `json:"dnam"`
@@ -18,7 +44,7 @@ type db struct {
 
 type Config struct {
 	DbDevelopment struct {
-		db 
+		db
 	} `json:"dbDevelopment"`
 
 	DbStaging struct {
@@ -36,6 +62,7 @@ type Config struct {
 		CustomDomain string `json:"customDomain"`
 		RegionName   string `json:"regionName"`
 		EndpointUrl  string `json:"endpointUrl"`
+		VanityUrl    string `json:"vanityUrl"`
 	} `json:"doSpaces"`
 
 	TempFileDir string `json:"tempFileDir"`
@@ -43,30 +70,27 @@ type Config struct {
 	Var02       int8   `json:"var02"`
 }
 
-func (c *Config) LoadJson(filePath string) (err error) {
-	// will read from the delete or post request
+func (c *Config) Open(filePath string) (fileStream []byte, err error) {
 
 	fileExists := exists(filePath)
 	if fileExists == false {
 		err = errors.New("The config file does not exist.")
-		return err
+		return fileStream, err
 	}
 
-	configFile, err := os.ReadFile(filePath)
-	if err != nil {
-		return err
-	}
+	fileStream, err = os.ReadFile(filePath)
+	return fileStream, err
+}
 
-	isJson := isJson(configFile)
+func (c *Config) Load(fileStream []byte) (err error) {
+
+	isJson := isJson(fileStream)
 	if isJson == false {
-		err = errors.New("The config file is not in a valid json format.")
+		err = errors.New("Config file isn't in a valid json format.")
 		return err
 	}
-
-	json.Unmarshal(configFile, &c)
-
+	json.Unmarshal(fileStream, &c)
 	return err
-
 }
 
 func exists(path string) bool {

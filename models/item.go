@@ -19,9 +19,14 @@ func (s *UnitNodes) JsonLoad(fileBuffer []byte) (err error) {
 }
 
 type Item struct {
+	Id string `json:"id" validate:"required,uuid4"`
+	// user_id
+	// identifiers_id
+	// measurements_id
+	// digital_assetts_id
+	// groups -- m2m
 	UnitId       string `json:"unitId" validate:"omitempty,uuid4"`
 	ParentId     string `json:"parentId" validate:"omitempty,uuid4"`
-	Id           string `json:"id" validate:"required,uuid4"`
 	SKU          string `json:"sku" validate:"omitempty,lte=100"`
 	Name         string `json:"name" validate:"omitempty,lte=200"`
 	Description  string `json:"description" validate:"omitempty,lte=200"`
