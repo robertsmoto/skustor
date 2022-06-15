@@ -2,7 +2,7 @@ package models
 
 import (
 	"database/sql"
-	"fmt"
+	//"fmt"
 	"github.com/pborman/uuid"
 	"log"
 )
@@ -15,57 +15,47 @@ type Validater interface {
 	Validate() (err error)
 }
 
-type Upserter interface {
-	Upsert(db *sql.DB, userId string) (err error)
-}
-
-type LoaderValidaterUpserter interface {
+type LoaderValidater interface {
 	Loader
 	Validater
-	Upserter
 }
 
-func JsonLoadValidateUpsert(
-	data LoaderValidaterUpserter, fileBuffer []byte, db *sql.DB, userId string) (err error) {
-
+func LoaderHandler(data LoaderValidater, fileBuffer []byte) (err error) {
+	// this loads and validates the Nodes or []structs
 	err = data.Load(&fileBuffer)
 	err = data.Validate()
-	err = data.Upsert(db, userId)
 	return err
+}
+
+type Upserter interface {
+	Upsert(db *sql.DB) (err error)
 }
 
 type RelatedTableUpserter interface {
-	RelatedTableUpsert(db *sql.DB, userId string) (err error)
+	RelatedTableUpsert(db *sql.DB) (err error)
 }
 
-func RelatedTableUpsert(data RelatedTableUpserter, db *sql.DB, userId string) (err error) {
-	err = data.RelatedTableUpsert(db, userId)
+type GroupUpserter interface {
+	Upserter
+	RelatedTableUpserter
+}
+
+func UpsertHandler(data GroupUpserter, db *sql.DB) (err error) {
+	go data.Upsert(db)
+	go data.RelatedTableUpsert(db)
 	return err
 }
 
-type ImageSizer interface {
-	ImageSize(db *sql.DB, date, userId, userDir string) (err error)
-}
-
-func ImageSizeUpsert(data ImageSizer, db *sql.DB, date, userId, userDir string) (err error) {
-	data.ImageSize(db, date, userId, userDir)
-	return err
-}
-
-func JoinTableUpsert(db *sql.DB, q, idArray []string) (err error) {
-	for _, varId := range idArray {
-		// q {0=table, 1=userId, 2=groupId, 3=col1, 4=col2, 5=col3}
-		qstr := fmt.Sprintf(`
-            INSERT INTO %s (%s, %s, %s)
-            VALUES ($1, $2, $3)
-            ON CONFLICT (%s, %s)
-            DO UPDATE SET %s = $1, %s = $2, %s = $3;`,
-			q[0], q[3], q[4], q[5], q[4], q[5], q[3], q[4], q[5],
-		)
-		_, err = db.Exec(qstr, uuid.Parse(q[1]), uuid.Parse(q[2]), uuid.Parse(varId))
-		if err != nil {
-			log.Print("Err func JoinTableUpsert() ", err)
-		}
+func JoinGroupItemUpsert(db *sql.DB, userId, groupId, itemId string) (err error) {
+	qstr := `
+        INSERT INTO join_group_item (user_id, group_id, item_id)
+        VALUES ($1, $2, $3)
+        ON CONFLICT (group_id, item_id)
+        DO UPDATE SET user_id = $1, group_id = $2, item_id = $3;
+        `
+	_, err = db.Exec(qstr, uuid.Parse(userId), uuid.Parse(groupId), uuid.Parse(itemId))
+	if err != nil {
+		log.Print("Err func JoinTableUpsert() ", err)
 	}
 	return err
 }

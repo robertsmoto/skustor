@@ -1,0 +1,28 @@
+{
+    "groupNodes": [
+
+        {
+            "id": "eeb75266-7f4a-4d8e-9a8a-2c0ada73e7b1",
+            "type": "brand",
+            "name": "Gabriels",
+            "description": "American clothing company.",
+            "keywords": "Gabriels, american, denim, jeans",
+            "linkUrl": "https://www.gabriels.com",
+            "linkText": "Gabriels Clothing Company",
+            "productIds": [
+                "f1e7aa62-1537-47c8-8824-8a2e274fbb83",
+                "6b4f8150-348f-41a3-aaba-da8f88ce57e6",
+                "e367f745-2c78-4bc8-bedc-abf18d917511"
+            ],
+            "imageNodes": [
+                {
+                    "url": "https://cdn-stage.sodavault.com/media/111111111111/svLogo.png",
+                    "title": "Gabriels Clothing Company Logo",
+                    "alt": "Gabriels Clothing Company Logo",
+                    "caption": "America's clothing comapany since 1889.",
+                    "order": 0
+                }
+            ]
+        }
+    ]
+}
