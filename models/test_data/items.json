@@ -1,0 +1,155 @@
+{
+    "itemNodes": [
+
+
+        {
+            "id": "2940d429-9d97-4d9e-a80f-67d56e42d226",
+            "parentId": "",
+            "unitId": "72476692-e51c-460b-844f-8d46df1bcc1a",
+            "type": "product",
+            "sku": "BNDLPC0001",
+            "name": "Personal Care Bundle",
+            "description": "Contains Shower Gel, Shampoo and Conditioner.",
+            "keywords": "anti-chlorine, shower gel, shampoo, conditioner",
+            "cost": 0,
+            "costOverride": 0,
+            "priceClassId": "a6c4ff7d-b4d4-4c91-8618-fae5f8df436d",
+            "price": 0,
+            "priceOverride": 0,
+            "priceDiscount": 5,
+            "priceIsFixed": 0,
+            "quantityAvailable": 128,
+            "quantityMin": 0,
+            "quantityMax": 0,
+            "length": 325,
+            "width": 1275,
+            "height": 700,
+            "weight": 900,
+            "fileName": "",
+            "filePath": "",
+            "downloadCode": "",
+            "downloadExpiration": "",
+            "brandIds": ["d9a05383-cc15-4ffe-8496-f869a3223ba7"],
+            "categoryIds": [
+                "b9d8b54b-a58c-4487-b6ca-81e34e3e9ce3",
+                "906e8d39-8038-4a2c-9917-6f3a1f57723d"
+            ],
+            "departmentIds": ["67473dd3-81c4-4927-98b0-66b8c79fa50b"],
+            "tagIds": [
+                "2eeef1d0-b826-42ba-a71d-ff0d28c9aa77",
+                "754d5430-3a12-48f1-aaaf-82fcff98249f",
+                "814ac5b3-8db4-45fa-891d-25c59b10146e",
+                "1595c865-2678-4a6b-b4cd-ec8752954661"
+            ],
+            "imageNodes": [
+                {
+                    "url": "https://example.com/GCSH08MA/00.jpg",
+                    "title": "GCSH08MA Product Photo",
+                    "alt": "Product photo.",
+                    "caption": "A great product photo.",
+                    "position": 0,
+                    "size": "LG",
+                    "bypassProcessing": 1
+                },{
+                    "url": "https://example.com/GCSH08MA/01.jpg",
+                    "title": "GCSH08MA Product Photo",
+                    "alt": "Product photo.",
+                    "caption": "A great product photo.",
+                    "position": 1,
+                    "size": "LG",
+                    "bypassProcessing": 1
+                },{
+                    "url": "https://example.com/GCSH08MA/02.jpg",
+                    "title": "GCSH08MA Product Photo",
+                    "alt": "Product photo.",
+                    "caption": "A great product photo.",
+                    "position": 2,
+                    "size": "LG",
+                    "bypassProcessing": 1
+                },{
+                    "url": "https://example.com/GCSH08MA/03.jpg",
+                    "title": "GCSH08MA Product Photo",
+                    "alt": "Product photo.",
+                    "caption": "A great product photo.",
+                    "position": 3,
+                    "size": "LG",
+                    "bypassProcessing": 1
+                }
+            ]
+        },{
+            "id": "a4ce7648-e499-40d1-8e6b-0c2ef0a7856e",
+            "parentId": "",
+            "unitId": "95cb24bc-c209-4173-912f-b25906deb9d1",
+            "type": "product",
+            "sku": "GCSH08MA",
+            "name": "Goodbye Chlorine Shampoo Mango",
+            "description": "8floz anti-chlorine shampoo.",
+            "keywords": "anti-chlorine, shampoo, swimmers",
+            "cost": 0,
+            "costOverride": 358,
+            "priceClassId": "c4d32eed-b64d-4a26-a904-1321fd035f34",
+            "price": 1558,
+            "priceOverride": 1683,
+            "priceDiscount": 0,
+            "priceIsFixed": 0,
+            "quantityAvailable": 128,
+            "quantityMin": 0,
+            "quantityMax": 0,
+            "length": 325,
+            "width": 325,
+            "height": 700,
+            "weight": 258,
+            "fileName": "",
+            "filePath": "",
+            "downloadCode": "",
+            "downloadExpiration": "",
+            "brandIds": ["d9a05383-cc15-4ffe-8496-f869a3223ba7"],
+            "categoryIds": [
+                "b9d8b54b-a58c-4487-b6ca-81e34e3e9ce3",
+                "906e8d39-8038-4a2c-9917-6f3a1f57723d"
+            ],
+            "departmentIds": ["67473dd3-81c4-4927-98b0-66b8c79fa50b"],
+            "tagIds": [
+                "2eeef1d0-b826-42ba-a71d-ff0d28c9aa77",
+                "754d5430-3a12-48f1-aaaf-82fcff98249f",
+                "814ac5b3-8db4-45fa-891d-25c59b10146e",
+                "1595c865-2678-4a6b-b4cd-ec8752954661"
+            ],
+            "imageNodes": [
+                {
+                    "url": "https://example.com/GCSH08MA/00.jpg",
+                    "title": "GCSH08MA Product Photo",
+                    "alt": "Product photo.",
+                    "caption": "A great product photo.",
+                    "position": 0,
+                    "size": "LG",
+                    "bypassProcessing": 1
+                },{
+                    "url": "https://example.com/GCSH08MA/01.jpg",
+                    "title": "GCSH08MA Product Photo",
+                    "alt": "Product photo.",
+                    "caption": "A great product photo.",
+                    "position": 1,
+                    "size": "LG",
+                    "bypassProcessing": 1
+                },{
+                    "url": "https://example.com/GCSH08MA/02.jpg",
+                    "title": "GCSH08MA Product Photo",
+                    "alt": "Product photo.",
+                    "caption": "A great product photo.",
+                    "position": 2,
+                    "size": "LG",
+                    "bypassProcessing": 1
+                },{
+                    "url": "https://example.com/GCSH08MA/03.jpg",
+                    "title": "GCSH08MA Product Photo",
+                    "alt": "Product photo.",
+                    "caption": "A great product photo.",
+                    "position": 3,
+                    "size": "LG",
+                    "bypassProcessing": 1
+                }
+            ]
+        }
+    ]
+}

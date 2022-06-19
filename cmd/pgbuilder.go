@@ -35,65 +35,218 @@ var pgbuilderCmd = &cobra.Command{
 		fmt.Println("starting ...")
 
         qstr := `
-        -- groups
-        CREATE TABLE IF NOT EXISTS groups (
+        -- ##################################
+        --  table: sv_user
+        -- ##################################
+        CREATE TABLE IF NOT EXISTS sv_user (
             id UUID PRIMARY KEY);
-        ALTER TABLE groups ADD COLUMN IF NOT EXISTS user_id UUID;
-        ALTER TABLE groups ADD COLUMN IF NOT EXISTS parent_id UUID;
-        ALTER TABLE groups ADD COLUMN IF NOT EXISTS type VARCHAR (200);
-        ALTER TABLE groups ADD COLUMN IF NOT EXISTS name VARCHAR (200);
-        ALTER TABLE groups ADD COLUMN IF NOT EXISTS description VARCHAR (200);
-        ALTER TABLE groups ADD COLUMN IF NOT EXISTS keywords VARCHAR (200);
-        ALTER TABLE groups ADD COLUMN IF NOT EXISTS link_url VARCHAR (200);
-        ALTER TABLE groups ADD COLUMN IF NOT EXISTS link_text VARCHAR (200);
+        ALTER TABLE sv_user ADD COLUMN IF NOT EXISTS auth UUID;
+        ALTER TABLE sv_user ADD COLUMN IF NOT EXISTS key UUID;
+        ALTER TABLE sv_user ADD COLUMN IF NOT EXISTS username VARCHAR (100);
+        ALTER TABLE sv_user ADD COLUMN IF NOT EXISTS firstname VARCHAR (100);
+        ALTER TABLE sv_user ADD COLUMN IF NOT EXISTS lastname VARCHAR (100);
+        ALTER TABLE sv_user ADD COLUMN IF NOT EXISTS nickname VARCHAR (100);
 
-        -- images
-        CREATE TABLE IF NOT EXISTS images (
-            id UUID PRIMARY KEY DEFAULT gen_random_uuid());
-        ALTER TABLE images ADD COLUMN IF NOT EXISTS user_id UUID;
-        ALTER TABLE images ADD COLUMN IF NOT EXISTS group_id UUID;
-        ALTER TABLE images ADD COLUMN IF NOT EXISTS item_id UUID;
-        ALTER TABLE images ADD COLUMN IF NOT EXISTS url VARCHAR (200);
-        ALTER TABLE images ADD COLUMN IF NOT EXISTS height VARCHAR (200);
-        ALTER TABLE images ADD COLUMN IF NOT EXISTS width VARCHAR (200);
-        ALTER TABLE images ADD COLUMN IF NOT EXISTS title VARCHAR (200);
-        ALTER TABLE images ADD COLUMN IF NOT EXISTS alt VARCHAR (200);
-        ALTER TABLE images ADD COLUMN IF NOT EXISTS caption VARCHAR (200);
-        ALTER TABLE images ADD COLUMN IF NOT EXISTS position INTEGER NOT NULL DEFAULT 0;
-        ALTER TABLE images ADD COLUMN IF NOT EXISTS featured INTEGER NOT NULL DEFAULT 0;
-
-        --items
-        CREATE TABLE IF NOT EXISTS items (
+        -- ##################################
+        --  table: unit
+        -- ##################################
+        CREATE TABLE IF NOT EXISTS unit (
             id UUID PRIMARY KEY);
-        ALTER TABLE items ADD COLUMN IF NOT EXISTS user_id UUID;
-        ALTER TABLE items ADD COLUMN IF NOT EXISTS parent_id UUID;
-        ALTER TABLE items ADD COLUMN IF NOT EXISTS unit_id UUID;
-        ALTER TABLE items ADD COLUMN IF NOT EXISTS type VARCHAR (50);
-        ALTER TABLE items ADD COLUMN IF NOT EXISTS sku VARCHAR (50);
-        ALTER TABLE items ADD COLUMN IF NOT EXISTS name VARCHAR (200);
-        ALTER TABLE items ADD COLUMN IF NOT EXISTS description VARCHAR (200);
-        ALTER TABLE items ADD COLUMN IF NOT EXISTS keywords VARCHAR (200);
-        ALTER TABLE items ADD COLUMN IF NOT EXISTS cost BIGINT NOT NULL DEFAULT 0;
-        ALTER TABLE items ADD COLUMN IF NOT EXISTS cost_override BIGINT NOT NULL DEFAULT 0;
-        -- for parts
-        ALTER TABLE items ADD COLUMN IF NOT EXISTS price_class_id UUID;
-        ALTER TABLE items ADD COLUMN IF NOT EXISTS price BIGINT NOT NULL DEFAULT 0;
-        ALTER TABLE items ADD COLUMN IF NOT EXISTS price_override BIGINT NOT NULL DEFAULT 0;
+        ALTER TABLE unit
+            ADD COLUMN IF NOT EXISTS sv_user_id UUID
+            REFERENCES sv_user(id);
+        ALTER TABLE unit ADD COLUMN IF NOT EXISTS singular VARCHAR (100);
+        ALTER TABLE unit ADD COLUMN IF NOT EXISTS singular_display VARCHAR (100);
+        ALTER TABLE unit ADD COLUMN IF NOT EXISTS plural VARCHAR (100);
+        ALTER TABLE unit ADD COLUMN IF NOT EXISTS plural_display VARCHAR (100);
 
-        -- join_group_item
-        CREATE TABLE IF NOT EXISTS join_group_item (
+        -- ##################################
+        --  table: price_class
+        -- ##################################
+        CREATE TABLE IF NOT EXISTS price_class (
             id UUID PRIMARY KEY);
-        ALTER TABLE join_group_item ADD COLUMN IF NOT EXISTS user_id UUID;
-        ALTER TABLE join_group_item ADD COLUMN IF NOT EXISTS group_id UUID;
-        ALTER TABLE join_group_item ADD COLUMN IF NOT EXISTS item_id UUID;
+        ALTER TABLE price_class
+            ADD COLUMN IF NOT EXISTS sv_user_id UUID
+            REFERENCES sv_user(id);
+        ALTER TABLE price_class ADD COLUMN IF NOT EXISTS type VARCHAR (100);
+        ALTER TABLE price_class ADD COLUMN IF NOT EXISTS name VARCHAR (100);
+        ALTER TABLE price_class ADD COLUMN IF NOT EXISTS amount
+            BIGINT NOT NULL DEFAULT 0;
+        ALTER TABLE price_class ADD COLUMN IF NOT EXISTS note VARCHAR (100);
 
-        -- relationships: images? groups
-        -- ALTER TABLE items ADD COLUMN IF NOT EXISTS identifiers_id UUID;
-        -- ALTER TABLE items ADD COLUMN IF NOT EXISTS measurements_id UUID;
-        -- ALTER TABLE items ADD COLUMN IF NOT EXISTS digital_assetts_id UUID;
-        -- ALTER TABLE items ADD COLUMN IF NOT EXISTS images_id UUID;
+        -- ##################################
+        --  table: cluster
+        -- ##################################
+        CREATE TABLE IF NOT EXISTS cluster (
+            id UUID PRIMARY KEY);
+        ALTER TABLE cluster
+            ADD COLUMN IF NOT EXISTS sv_user_id UUID
+            REFERENCES sv_user(id);
+        ALTER TABLE cluster
+            ADD COLUMN IF NOT EXISTS parent_id UUID
+            REFERENCES cluster(id);
+        ALTER TABLE cluster ADD COLUMN IF NOT EXISTS type VARCHAR (200);
+        ALTER TABLE cluster ADD COLUMN IF NOT EXISTS position
+            INTEGER NOT NULL DEFAULT 0;
+        ALTER TABLE cluster ADD COLUMN IF NOT EXISTS name VARCHAR (200);
+        ALTER TABLE cluster ADD COLUMN IF NOT EXISTS description VARCHAR (200);
+        ALTER TABLE cluster ADD COLUMN IF NOT EXISTS keywords VARCHAR (200);
+        ALTER TABLE cluster ADD COLUMN IF NOT EXISTS link_url VARCHAR (200);
+        ALTER TABLE cluster ADD COLUMN IF NOT EXISTS link_text VARCHAR (200);
+        -- indexes
+        CREATE INDEX IF NOT EXISTS cluster_sv_user_id_idx ON cluster (sv_user_id);
+        CREATE INDEX IF NOT EXISTS cluster_type_idx ON cluster (type);
 
-        -- table constraints
+        -- ##################################
+        --  table: location
+        -- ##################################
+        CREATE TABLE IF NOT EXISTS location (
+            id UUID PRIMARY KEY);
+        ALTER TABLE location
+            ADD COLUMN IF NOT EXISTS sv_user_id UUID
+            REFERENCES sv_user(id);
+        ALTER TABLE location ADD COLUMN IF NOT EXISTS type VARCHAR (100);
+        ALTER TABLE location ADD COLUMN IF NOT EXISTS name VARCHAR (100);
+        ALTER TABLE location ADD COLUMN IF NOT EXISTS phone VARCHAR (20);
+        ALTER TABLE location ADD COLUMN IF NOT EXISTS email VARCHAR (100);
+        ALTER TABLE location ADD COLUMN IF NOT EXISTS website VARCHAR (100);
+        ALTER TABLE location ADD COLUMN IF NOT EXISTS domain VARCHAR (100);
+        -- indexes
+        CREATE INDEX IF NOT EXISTS location_sv_user_id_idx ON location (sv_user_id);
+        CREATE INDEX IF NOT EXISTS location_type_idx ON location (type);
+
+        -- ##################################
+        --  table: address
+        -- ##################################
+        CREATE TABLE IF NOT EXISTS address (
+            id UUID PRIMARY KEY);
+        ALTER TABLE address
+            ADD COLUMN IF NOT EXISTS sv_user_id UUID
+            REFERENCES sv_user(id);
+        ALTER TABLE address
+            ADD COLUMN IF NOT EXISTS location_id UUID
+            REFERENCES location(id);
+        ALTER TABLE address ADD COLUMN IF NOT EXISTS type VARCHAR (100);
+        ALTER TABLE address ADD COLUMN IF NOT EXISTS street1 VARCHAR (100);
+        ALTER TABLE address ADD COLUMN IF NOT EXISTS street2 VARCHAR (100);
+        ALTER TABLE address ADD COLUMN IF NOT EXISTS city VARCHAR (100);
+        ALTER TABLE address ADD COLUMN IF NOT EXISTS state VARCHAR (50);
+        ALTER TABLE address ADD COLUMN IF NOT EXISTS zipcode VARCHAR (20);
+        ALTER TABLE address ADD COLUMN IF NOT EXISTS country VARCHAR (50);
+        -- indexes
+        CREATE INDEX IF NOT EXISTS address_sv_user_id_idx ON address (sv_user_id);
+        CREATE INDEX IF NOT EXISTS address_type_idx ON address (type);
+
+        -- ##################################
+        -- table: item
+        -- ##################################
+        CREATE TABLE IF NOT EXISTS item (
+            id UUID PRIMARY KEY);
+        ALTER TABLE item
+            ADD COLUMN IF NOT EXISTS sv_user_id UUID
+            REFERENCES sv_user(id);
+        ALTER TABLE item
+            ADD COLUMN IF NOT EXISTS parent_id UUID
+            REFERENCES item(id);
+        ALTER TABLE item
+            ADD COLUMN IF NOT EXISTS price_class_id UUID;
+        ALTER TABLE item
+            ADD COLUMN IF NOT EXISTS unit_id UUID;
+        ALTER TABLE item ADD COLUMN IF NOT EXISTS type VARCHAR (50);
+        ALTER TABLE item ADD COLUMN IF NOT EXISTS is_variable
+            INTEGER NOT NULL DEFAULT 0;
+        ALTER TABLE item ADD COLUMN IF NOT EXISTS is_bundle
+            INTEGER NOT NULL DEFAULT 0;
+        ALTER TABLE item ADD COLUMN IF NOT EXISTS position
+            INTEGER NOT NULL DEFAULT 0;
+        ALTER TABLE item ADD COLUMN IF NOT EXISTS sku VARCHAR (50);
+        ALTER TABLE item ADD COLUMN IF NOT EXISTS name VARCHAR (200);
+        ALTER TABLE item ADD COLUMN IF NOT EXISTS description VARCHAR (200);
+        ALTER TABLE item ADD COLUMN IF NOT EXISTS keywords VARCHAR (200);
+        ALTER TABLE item ADD COLUMN IF NOT EXISTS cost
+            BIGINT NOT NULL DEFAULT 0;
+        ALTER TABLE item ADD COLUMN IF NOT EXISTS cost_override
+            BIGINT NOT NULL DEFAULT 0;
+        ALTER TABLE item ADD COLUMN IF NOT EXISTS price BIGINT NOT NULL DEFAULT 0;
+        ALTER TABLE item ADD COLUMN IF NOT EXISTS price_override
+            BIGINT NOT NULL DEFAULT 0;
+        ALTER TABLE item ADD COLUMN IF NOT EXISTS price_is_fixed
+            INTEGER NOT NULL DEFAULT 0;
+        ALTER TABLE item ADD COLUMN IF NOT EXISTS price_discount
+            INTEGER NOT NULL DEFAULT 0;
+        ALTER TABLE item ADD COLUMN IF NOT EXISTS quantity_available
+            INTEGER NOT NULL DEFAULT 0;
+        ALTER TABLE item ADD COLUMN IF NOT EXISTS quantity_min
+            INTEGER NOT NULL DEFAULT 0;
+        ALTER TABLE item ADD COLUMN IF NOT EXISTS quantity_max
+            INTEGER NOT NULL DEFAULT 0;
+        ALTER TABLE item ADD COLUMN IF NOT EXISTS length
+            INTEGER NOT NULL DEFAULT 0;
+        ALTER TABLE item ADD COLUMN IF NOT EXISTS width
+            INTEGER NOT NULL DEFAULT 0;
+        ALTER TABLE item ADD COLUMN IF NOT EXISTS height
+            INTEGER NOT NULL DEFAULT 0;
+        ALTER TABLE item ADD COLUMN IF NOT EXISTS weight
+            INTEGER NOT NULL DEFAULT 0;
+        ALTER TABLE item ADD COLUMN IF NOT EXISTS file_name VARCHAR (100);
+        ALTER TABLE item ADD COLUMN IF NOT EXISTS file_path VARCHAR (100);
+        ALTER TABLE item ADD COLUMN IF NOT EXISTS download_code VARCHAR (100);
+        ALTER TABLE item ADD COLUMN IF NOT EXISTS download_expiration VARCHAR (100);
+        -- indexes
+        CREATE INDEX IF NOT EXISTS item_sv_user_id_idx ON item (sv_user_id);
+        CREATE INDEX IF NOT EXISTS item_priceclassid_idx ON item (price_class_id);
+        CREATE INDEX IF NOT EXISTS item_unitid_idx ON item (unit_id);
+        CREATE INDEX IF NOT EXISTS item_type_idx ON item (type);
+
+        -- ##################################
+        -- table: join_cluster_item
+        -- ##################################
+        CREATE TABLE IF NOT EXISTS join_cluster_item (id UUID PRIMARY KEY);
+        ALTER TABLE join_cluster_item
+            ADD COLUMN IF NOT EXISTS sv_user_id UUID
+            REFERENCES sv_user(id);
+        ALTER TABLE join_cluster_item
+            ADD COLUMN IF NOT EXISTS cluster_id UUID
+            REFERENCES cluster(id);
+        ALTER TABLE join_cluster_item
+            ADD COLUMN IF NOT EXISTS item_id UUID
+            REFERENCES item(id);
+        ALTER TABLE join_cluster_item ADD COLUMN IF NOT EXISTS position
+            INTEGER NOT NULL DEFAULT 0;
+        -- indexes
+        CREATE INDEX IF NOT EXISTS jci_sv_user_id_idx ON join_cluster_item (sv_user_id);
+        CREATE INDEX IF NOT EXISTS jci_itemid_idx ON join_cluster_item (item_id);
+        CREATE INDEX IF NOT EXISTS jci_clusterid_idx ON join_cluster_item (cluster_id);
+
+        -- ##################################
+        -- table: image
+        -- ##################################
+        CREATE TABLE IF NOT EXISTS image (id UUID PRIMARY KEY);
+        ALTER TABLE image
+            ADD COLUMN IF NOT EXISTS sv_user_id UUID NOT NULL
+            REFERENCES sv_user(id);
+        ALTER TABLE image
+            ADD COLUMN IF NOT EXISTS cluster_id UUID
+            REFERENCES cluster(id);
+        ALTER TABLE image
+            ADD COLUMN IF NOT EXISTS item_id UUID
+            REFERENCES item(id);
+        ALTER TABLE image ADD COLUMN IF NOT EXISTS url VARCHAR (200);
+        ALTER TABLE image ADD COLUMN IF NOT EXISTS size VARCHAR (20);
+        ALTER TABLE image ADD COLUMN IF NOT EXISTS position INTEGER NOT NULL DEFAULT 0;
+        ALTER TABLE image ADD COLUMN IF NOT EXISTS height VARCHAR (20);
+        ALTER TABLE image ADD COLUMN IF NOT EXISTS width VARCHAR (20);
+        ALTER TABLE image ADD COLUMN IF NOT EXISTS title VARCHAR (200);
+        ALTER TABLE image ADD COLUMN IF NOT EXISTS alt VARCHAR (200);
+        ALTER TABLE image ADD COLUMN IF NOT EXISTS caption VARCHAR (200);
+        -- indexes
+        CREATE INDEX IF NOT EXISTS image_sv_user_id_idx ON image (sv_user_id);
+        CREATE INDEX IF NOT EXISTS image_clusterid_idx ON image (cluster_id);
+        CREATE INDEX IF NOT EXISTS image_itemid_idx ON image (item_id);
+        CREATE UNIQUE INDEX
+            IF NOT EXISTS image_cluster_item_position_size_idx
+            ON image (cluster_id, item_id, position, size);
+
         `
 
         fmt.Println(qstr)

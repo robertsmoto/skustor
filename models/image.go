@@ -25,7 +25,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/nfnt/resize"
 	"github.com/nickalie/go-webpbin"
-	"github.com/pborman/uuid"
 )
 
 type downloader interface {
@@ -36,30 +35,32 @@ type resizer interface {
 	Resize() (err error)
 }
 
-type upserter interface {
-	Upsert(db *sql.DB) (err error)
+type processor interface {
+	Process()
 }
 
 type uploader interface {
 	UploadToSpaces() (err error)
 }
 
-type downSizeUploader interface {
+type downloaderResizerProcessorUpserterUploader interface {
 	downloader
 	resizer
+	processor
 	upserter
 	uploader
 }
 
-func ImgHandler(i downSizeUploader, db *sql.DB) (err error) {
+func ImgHandler(i downloaderResizerProcessorUpserterUploader, db *sql.DB) {
+	var err error
 	err = i.Download()
 	err = i.Resize()
+	i.Process()
 	err = i.Upsert(db)
 	err = i.UploadToSpaces() // to AWS cdn
 	if err != nil {
-		log.Print("Error images.Resize() ", err)
+		log.Print("Error image.Resize() ", err)
 	}
-	return err
 }
 
 type ImgSize struct {
@@ -87,7 +88,9 @@ type Image struct {
 	Height         string `json:"height" validate:"omitempty,lte=20"`
 	Width          string `json:"width" validate:"omitempty,lte=20"`
 	Size           string `json:"size" validate:"omitempty,lte=20,oneof=LG MD SM"`
-	UserId         string // constructed
+	SvUserId       string // constructed
+	ClusterId        string // constructed
+	ItemId         string // constructed
 	TempFileDir    string // constructed :: location to download temp files
 	UploadPrefix   string // constructed :: eg. "media"
 	VanityUrl      string // constructed
@@ -103,7 +106,6 @@ type Image struct {
 	baseFileName   string
 	fullFileName   string
 	filePath       string
-    groupId string
 	ImgSizes       []ImgSize
 	ResizedImages  []ResizedImage
 }
@@ -151,21 +153,17 @@ func (s *Image) Download() (err error) {
 func (s *Image) Resize() (err error) {
 	// Resizes, renames and encodes original image.
 	if s.Bypass > 0 {
-		log.Print("Bypassing image.Resize().")
 		return err
 	}
 	if s.ImgSizes == nil {
-		log.Print("s.ImgSizes []struct is needed to resize image")
 		return err
 	}
-	//fmt.Println(i.filePath)
 
 	for _, size := range s.ImgSizes {
 
 		imgFile, err := os.Open(s.filePath)
 		if err != nil {
-			fmt.Println("error here")
-			log.Fatal(err)
+			log.Print(err)
 			os.Exit(1)
 		}
 		defer imgFile.Close()
@@ -176,25 +174,21 @@ func (s *Image) Resize() (err error) {
 
 		imgFile, err = os.Open(s.filePath)
 		if err != nil {
-			fmt.Println("error here")
-			log.Fatal(err)
+			log.Print(err)
 			os.Exit(1)
 		}
 		defer imgFile.Close()
 
 		decodedImage, _, err := image.Decode(imgFile)
 		if err != nil {
-			fmt.Println("error here")
-			log.Fatal(err)
+			log.Print(err)
 		}
 
 		// calculate new image sizes
 		newWidth, newHeight := CalcNewSize(imgWidth, imgHeight, size.ratio)
-		//fmt.Println(newWidth, newHeight)
 
 		// create new file name and dirs
 		newFileName := CreateNewFileName(s.baseFileName, newWidth, newHeight)
-		//fmt.Println(newFileName)
 
 		tempFilePath := CreateTempFilePath(s.TempFileDir, newFileName)
 		uploadPath := CreateUploadPath(s.UploadPrefix,
@@ -221,10 +215,10 @@ func (s *Image) Resize() (err error) {
 		}
 		f.Close()
 
-        // add resize information to struct
-        rsi := ResizedImage{}
+		// add resize information to struct
+		rsi := ResizedImage{}
 		rsi.tempFilePath = tempFilePath
-		rsi.key = uploadPath  // aws key
+		rsi.key = uploadPath // aws key
 		rsi.url = filepath.Join(s.VanityUrl, uploadPath)
 		rsi.width = fmt.Sprint(newWidth)
 		rsi.height = fmt.Sprint(newHeight)
@@ -235,59 +229,69 @@ func (s *Image) Resize() (err error) {
 	return err
 }
 
+func (s *Image) Process() {
+	var data []string
+	data = append(data, s.SvUserId, s.ClusterId, s.ItemId, s.Size, string(s.Position))
+	s.Id = Md5Hasher(data)
+}
+
 func (s *Image) Upsert(db *sql.DB) (err error) {
 
-	// now add the resizeImg.NewSizes to the images table
+	// now add the resizeImg.NewSizes to the image table
 	qstr := `
-        INSERT INTO images (
-            user_id, group_id, url, size, position, height, width,
-            title, alt, caption )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-        ON CONFLICT (group_id, position, size) DO UPDATE
-        SET user_id = $1,
-            group_id = $2,
-            url = $3,
-            size = $4,
-            position = $5,
-            height = $6,
-            width = $7,
-            title = $8,
-            alt = $9,
-            caption = $10
-        WHERE 
-            images.group_id = $2 AND
-            images.position = $5 AND
-            images.size = $4;`
+    INSERT INTO image (
+        id,
+        sv_user_id,
+        cluster_id, 
+        item_id,
+        url,
+        size,
+        position,
+        height,
+        width,
+        title,
+        alt,
+        caption
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+    ON CONFLICT (id)
+    DO UPDATE
+    SET url = $5,
+        size = $6,
+        position = $7,
+        height = $8,
+        width = $9,
+        title = $10,
+        alt = $11,
+        caption = $12
+    WHERE
+        image.id = $1;`
 
 	// execute qstr
 	//lgImg {0=tempFilePath, 1=key 2=url, 3=width, 4=height, 5=size eg "LG"]
+
 	if s.ResizedImages != nil {
 		// loop through the new sizes
 		for _, rsi := range s.ResizedImages {
 			_, err = db.Exec(
-				qstr, uuid.Parse(s.UserId),
-				uuid.Parse(s.groupId), rsi.url, rsi.size, s.Position, rsi.height,
+				qstr,
+				s.Id, FormatUUID(s.SvUserId), FormatUUID(s.ClusterId),
+                FormatUUID(s.ItemId), rsi.url, rsi.size, s.Position, rsi.height,
                 rsi.width, s.Title, s.Alt, s.Caption,
 			)
-			if err != nil {
-                log.Print("s.UserId ", s.UserId, "\n", "s.groupId ", s.groupId)
-				log.Print("Committing image to db: ", err)
-			}
 		}
 	}
-
-    log.Print("##here --> ", s.Bypass)
-    if s.Bypass > 0 {
+	if s.Bypass > 0 {
 		// record the bypass image
-        log.Print("##s.Bypass --> ", s.Bypass)
 		_, err = db.Exec(
-			qstr, uuid.Parse(s.UserId),
-			uuid.Parse(s.groupId), s.Url, s.Size, s.Position, s.Height, s.Width,
-			s.Title, s.Alt, s.Caption,
+			qstr,
+			s.Id, FormatUUID(s.SvUserId), FormatUUID(s.ClusterId),
+            FormatUUID(s.ItemId), s.Url, s.Size, s.Position, s.Height, s.Width,
+            s.Title, s.Alt, s.Caption,
 		)
-		if err != nil {
-			log.Print("Commiting image to db: ", err)
-		}
+	}
+	if err != nil {
+		log.Print("\nCommiting image to db: ", err)
 	}
 	return err
 }
@@ -295,14 +299,14 @@ func (s *Image) Upsert(db *sql.DB) (err error) {
 func (s *Image) UploadToSpaces() (err error) {
 	//img {0=tempFilePath, 1=key 2=url, 3=width, 4=height, 5=size eg "LG"]
 
-    if s.ResizedImages == nil {
-        log.Print("Need s.RsizedImages to upload images to cdn.")
-        return err
-    }
+	if s.ResizedImages == nil {
+		return err
+	}
 	customResolver := aws.EndpointResolverWithOptionsFunc(
 		func(service, region string, options ...interface{}) (aws.Endpoint, error) {
 			return aws.Endpoint{URL: s.DoEndpointUrl}, nil
-		})
+		},
+	)
 
 	cfg, err := config.LoadDefaultConfig(context.TODO(),
 		config.WithEndpointResolverWithOptions(customResolver),
@@ -319,32 +323,30 @@ func (s *Image) UploadToSpaces() (err error) {
 		o.Region = s.DoRegionName
 	})
 
-    for _, rsi := range s.ResizedImages {
-        file, err := os.Open(rsi.tempFilePath)
-        if err != nil {
-            fmt.Println("Unable to open file ", rsi.tempFilePath)
-            return err
-        }
+	for _, rsi := range s.ResizedImages {
+		file, err := os.Open(rsi.tempFilePath)
+		if err != nil {
+			log.Print("Unable to open file ", rsi.tempFilePath)
+			return err
+		}
 
-        defer file.Close()
+		defer file.Close()
 
-        input := &s3.PutObjectInput{
-            Bucket:       &s.DoBucket,
-            Key:          &rsi.key, // <-- uploadPath
-            Body:         file,
-            CacheControl: &s.DoCacheControl,
-            ContentType:  &s.DoContentType,
-            ACL:          "public-read",
-        }
+		input := &s3.PutObjectInput{
+			Bucket:       &s.DoBucket,
+			Key:          &rsi.key, // <-- uploadPath
+			Body:         file,
+			CacheControl: &s.DoCacheControl,
+			ContentType:  &s.DoContentType,
+			ACL:          "public-read",
+		}
 
-        _, err = PutFile(context.TODO(), client, input)
-        if err != nil {
-            fmt.Println("Error uploading the file")
-            fmt.Println(err)
-            return err
-        }
-    }
-
+		_, err = PutFile(context.TODO(), client, input)
+		if err != nil {
+			fmt.Print(err)
+			return err
+		}
+	}
 	return err
 }
 

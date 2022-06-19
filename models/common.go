@@ -1,61 +1,108 @@
 package models
 
 import (
+	"crypto/md5"
 	"database/sql"
-	//"fmt"
-	"github.com/pborman/uuid"
+	"fmt"
+	"io"
 	"log"
 )
 
-type Loader interface {
+type loader interface {
 	Load(fileBuffer *[]byte) (err error)
 }
 
-type Validater interface {
+type validater interface {
 	Validate() (err error)
 }
 
-type LoaderValidater interface {
-	Loader
-	Validater
+type loaderValidater interface {
+	loader
+	validater
 }
 
-func LoaderHandler(data LoaderValidater, fileBuffer []byte) (err error) {
+func LoaderHandler(data loaderValidater, fileBuffer []byte) {
 	// this loads and validates the Nodes or []structs
+	var err error
 	err = data.Load(&fileBuffer)
+	if err != nil {
+		log.Print("LoaderHandler.Load() ", err)
+	}
 	err = data.Validate()
-	return err
+	if err != nil {
+		log.Print("LoaderHandler.Validate() ", err)
+	}
 }
 
-type Upserter interface {
+type upserter interface {
 	Upsert(db *sql.DB) (err error)
 }
 
-type RelatedTableUpserter interface {
+type relatedTableUpserter interface {
 	RelatedTableUpsert(db *sql.DB) (err error)
 }
 
-type GroupUpserter interface {
-	Upserter
-	RelatedTableUpserter
+type foreignKeyUpdater interface {
+	ForeignKeyUpdate(db *sql.DB) (err error)
 }
 
-func UpsertHandler(data GroupUpserter, db *sql.DB) (err error) {
-	go data.Upsert(db)
-	go data.RelatedTableUpsert(db)
-	return err
+type upserterForeignKeysRelatedTableUpserter interface {
+	upserter
+	foreignKeyUpdater
+	relatedTableUpserter
 }
 
-func JoinGroupItemUpsert(db *sql.DB, userId, groupId, itemId string) (err error) {
-	qstr := `
-        INSERT INTO join_group_item (user_id, group_id, item_id)
-        VALUES ($1, $2, $3)
-        ON CONFLICT (group_id, item_id)
-        DO UPDATE SET user_id = $1, group_id = $2, item_id = $3;
-        `
-	_, err = db.Exec(qstr, uuid.Parse(userId), uuid.Parse(groupId), uuid.Parse(itemId))
+func UpsertHandler(data upserterForeignKeysRelatedTableUpserter, db *sql.DB) {
+	var err error
+	err = data.Upsert(db)
 	if err != nil {
-		log.Print("Err func JoinTableUpsert() ", err)
+		log.Print("UpsertHandler.Upsert ", err)
+	}
+	err = data.ForeignKeyUpdate(db)
+	if err != nil {
+		log.Print("UpsertHandler.ForeignKeyUpdate ", err)
+	}
+	err = data.RelatedTableUpsert(db)
+	if err != nil {
+		log.Print("UpsertHandler.RelatedTableUpsert ", err)
+	}
+}
+
+func JoinClusterItemUpsert(db *sql.DB, svUserId, clusterId, itemId string, position uint8) (err error) {
+	var data []string
+	data = append(data, svUserId, clusterId, itemId)
+	jid := Md5Hasher(data)
+
+	qstr := `
+        INSERT INTO join_cluster_item (id, sv_user_id, cluster_id, item_id, position)
+        VALUES ($1, $2, $3, $4, $5)
+        ON CONFLICT (id)
+        DO UPDATE SET sv_user_id = $2, cluster_id = $3, item_id = $4, position = $5;
+        `
+	_, err = db.Exec(
+		qstr, jid, FormatUUID(svUserId), FormatUUID(clusterId),
+		FormatUUID(itemId), position,
+	)
+	if err != nil {
+		log.Print("JoinClusterItemUpsert() ", err)
 	}
 	return err
+}
+
+func FormatUUID(str string) *string {
+	if str == "" {
+		return nil
+	} else {
+		ret := str
+		return &ret
+	}
+}
+
+func Md5Hasher(data []string) (out string) {
+	h := md5.New()
+	for _, d := range data {
+		io.WriteString(h, d)
+	}
+	out = fmt.Sprintf("%x", h.Sum(nil))
+	return out
 }

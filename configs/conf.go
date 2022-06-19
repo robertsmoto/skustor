@@ -66,7 +66,8 @@ type Config struct {
 	} `json:"doSpaces"`
 
 	TempFileDir string `json:"tempFileDir"`
-	Var01       int8   `json:"var01"`
+	UploadPrefix       string   `json:"uploadPrefix"`
+    RootDir string `json:"rootDir"`
 	Var02       int8   `json:"var02"`
 }
 

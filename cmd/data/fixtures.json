@@ -1,0 +1,466 @@
+{
+    "svUserNodes": [
+        {
+            "id": "f8b0f997-1dcc-4e56-915c-9f62f52345ee",
+            "auth": "b9a3c679-cbc3-4e7b-8fd7-6aad20d5b2c4",
+            "key": "a43a94ba-23fd-4ad9-bff2-111111111111",
+            "username": "jsmith_sodavault",
+            "firstname": "John",
+            "lastname": "Smith",
+            "nickname": "Little Johnnie"
+        },{
+            "id": "bdc4e93d-d009-4265-ad27-5605b5426ae2",
+            "auth": "398df27d-e2a8-457f-a7a2-b86a6fb2a528",
+            "key": "662449d7-68c8-4fd2-b540-b43e6b0e9215",
+            "username": "bbrown_sodavault",
+            "firstname": "Barbara",
+            "lastname": "Brown",
+            "nickname": "Barb"
+        },{
+            "id": "524d24e4-8409-48a6-85a1-b08ac0a8ecd7",
+            "auth": "5d6e2b0b-ae2f-4da8-8912-1e0fa7a26f9a",
+            "key": "ae7ed4da-727d-4919-97fe-68e8269a3329",
+            "username": "cyberwarrior",
+            "firstname": "Jason",
+            "lastname": "Fisher",
+            "nickname": "Jake"
+        }
+    ],
+    "priceClassNodes": [
+        {
+            "id": "a6c4ff7d-b4d4-4c91-8618-fae5f8df436d",
+            "type": "grossMargin",
+            "name": "GM 25",
+            "amount": 25,
+            "note": "25% gross margin."
+        },{
+            "id": "ce814ddf-21f6-41d0-a295-072301b877f7",
+            "type": "grossMargin",
+            "name": "GM 50",
+            "amount": 50,
+            "note": "50% gross margin."
+        },{
+            "id": "cdc1a0b8-2add-4241-898c-a4a80e75f653",
+            "type": "markup",
+            "name": "MU 50",
+            "amount": 50,
+            "note": "50% markup."
+        }
+
+    ],
+    "unitNodes": [
+        {
+            "id": "72476692-e51c-460b-844f-8d46df1bcc1a",
+            "singular": "piece",
+            "singularDisplay": "pc",
+            "plural": "pieces",
+            "pluralDisplay": "pcs"
+        },{
+            "id": "6bc227f9-1ccc-4413-a064-320aefd1b038",
+            "singular": "gram",
+            "singularDisplay": "g",
+            "plural": "grams",
+            "pluralDisplay": "g"
+        },{
+            "id": "1bbaebdb-1c1d-4099-8d79-b7b740012e1b",
+            "singular": "centimeter",
+            "singularDisplay": "cm",
+            "plural": "centimeters",
+            "pluralDisplay": "cm"
+        }
+    ],
+    "clusterNodes": [
+        {
+            "id": "eeb75266-7f4a-4d8e-9a8a-2c0ada73e7b1",
+            "type": "brand",
+            "name": "Gabriels",
+            "description": "American clothing company.",
+            "keywords": "Gabriels, american, denim, jeans",
+            "linkUrl": "https://www.gabriels.com",
+            "linkText": "Gabriels Clothing Company",
+            "imageNodes": [
+                {
+                    "url": "https://example.com/gabrielslogo.jpg",
+                    "title": "Gabriels Clothing Company Logo",
+                    "alt": "Gabriels Clothing Company Logo",
+                    "caption": "America's clothing comapany since 1889.",
+                    "bypassProcessing": 1,
+                    "position": 0,
+                    "size": "LG",
+                    "width": "20",
+                    "height": "20"
+                }
+            ]
+        },{
+            "id": "58ec8f06-fb10-4103-84a4-eafbfc6d45ae",
+            "type": "brand",
+            "name": "American Sparrow",
+            "description": "Rooted in authenticity, powered by positivity.",
+            "keywords": "american, sparrow, apparel",
+            "linkUrl": "https://www.americansparrow.com",
+            "linkText": "American Sparrow Clothing Company",
+            "imageNodes": [
+                {
+                    "url": "https://example.com/amersparrowlogo.jpg",
+                    "title": "American Sparrow Clothing Company Logo",
+                    "alt": "American Sparrow Clothing Company Logo",
+                    "caption": "American Sparrow rooted in positivity.",
+                    "bypassProcessing": 1,
+                    "position": 0,
+                    "size": "LG",
+                    "width": "20",
+                    "height": "20"
+                },
+                {
+                    "url": "https://example.com/amersparrowimg.jpg",
+                    "title": "This image should not be processed.",
+                    "alt": "It is only recorded in the database.",
+                    "caption": "A great image that is not processed.",
+                    "bypassProcessing": 1,
+                    "position": 1,
+                    "size": "LG",
+                    "width": "20",
+                    "height": "20"
+                }
+            ]
+        },{
+            "id": "3df59d48-c673-4c4b-986a-eaf4d254cfc2",
+            "type": "brand",
+            "name": "Answer",
+            "description": "American clothing brand and retailer.",
+            "keywords": "answer, american, denim, jeans, apparel",
+            "linkUrl": "https://www.answerapparel.com",
+            "linkText": "Answer Clothing Company",
+            "imageNodes": [
+                {
+                    "url": "https://example.com/answerlogo.jpg",
+                    "title": "Answer Clothing Company",
+                    "alt": "Answer Clothing Company",
+                    "caption": "You have questions, we have the Answer.",
+                    "position": 0,
+                    "size": "LG",
+                    "width": "20",
+                    "height": "20",
+                    "bypassProcessing": 1
+                }
+            ]
+        },{
+            "id": "79419d9d-6320-45a7-89f3-fa6215359cf8",
+            "type": "brand",
+            "name": "Calvin Klause",
+            "description": "German fashion house established in 1968.",
+            "keywords": "leather, accessories, german, fashion",
+            "linkUrl": "https://www.ckclothing.com",
+            "linkText": "Calvin Klause Clothing Company",
+            "imageNodes": [
+                {
+                    "url": "https://example.com/calvinlogo.jpg",
+                    "title": "Calvin Klause Clothing Company Logo",
+                    "alt": "Calvin Klause Clothing Company Logo",
+                    "caption": "Calvin Klause modern German style.",
+                    "bypassProcessing": 1,
+                    "position": 0,
+                    "size": "LG",
+                    "width": "20",
+                    "height": "20"
+                }
+            ]
+        },{
+            "id": "cadbb643-57d5-44b9-acdb-7253a1e10e5c",
+            "type": "department",
+            "name": "Shoes",
+            "description": "Shoes for the entire family.",
+            "keywords": "shoes",
+            "imageNodes": [
+                {
+                    "url": "https://example.com/shoe_department.jpg",
+                    "title": "Shoe Department",
+                    "alt": "Photograph of person shopping for shoes.",
+                    "caption": "Exmaple.com shoe department.",
+                    "bypassProcessing": 1,
+                    "position": 0,
+                    "size": "LG",
+                    "width": "20",
+                    "height": "20"
+                }
+            ]
+        },{
+            "id": "cbcc985c-5bdc-462d-a8d2-b4d9c8bb1fbd",
+            "type": "productCategory",
+            "name": "Shoes",
+            "description": "Shoes",
+            "keywords": "shoes",
+            "imageNodes": [
+                {
+                    "url": "https://example.com/shoes.jpg",
+                    "title": "Shoe Department",
+                    "alt": "Photograph of shoes on retail display.",
+                    "caption": "Great shoes available at our store.",
+                    "bypassProcessing": 1,
+                    "position": 0,
+                    "size": "LG",
+                    "width": "800",
+                    "height": "400"
+                }
+            ]
+        },{
+            "id": "520f2266-c6ac-4b3b-b4da-056cc330b86e",
+            "parentId": "cbcc985c-5bdc-462d-a8d2-b4d9c8bb1fbd",
+            "type": "productCategory",
+            "name": "Women's Shoes",
+            "description": "Women's Shoes",
+            "keywords": "women, shoes"
+        },{
+            "id": "63c8af6e-1c1e-403b-9630-fc1aed6abcbb",
+            "parentId": "cbcc985c-5bdc-462d-a8d2-b4d9c8bb1fbd",
+            "type": "productCategory",
+            "name": "Men's Shoes",
+            "description": "Men's Shoes",
+            "keywords": "men, shoes"
+        },{
+            "id": "f2946e2a-36c5-4b94-b07d-8356d93d2b7b",
+            "type": "productCategory",
+            "name": "Apparel",
+            "description": "Apparel",
+            "keywords": "apparel, fashion, clothes",
+            "imageNodes": [
+                {
+                    "url": "https://example.com/apparel.jpg",
+                    "title": "Apparel Department",
+                    "alt": "Photograph of clothes on retail display.",
+                    "caption": "Leading fashion available at our store.",
+                    "bypassProcessing": 1,
+                    "position": 0,
+                    "size": "LG",
+                    "width": "800",
+                    "height": "400"
+                }
+            ]
+        },{
+            "id": "1d7ed412-91cf-4962-a5be-09f81691acc4",
+            "parentId": "f2946e2a-36c5-4b94-b07d-8356d93d2b7b",
+            "type": "productCategory",
+            "name": "Women's Apparel",
+            "description": "Women's Apparel",
+            "keywords": "women, apparel, fashion, clothes"
+        },{
+            "id": "1658d29d-c90b-4135-a980-c8f22c352eb7",
+            "parentId": "f2946e2a-36c5-4b94-b07d-8356d93d2b7b",
+            "type": "productCategory",
+            "name": "Men's Apparel",
+            "description": "Men's Apparel",
+            "keywords": "men, apparel, fashion, clothes"
+        },{
+            "id": "988170a9-330c-4501-b2a1-20cd7bfcaa93",
+            "type": "attribute",
+            "name": "Made in the USA",
+            "description": "Made in the USA",
+            "keywords": "america, usa",
+            "imageNodes": [
+                {
+                    "url": "https://example.com/madeinusa.jpg",
+                    "title": "Made in the USA",
+                    "alt": "American flag.",
+                    "caption": "Proudly made in the USA.",
+                    "bypassProcessing": 1,
+                    "position": 0,
+                    "size": "LG",
+                    "width": "20",
+                    "height": "20"
+                }
+            ]
+        },{
+            "id": "0f38d704-dcf7-46b9-a340-fc7190e5f5b5",
+            "type": "variation",
+            "name": "Jean Sizes",
+            "description": "Jean Sizes",
+            "keywords": "jean, sizes"
+        },{
+            "id": "e1551fcd-beb6-46c9-a745-5aaefd091032",
+            "Parentid": "0f38d704-dcf7-46b9-a340-fc7190e5f5b5",
+            "type": "variation",
+            "name": "26x28",
+            "description": "26x28"
+        },{
+            "id": "9ef3e2a4-1d45-4378-9402-5c99f6cff666",
+            "Parentid": "0f38d704-dcf7-46b9-a340-fc7190e5f5b5",
+            "type": "variation",
+            "name": "26x30",
+            "description": "26x30"
+        },{
+            "id": "42d0c716-f980-482f-9929-de37884c0912",
+            "Parentid": "0f38d704-dcf7-46b9-a340-fc7190e5f5b5",
+            "type": "variation",
+            "name": "28x28",
+            "description": "28x28"
+        },{
+            "id": "66406d4d-7a37-430f-afc5-1d2a77cb1e27",
+            "Parentid": "0f38d704-dcf7-46b9-a340-fc7190e5f5b5",
+            "type": "variation",
+            "name": "28x30",
+            "description": "28x30"
+
+        },{
+            "id": "1ec326df-e2e8-450e-91af-5ff9071d18cb",
+            "type": "variation",
+            "name": "Jean Colors",
+            "description": "Jean Colors",
+            "keywords": "jean, colors"
+        },{
+            "id": "2ceebed6-4340-421c-996b-b394caa9204a",
+            "Parentid": "1ec326df-e2e8-450e-91af-5ff9071d18cb",
+            "type": "variation",
+            "name": "Indigo Blue",
+            "description": "Indigo Blue"
+        },{
+            "id": "be431db5-6f57-461f-92d8-561027eafa65",
+            "Parentid": "1ec326df-e2e8-450e-91af-5ff9071d18cb",
+            "type": "variation",
+            "name": "Sea Blue",
+            "description": "Sea Blue"
+        },{
+            "id": "e45afadb-8de3-4ea5-8dec-c6a2603ffbfd",
+            "Parentid": "1ec326df-e2e8-450e-91af-5ff9071d18cb",
+            "type": "variation",
+            "name": "Rebel Black",
+            "description": "Rebel Black"
+        },{
+            "id": "aadb043b-eeb3-42bb-b628-0cd8ba4a2941",
+            "Parentid": "1ec326df-e2e8-450e-91af-5ff9071d18cb",
+            "type": "variation",
+            "name": "Sky Blue",
+            "description": "Sky Blue"
+        }
+    ],
+    "itemNodes": [
+        {
+            "id": "a4ce7648-e499-40d1-8e6b-0c2ef0a7856e",
+            "type": "product",
+            "isVariable": 1,
+            "isBundle": 0,
+            "position": 0,
+            "sku": "AP-WM-JN-CK-4801-0000-00",
+            "name": "Calvin Kause Jeans for Women 4801 Fitted Straight Legs",
+            "description": "Fitted jeans for the stylish woman.",
+            "keywords": "calvin, jeans, 4801, fitted, straight",
+            "priceClassId": "c4d32eed-b64d-4a26-a904-1321fd035f34",
+            "imageNodes": [
+                {
+                    "url": "https://example.com/images/APWMCKJN4801-00.jpg",
+                    "alt": "Featured photo.",
+                    "caption": "A great product photo.",
+                    "bypassProcessing": 1,
+                    "position": 0,
+                    "size": "LG",
+                    "width": "800",
+                    "height": "800"
+                },{
+                    "url": "https://example.com/images/APWMCKJN4801-01.jpg",
+                    "alt": "Gallery photo.",
+                    "caption": "A great product photo.",
+                    "bypassProcessing": 1,
+                    "position": 1,
+                    "size": "LG",
+                    "width": "800",
+                    "height": "800"
+                },{
+                    "url": "https://example.com/images/APWMCKJN4801-02.jpg",
+                    "alt": "Gallery photo.",
+                    "caption": "A great product photo.",
+                    "bypassProcessing": 1,
+                    "position": 2,
+                    "size": "LG",
+                    "width": "800",
+                    "height": "800"
+                },{
+                    "url": "https://example.com/images/APWMCKJN4801-03.jpg",
+                    "alt": "Gallery photo.",
+                    "caption": "A great product photo.",
+                    "bypassProcessing": 1,
+                    "position": 3,
+                    "size": "LG",
+                    "width": "800",
+                    "height": "800"
+                }
+            ],
+            "clusterIds": [
+                "1d7ed412-91cf-4962-a5be-09f81691acc4",
+                "988170a9-330c-4501-b2a1-20cd7bfcaa93"
+            ]
+        },{
+            "id": "2163cf8d-bf2a-49fa-aa98-7a1a9ca72393",
+            "parentId": "a4ce7648-e499-40d1-8e6b-0c2ef0a7856e",
+            "type": "product",
+            "position": 1,
+            "sku": "AP-WM-JN-KC-4801-2628-BL",
+            "name": "Calvin Kause Jeans for Women 4801 Fitted Straight Legs",
+            "description": "26x28 Rebel Black",
+            "keywords": "calvin, jeans, 4801, fitted, straight, black",
+            "costOverride": 2450,
+            "priceOverride": 6399,
+            "quantityAvailable": 8,
+            "length": 20,
+            "width": 20,
+            "height": 5,
+            "weight": 500,
+            "imageNodes": [
+                {
+                    "url": "https://example.com/images/APWMCKJN4801-04.jpg",
+                    "alt": "Variation photo.",
+                    "caption": "A great product photo.",
+                    "bypassProcessing": 1,
+                    "position": 4,
+                    "size": "LG",
+                    "width": "800",
+                    "height": "800"
+                }
+            ],
+            "variationNodes": [
+                {
+                    "id": "e1551fcd-beb6-46c9-a745-5aaefd091032",
+                    "position": 1
+                },{
+                    "id": "e45afadb-8de3-4ea5-8dec-c6a2603ffbfd",
+                    "position": 2
+                }
+            ]
+        },{
+            "id": "dd4e77a8-6f34-42a3-a2c8-99eba4ad4053",
+            "parentId": "a4ce7648-e499-40d1-8e6b-0c2ef0a7856e",
+            "type": "product",
+            "position": 2,
+            "sku": "AP-WM-JN-KC-4801-2630-BL",
+            "name": "Calvin Kause Jeans for Women 4801 Fitted Straight Legs",
+            "description": "26x30 Rebel Black",
+            "keywords": "calvin, jeans, 4801, fitted, straight, black",
+            "costOverride": 2450,
+            "priceOverride": 6399,
+            "quantityAvailable": 8,
+            "length": 20,
+            "width": 20,
+            "height": 5,
+            "weight": 500,
+            "imageNodes": [
+                {
+                    "url": "https://example.com/images/APWMCKJN4801-05.jpg",
+                    "alt": "Variation photo.",
+                    "caption": "A great product photo.",
+                    "bypassProcessing": 1,
+                    "position": 5,
+                    "size": "LG",
+                    "width": "800",
+                    "height": "800"
+                }
+            ],
+            "variationNodes": [
+                {
+                    "id": "9ef3e2a4-1d45-4378-9402-5c99f6cff666",
+                    "position": 1
+                },{
+                    "id": "e45afadb-8de3-4ea5-8dec-c6a2603ffbfd",
+                    "position": 2
+                }
+            ]
+        }
+    ]
+}

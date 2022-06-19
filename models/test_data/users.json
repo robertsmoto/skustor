@@ -1,0 +1,21 @@
+{
+    "userNodes": [
+        {
+            "id": "f8b0f997-1dcc-4e56-915c-9f62f52345ee",
+            "auth": "b9a3c679-cbc3-4e7b-8fd7-6aad20d5b2c4",
+            "key": "a43a94ba-23fd-4ad9-bff2-111111111111",
+            "username": "jsmith_sodavault",
+            "firstname": "John",
+            "lastname": "Smith",
+            "nickname": "Little Johnnie"
+        },{
+            "id": "bdc4e93d-d009-4265-ad27-5605b5426ae2",
+            "auth": "398df27d-e2a8-457f-a7a2-b86a6fb2a528",
+            "key": "662449d7-68c8-4fd2-b540-b43e6b0e9215",
+            "username": "bbrown_sodavault",
+            "firstname": "Barbara",
+            "lastname": "Brown",
+            "nickname": "Barb"
+        }
+    ]
+}

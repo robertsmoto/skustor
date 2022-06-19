@@ -33,8 +33,6 @@ func TestValidateUrl(t *testing.T) {
 }
 
 func TestGetFileName(t *testing.T) {
-	//log.Print("TestGetFileName ....")
-
 	url := "http://go.dev/blog/go-brand/logos.jpg"
 	baseFileName, fullFileName := GetFileName(url)
 	if fullFileName != "logos.jpg" || baseFileName != "logos" {
@@ -43,8 +41,6 @@ func TestGetFileName(t *testing.T) {
 }
 
 func TestDownloadFile(t *testing.T) {
-	// Test successful download.
-	//log.Print("TestDownloadFile ....")
 	url := "http://go.dev/blog/go-brand/logos.jpg"
 	filePath := "./test_data/logos.jpg"
 	err := DownloadFile(url, filePath)
@@ -57,20 +53,14 @@ func TestDownloadFile(t *testing.T) {
 	_, err = os.Stat(filePath)
 	if err != nil {
 		t.Errorf("Error downloading image: %s", err)
-	} else {
-		log.Print("Successfully downloaded image ...")
 	}
-	// Remove file.
 	err = os.Remove(filePath)
 	if err != nil {
 		t.Errorf("Error removing image from test directory: %s", err)
-	} else {
-		log.Print("Successfully removed image ...")
 	}
 }
 
 func TestCreateNewFilename(t *testing.T) {
-	//log.Print("TestCreateNewFilename ....")
 	baseFileName := "prettyPicture"
 	w := 800
 	h := 400
@@ -82,7 +72,6 @@ func TestCreateNewFilename(t *testing.T) {
 }
 
 func TestCreateTempFilePath(t *testing.T) {
-	//log.Print("TestCreateTempFilePath ....")
 
 	tempFileDir := "/tempdir"
 	fileName := "prettyPicture_800x400.webp"
@@ -93,7 +82,6 @@ func TestCreateTempFilePath(t *testing.T) {
 }
 
 func TestCreateUploadPath(t *testing.T) {
-	//log.Print("TestCreateUploadPath ....")
 
 	uploadPrefix := "media"
 	userDir := "111111111111"
@@ -107,7 +95,6 @@ func TestCreateUploadPath(t *testing.T) {
 }
 
 func TestCalcNewSize(t *testing.T) {
-	//log.Print("TestCalcNewSize ....")
 
 	newWidth, newHeight := CalcNewSize(800, 400, 0.25)
 	if newWidth != 200 || newHeight != 100 {
@@ -118,28 +105,22 @@ func TestCalcNewSize(t *testing.T) {
 }
 
 func TestWebImage(t *testing.T) {
-	// This puts all the webimage processing functions together
-	log.Print("TestWebImageImplementation ....")
 
-	log.Print("LoadingSvConf ....")
 	conf := configs.Config{}
 	configs.Load(&conf)
 
-	log.Print("Instantiating WebImage struct ....")
 	// instantiate the WebImage struct and assign variables
-
-
 	i := Image{}
 
-    lgSize := ImgSize{1.0, "LG"}
-    mdSize := ImgSize{0.5, "MD"}
-    smSize := ImgSize{0.25, "SM"}
-    i.ImgSizes = append(
-        i.ImgSizes,
-        lgSize,
-        mdSize,
-        smSize,
-    )
+	lgSize := ImgSize{1.0, "LG"}
+	mdSize := ImgSize{0.5, "MD"}
+	smSize := ImgSize{0.25, "SM"}
+	i.ImgSizes = append(
+		i.ImgSizes,
+		lgSize,
+		mdSize,
+		smSize,
+	)
 
 	i.Url = "https://cdn-stage.sodavault.com/media/111111111111/svLogo.png"
 	//i.Url = "http://go.dev/blog/go-brand/logos.jpg"
@@ -157,7 +138,6 @@ func TestWebImage(t *testing.T) {
 	i.DoRegionName = conf.DoSpaces.RegionName
 	i.VanityUrl = conf.DoSpaces.VanityUrl
 
-	log.Print("WebImage.Download() ....")
 	err := i.Download()
 	if err != nil {
 		log.Print(err)
@@ -165,29 +145,22 @@ func TestWebImage(t *testing.T) {
 	_, err = os.Stat(i.filePath)
 	if err != nil {
 		t.Errorf("Error downloading image: %s", err)
-	} else {
-		log.Print("Successfully downloaded image ...", i.filePath)
 	}
-
-	log.Print("WebImage.MakeNewSizes() ....")
 	err = i.Resize()
 	if err != nil {
 		log.Print(err)
 	}
 
 	//lgImg {0=tempFilePath, 1=key 2=url, 3=width, 4=height, 5=size eg "LG"]
-    for _, rsi := range i.ResizedImages {
-        _, err = os.Stat(rsi.tempFilePath)
+	for _, rsi := range i.ResizedImages {
+		_, err = os.Stat(rsi.tempFilePath)
 
-        if err != nil {
-            t.Errorf("Error making new image size: %s", err)
-        } else {
-            log.Print("Successfully created new image size ...", rsi)
-        }
-    }
+		if err != nil {
+			t.Errorf("Error making new image size: %s", err)
+		}
+	}
 
 	// upload to cdn
-	log.Print("WebImage.UploadImagesToSpaces() ....")
 	err = i.UploadToSpaces()
 	if err != nil {
 		log.Print(err)
