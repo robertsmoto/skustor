@@ -26,6 +26,47 @@
             "nickname": "Jake"
         }
     ],
+    "locationNodes": [
+        {
+            "id": "fc304fc5-fd16-432a-85f2-8cb602b645e6",
+            "name": "Store 1",
+            "type": "store",
+            "description": "Main store.",
+            "phone": "305-516-5935",
+            "email": "info@retailstore.com",
+            "website": "https://www.retailstore.com",
+            "domain": "",
+            "addressNodes": [
+                {
+                    "id": "394e111b-5121-4d88-925d-fbfc16d2a3e1",
+                    "type": "main",
+                    "street1": "1070 Poplar Lane",
+                    "street2": "",
+                    "city": "Boca Raton",
+                    "state": "FL",
+                    "zipcode": "33486",
+                    "country": "USA"
+                },{
+                    "id": "895bc5a2-085d-4725-a71c-633ce746d3df",
+                    "type": "mailing",
+                    "street1": "1141 Orange Street",
+                    "street2": "Suite #2",
+                    "city": "Boca Raton",
+                    "state": "FL",
+                    "zipcode": "33486",
+                    "country": "USA"
+                }
+            ]
+        },{
+            "id": "ec5e1ef8-efac-43ba-99bc-25364af6dcfb",
+            "name": "Main e-commerce website.",
+            "type": "webiste",
+            "description": "Main e-commerce website.",
+            "email": "info@ecommerce.com",
+            "website": "https://www.ecommerce.com",
+            "domain": "ecommerce.com"
+        }
+    ],
     "priceClassNodes": [
         {
             "id": "a6c4ff7d-b4d4-4c91-8618-fae5f8df436d",

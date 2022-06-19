@@ -89,7 +89,7 @@ type Image struct {
 	Width          string `json:"width" validate:"omitempty,lte=20"`
 	Size           string `json:"size" validate:"omitempty,lte=20,oneof=LG MD SM"`
 	SvUserId       string // constructed
-	ClusterId        string // constructed
+	ClusterId      string // constructed
 	ItemId         string // constructed
 	TempFileDir    string // constructed :: location to download temp files
 	UploadPrefix   string // constructed :: eg. "media"
@@ -276,8 +276,8 @@ func (s *Image) Upsert(db *sql.DB) (err error) {
 			_, err = db.Exec(
 				qstr,
 				s.Id, FormatUUID(s.SvUserId), FormatUUID(s.ClusterId),
-                FormatUUID(s.ItemId), rsi.url, rsi.size, s.Position, rsi.height,
-                rsi.width, s.Title, s.Alt, s.Caption,
+				FormatUUID(s.ItemId), rsi.url, rsi.size, s.Position, rsi.height,
+				rsi.width, s.Title, s.Alt, s.Caption,
 			)
 		}
 	}
@@ -286,8 +286,8 @@ func (s *Image) Upsert(db *sql.DB) (err error) {
 		_, err = db.Exec(
 			qstr,
 			s.Id, FormatUUID(s.SvUserId), FormatUUID(s.ClusterId),
-            FormatUUID(s.ItemId), s.Url, s.Size, s.Position, s.Height, s.Width,
-            s.Title, s.Alt, s.Caption,
+			FormatUUID(s.ItemId), s.Url, s.Size, s.Position, s.Height, s.Width,
+			s.Title, s.Alt, s.Caption,
 		)
 	}
 	if err != nil {

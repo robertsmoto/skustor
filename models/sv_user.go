@@ -61,9 +61,9 @@ func (s *SvUser) Upsert(db *sql.DB) (err error) {
 		qstr, uuid.Parse(s.Id), uuid.Parse(s.Auth), uuid.Parse(s.Key),
 		s.Username, s.Firstname, s.Lastname, s.Nickname,
 	)
-    if err != nil {
-        log.Print("SvUser.Upsert() ", err)
-    }
+	if err != nil {
+		log.Print("SvUser.Upsert() ", err)
+	}
 	return err
 }
 

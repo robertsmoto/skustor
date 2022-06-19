@@ -4,14 +4,13 @@ import (
 	"database/sql"
 	"encoding/json"
 	"log"
-    "fmt"
 
 	"github.com/go-playground/validator/v10"
 )
 
 type Unit struct {
 	Id              string `json:"id" validate:"omitempty,uuid4"`
-	SvUserId          string `json:"svUserId" validate:"omitempty,uuid4"`
+	SvUserId        string `json:"svUserId" validate:"omitempty,uuid4"`
 	Singular        string `json:"singular" validate:"omitempty,lte=50"`
 	SingularDisplay string `json:"singularDisplay" validate:"omitempty,lte=50"`
 	Plural          string `json:"plural" validate:"omitempty,lte=50"`
@@ -83,12 +82,12 @@ func (s *Unit) RelatedTableUpsert(db *sql.DB) (err error) {
 }
 
 type PriceClass struct {
-	Id string `json:"id"`
+	Id       string `json:"id"`
 	SvUserId string `json:"svUserId" validate:"omitempty,uuid4"`
-	Type   string `json:"type" validate:"omitempty,lte=100,oneof=grossMargin markup fixed"`
-	Name   string `json:"name" validate:"omitempty,lte=100"`
-	Amount uint32 `json:"amount" validate:"omitempty,number"`
-	Note   string `json:"note" validate:"omitempty,lte=100"`
+	Type     string `json:"type" validate:"omitempty,lte=100,oneof=grossMargin markup fixed"`
+	Name     string `json:"name" validate:"omitempty,lte=100"`
+	Amount   uint32 `json:"amount" validate:"omitempty,number"`
+	Note     string `json:"note" validate:"omitempty,lte=100"`
 }
 type PriceClassNodes struct {
 	Nodes []PriceClass `json:"priceClassNodes" validate:"dive"`
@@ -176,8 +175,10 @@ type Item struct {
 	Identifiers
 
 	Id                string `json:"id" validate:"required,uuid4"`
-	SvUserId            string `json:"svUserId" validate:"omitempty,uuid4"`
+	SvUserId          string `json:"svUserId" validate:"omitempty,uuid4"`
 	ParentId          string `json:"parentId" validate:"omitempty,uuid4"`
+	LocationId        string `json:"locationId" validate:"omitempty,uuid4"`
+	PriceClassId      string `json:"priceClassId" validate:"omitempty,uuid4"`
 	UnitId            string `json:"unitId" validate:"omitempty,uuid4"`
 	Type              string `json:"type" validate:"omitempty,lte=100,oneof=rawMaterial part product"`
 	IsVariable        uint8  `json:"isVariable" validate:"omitempty,number,oneof=0 1"`
@@ -189,7 +190,6 @@ type Item struct {
 	Keywords          string `json:"keywords" validate:"omitempty,lte=200"`
 	Cost              uint32 `json:"cost" validate:"omitempty,number"`
 	CostOverride      uint32 `json:"costOverride" validate:"omitempty,number"`
-	PriceClassId      string `json:"priceClassId" validate:"omitempty,uuid4"`
 	Price             uint32 `json:"price" validate:"omitempty,number"`
 	PriceOverride     uint32 `json:"priceOverride" validate:"omitempty,number"`
 	PriceDiscount     uint32 `json:"priceDiscount" validate:"omitempty,number"`
@@ -329,12 +329,14 @@ func (s *Item) ForeignKeyUpdate(db *sql.DB) (err error) {
         UPDATE item
         SET sv_user_id = $2,
             parent_id = $3,
-            unit_id = $4,
-            price_class_id = $5
+            location_id = $4,
+            unit_id = $5,
+            price_class_id = $6
         WHERE id = $1;`
 
 	_, err = db.Exec(qstr, FormatUUID(s.Id), FormatUUID(s.SvUserId),
-		FormatUUID(s.ParentId), FormatUUID(s.UnitId), FormatUUID(s.PriceClassId),
+		FormatUUID(s.ParentId), FormatUUID(s.LocationId), FormatUUID(s.UnitId),
+		FormatUUID(s.PriceClassId),
 	)
 	if err != nil {
 		log.Print("Item.ForeignKeyUpdate()", err)

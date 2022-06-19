@@ -48,6 +48,7 @@ var pgfixturesCmd = &cobra.Command{
 
         // instantiate the model structs
         users := models.SvUserNodes{}
+        locations := models.LocationNodes{}
         priceClasses := models.PriceClassNodes{}
         units := models.UnitNodes{}
         clusters := models.ClusterNodes{}
@@ -55,6 +56,7 @@ var pgfixturesCmd = &cobra.Command{
 
         // load the model structs
         models.LoaderHandler(&users, fixturesFile)
+        models.LoaderHandler(&locations, fixturesFile)
         models.LoaderHandler(&priceClasses, fixturesFile)
         models.LoaderHandler(&units, fixturesFile)
         models.LoaderHandler(&clusters, fixturesFile)
@@ -70,6 +72,16 @@ var pgfixturesCmd = &cobra.Command{
         // create only top-level data
         for _, user := range users.Nodes {
             models.UpsertHandler(&user, devDb)
+        }
+        for _, location := range locations.Nodes {
+            location.SvUserId = userId
+            models.UpsertHandler(&location, devDb)
+            // uploading addresses
+            for _, addressNode := range location.AddressNodes.Nodes {
+                addressNode.SvUserId = location.SvUserId // make sure to add ids
+                addressNode.LocationId = location.Id    // make sure to add ids
+                models.UpsertHandler(&addressNode, devDb)
+            }
         }
         for _, pc := range priceClasses.Nodes {
             pc.SvUserId = userId

@@ -107,6 +107,7 @@ var pgbuilderCmd = &cobra.Command{
             REFERENCES sv_user(id);
         ALTER TABLE location ADD COLUMN IF NOT EXISTS type VARCHAR (100);
         ALTER TABLE location ADD COLUMN IF NOT EXISTS name VARCHAR (100);
+        ALTER TABLE location ADD COLUMN IF NOT EXISTS description VARCHAR (100);
         ALTER TABLE location ADD COLUMN IF NOT EXISTS phone VARCHAR (20);
         ALTER TABLE location ADD COLUMN IF NOT EXISTS email VARCHAR (100);
         ALTER TABLE location ADD COLUMN IF NOT EXISTS website VARCHAR (100);
@@ -148,6 +149,9 @@ var pgbuilderCmd = &cobra.Command{
         ALTER TABLE item
             ADD COLUMN IF NOT EXISTS parent_id UUID
             REFERENCES item(id);
+        ALTER TABLE item
+            ADD COLUMN IF NOT EXISTS location_id UUID
+            REFERENCES location(id);
         ALTER TABLE item
             ADD COLUMN IF NOT EXISTS price_class_id UUID;
         ALTER TABLE item
