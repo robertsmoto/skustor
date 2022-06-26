@@ -1,0 +1,125 @@
+{
+    "address": {
+        "id": "b5d72565-a305-44c3-b979-24bba466b637",
+        "type": "main",
+        "street1": "1776 Zimmerman Lane",
+        "street2": "Suite 224",
+        "city": "Los Angeles",
+        "state": "CA",
+        "zipcode": "90071",
+        "country": "USA"
+
+    },
+    "addresses": [
+        {
+            "id": "a3f982c9-6537-440c-8191-39445044f2f9",
+            "type": "billing",
+            "street1": "2863 Mount Tabor",
+            "street2": "",
+            "city": "White Plains",
+            "state": "NY",
+            "zipcode": "10601",
+            "country": "USA"
+        },{
+            "id": "d219a2de-5257-494c-a2e4-b8f5e463e775",
+            "type": "shipping",
+            "street1": "1124 Aspen Court",
+            "street2": "",
+            "city": "Boston",
+            "state": "MA",
+            "zipcode": "02115",
+            "country": "USA"
+        },{
+            "id": "38f69dda-eb19-45bd-ac78-329e3de9dfc8",
+            "type": "shipping",
+            "street1": "2382 Coventry Court",
+            "street2": "",
+            "city": "Baton Rouge",
+            "state": "LA",
+            "zipcode": "70801",
+            "country": "USA"
+        }
+    ],
+    "place": {
+        "id": "becf155e-77ee-419d-bfae-d63c8cd687b1",
+        "type": "website",
+        "name": "My First E-commerce Site",
+        "description": "First e-commerce website.",
+        "email": "info@ecommerce-site.com",
+        "website": "https://wwww.ecommerce-site.com",
+        "domain": "ecommerce-site.com"
+    },
+    "places": [
+        {
+            "id": "58d94686-4dd6-4c10-b255-fc40ebfd56e1",
+            "type": "company",
+            "name": "ACME Suppliers",
+            "description": "Major supplier of home goods.",
+            "phone": "614-349-5153",
+            "email": "info@acmesupply.com",
+            "website": "https://wwww.acmesupply.com",
+            "addresses": [
+                {
+                    "id": "d219a2de-5257-494c-a2e4-b8f5e463e775",
+                    "type": "main",
+                    "street1": "637 Coulter Lane",
+                    "street2": "",
+                    "city": "Richmond",
+                    "state": "VA",
+                    "zipcode": "23228",
+                    "country": "USA"
+                },{
+                    "id": "d219a2de-5257-494c-a2e4-b8f5e463e775",
+                    "type": "shipping",
+                    "street1": "2246 Renwick Drive",
+                    "street2": "Suite 24",
+                    "city": "Richmond",
+                    "state": "VA",
+                    "zipcode": "23228",
+                    "country": "USA"
+                },{
+                    "id": "d219a2de-5257-494c-a2e4-b8f5e463e775",
+                    "type": "billing",
+                    "street1": "3631 Capitol Avenue",
+                    "street2": "",
+                    "city": "Richmond",
+                    "state": "VA",
+                    "zipcode": "23228",
+                    "country": "USA"
+                }
+            ]
+
+        },{
+            "id": "7e37d413-51ae-48bb-9fa9-0a0fd1e2d8a1",
+            "type": "warehouse",
+            "name": "George Mason LLC Warehouse and Fulfillment",
+            "description": "Warehouse located in Virginia.",
+            "phone": "515-575-5665",
+            "email": "info@georgemason.com",
+            "website": "https://georgemason.com",
+            "address": {
+                "id": "6916b625-bbc9-472a-8b13-4397caad8c8c",
+                "type": "shipping",
+                "street1": "1973 Morris Street",
+                "street2": "",
+                "city": "Richmond",
+                "state": "VA",
+                "zipcode": "23228",
+                "country": "USA"
+            }
+        },{
+            "id": "a75abc1f-ac94-4472-bf15-c65e59736166",
+            "type": "company",
+            "name": "Bailey Plastics",
+            "description": "Supplier of plastic containers.",
+            "phone": "907-274-9715",
+            "email": "info@baileyplastics.com",
+            "website": "https://www.baileyplastics.com",
+            "adddressIds": [
+                "b5d72565-a305-44c3-b979-24bba466b637",
+                "a3f982c9-6537-440c-8191-39445044f2f9",
+                "d219a2de-5257-494c-a2e4-b8f5e463e775"
+            ]
+        }
+    ]
+}

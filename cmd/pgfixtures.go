@@ -41,81 +41,53 @@ var pgfixturesCmd = &cobra.Command{
         conf := configs.Config{}
         err := configs.Load(&conf)
 
-        fixturesFile, err := os.ReadFile(path.Join(conf.RootDir, "cmd/data/fixtures.json"))
+        fixturesFile, err := os.ReadFile(
+            path.Join(conf.RootDir, "cmd/data/fixtures.json"))
         if err != nil {
-            log.Print("pgfixturesCmd ", err)
+            log.Printf("pgfixturesCmd %s", err)
         }
 
-        // instantiate the model structs
-        users := models.SvUserNodes{}
-        locations := models.LocationNodes{}
-        priceClasses := models.PriceClassNodes{}
-        units := models.UnitNodes{}
-        clusters := models.ClusterNodes{}
-        items := models.ItemNodes{}
+        //instantiate the model structs
+        user := models.User{}
+        users := models.Users{}
+        place := models.Place{}
+        places := models.Places{}
+        priceClass := models.PriceClass{}
+        priceClasses := models.PriceClasses{}
+        unit := models.Unit{}
+        units := models.Units{}
+        collection := models.Collection{}
+        collections := models.Collections{}
+        item := models.Item{}
+        items := models.Items{}
 
-        // load the model structs
-        models.LoaderHandler(&users, fixturesFile)
-        models.LoaderHandler(&locations, fixturesFile)
-        models.LoaderHandler(&priceClasses, fixturesFile)
-        models.LoaderHandler(&units, fixturesFile)
-        models.LoaderHandler(&clusters, fixturesFile)
-        models.LoaderHandler(&items, fixturesFile)
+        // loads and validates the nodes (singular versions of structs)
+        loaderNodes := []models.LoaderProcesserUpserter {
+            &user,
+            &users,
+            &place,
+            &places,
+            &priceClass,
+            &priceClasses,
+            &unit,
+            &units,
+            &collection,
+            &collections,
+            &item,
+            &items,
+        }
+
 
         // open the db
-        devPostgres := tools.PostgresDev{}
-        devDb, err := tools.Open(&devPostgres)
-
-        // upsert the structs
+        devPostgres := tools.PostgresDb{}
+        pgDb, err := tools.Open(&devPostgres)
         userId := "f8b0f997-1dcc-4e56-915c-9f62f52345ee"
 
-        // create only top-level data
-        for _, user := range users.Nodes {
-            models.UpsertHandler(&user, devDb)
+        for _, node := range loaderNodes {
+            err = models.JsonLoaderUpserterHandler(
+                node, userId, &fixturesFile, pgDb)
         }
-        for _, location := range locations.Nodes {
-            location.SvUserId = userId
-            models.UpsertHandler(&location, devDb)
-            // uploading addresses
-            for _, addressNode := range location.AddressNodes.Nodes {
-                addressNode.SvUserId = location.SvUserId // make sure to add ids
-                addressNode.LocationId = location.Id    // make sure to add ids
-                models.UpsertHandler(&addressNode, devDb)
-            }
-        }
-        for _, pc := range priceClasses.Nodes {
-            pc.SvUserId = userId
-            models.UpsertHandler(&pc, devDb)
-        }
-        for _, unit := range units.Nodes {
-            unit.SvUserId = userId
-            models.UpsertHandler(&unit, devDb)
-        }
-
-        for _, cluster := range clusters.Nodes {
-            cluster.SvUserId = userId
-            models.UpsertHandler(&cluster, devDb)
-
-            // uploading images
-            for _, imgNode := range cluster.ImageNodes.Nodes {
-                imgNode.SvUserId = cluster.SvUserId // make sure to add ids
-                imgNode.ClusterId = cluster.Id    // make sure to add ids
-                models.ImgHandler(&imgNode, devDb)
-            }
-        }
-
-        for _, item := range items.Nodes {
-            item.SvUserId = userId
-            models.UpsertHandler(&item, devDb)
-
-            // uploading images
-            for _, imgNode := range item.ImageNodes.Nodes {
-                imgNode.SvUserId = item.SvUserId // make sure to add ids
-                imgNode.ItemId = item.Id    // make sure to add ids
-                models.ImgHandler(&imgNode, devDb)
-            }
-        }
-        devDb.Close()
+        pgDb.Close()
 	},
 }
 

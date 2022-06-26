@@ -3,10 +3,10 @@ package tools
 import (
 	"database/sql"
 	"fmt"
-	"log"
+    "os"
+    "strconv"
 
 	_ "github.com/lib/pq"
-	"github.com/robertsmoto/skustor/configs"
 )
 
 type Confer interface {
@@ -25,7 +25,7 @@ func Open(loc SqlConferOpener) (db *sql.DB, err error){
     return db, err
 }
 
-type PostgresDev struct {
+type PostgresDb struct {
     Host string
     Port int
     User string
@@ -34,22 +34,21 @@ type PostgresDev struct {
     Sslm string
 
 }
-func (s *PostgresDev) Conf() (err error) {
-	config := configs.Config{}
-    err = configs.Load(&config)
-    s.Host = config.DbDevelopment.Host
-    s.Port = config.DbDevelopment.Port
-    s.User = config.DbDevelopment.User
-    s.Pass = config.DbDevelopment.Pass
-    s.Dnam = config.DbDevelopment.Dnam
-    s.Sslm = config.DbDevelopment.Sslm
+func (s *PostgresDb) Conf() (err error) {
+    // env variables must be available
+    s.Host = os.Getenv("PGHOST")
+    port, err := strconv.Atoi(os.Getenv("PGPORT"))
+    s.Port = port
+    s.User = os.Getenv("PGUSER")
+    s.Pass = os.Getenv("PGPASS")
+    s.Dnam = os.Getenv("PGDNAM")
+    s.Sslm = os.Getenv("PGSSLM")
     if err != nil {
-        log.Print("Error configuring postgres development db.", err)
-        fmt.Println("##s -->", s)
+        return fmt.Errorf("Error configuring postgres db. %s", err)
     }
-    return err
+    return nil
 }
-func (s *PostgresDev) SqlOpen() (db *sql.DB, err error) {
+func (s *PostgresDb) SqlOpen() (db *sql.DB, err error) {
 	// Connect to the postgres development database
     conn := fmt.Sprintf(
 		"host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
@@ -62,7 +61,7 @@ func (s *PostgresDev) SqlOpen() (db *sql.DB, err error) {
 	)
 	db, err = sql.Open("postgres", conn)
 	if err != nil {
-		log.Print("Unable to connect to the postgres db", err)
+		return db, fmt.Errorf("Unable to connect to the postgres db. %s", err)
 	}
-	return db, err
+	return db, nil
 }

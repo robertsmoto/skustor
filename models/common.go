@@ -5,8 +5,17 @@ import (
 	"database/sql"
 	"fmt"
 	"io"
-	"log"
 )
+
+//type ModelNodes interface {
+        //SvUserNodes
+        //PlaceNodes
+        //PriceClassNodes
+        //UnitNodes
+        //CollectionNodes
+        //ItemNodes
+
+//}
 
 type loader interface {
 	Load(fileBuffer *[]byte) (err error)
@@ -16,59 +25,46 @@ type validater interface {
 	Validate() (err error)
 }
 
-type loaderValidater interface {
-	loader
-	validater
-}
+type processer interface {
+    Process(userId string) (err error)
 
-func LoaderHandler(data loaderValidater, fileBuffer []byte) {
-	// this loads and validates the Nodes or []structs
-	var err error
-	err = data.Load(&fileBuffer)
-	if err != nil {
-		log.Print("LoaderHandler.Load() ", err)
-	}
-	err = data.Validate()
-	if err != nil {
-		log.Print("LoaderHandler.Validate() ", err)
-	}
 }
 
 type upserter interface {
 	Upsert(db *sql.DB) (err error)
 }
 
-type relatedTableUpserter interface {
-	RelatedTableUpsert(db *sql.DB) (err error)
-}
-
 type foreignKeyUpdater interface {
 	ForeignKeyUpdate(db *sql.DB) (err error)
 }
 
-type upserterForeignKeysRelatedTableUpserter interface {
+type relatedTableUpserter interface {
+	RelatedTableUpsert(db *sql.DB) (err error)
+}
+
+type LoaderProcesserUpserter interface {
+    loader
+    validater
+    processer
 	upserter
 	foreignKeyUpdater
 	relatedTableUpserter
 }
 
-func UpsertHandler(data upserterForeignKeysRelatedTableUpserter, db *sql.DB) {
-	var err error
+func JsonLoaderUpserterHandler(data LoaderProcesserUpserter, userId string, fileBuffer *[]byte, db *sql.DB) (err error) {
+    err = data.Load(fileBuffer)
+    err = data.Validate()
+    err = data.Process(userId)
 	err = data.Upsert(db)
-	if err != nil {
-		log.Print("UpsertHandler.Upsert ", err)
-	}
 	err = data.ForeignKeyUpdate(db)
-	if err != nil {
-		log.Print("UpsertHandler.ForeignKeyUpdate ", err)
-	}
 	err = data.RelatedTableUpsert(db)
-	if err != nil {
-		log.Print("UpsertHandler.RelatedTableUpsert ", err)
-	}
+    if err != nil {
+        return fmt.Errorf("JsonLoaderUpserterHandler %s", err)
+    }
+    return nil
 }
 
-func JoinClusterItemUpsert(db *sql.DB, svUserId, clusterId, itemId string, position uint8) (err error) {
+func JoinCollectionItemUpsert(db *sql.DB, svUserId, clusterId, itemId string, position uint8) (err error) {
 	var data []string
 	data = append(data, svUserId, clusterId, itemId)
 	jid := Md5Hasher(data)
@@ -84,7 +80,7 @@ func JoinClusterItemUpsert(db *sql.DB, svUserId, clusterId, itemId string, posit
 		FormatUUID(itemId), position,
 	)
 	if err != nil {
-		log.Print("JoinClusterItemUpsert() ", err)
+		fmt.Println("JoinCollectionItemUpsert() ", err)
 	}
 	return err
 }

@@ -32,30 +32,18 @@ func Load(conf OpenerLoader) (err error) {
 	return err
 }
 
-type db struct {
-	Dnam string `json:"dnam"`
-	Host string `json:"host"`
-	Port int    `json:"port"`
-	User string `json:"user"`
-	Pass string `json:"pass"`
-	Pkey string `json:"pkey"`
-	Sslm string `json:"sslm"`
-}
-
 type Config struct {
-	DbDevelopment struct {
-		db
-	} `json:"dbDevelopment"`
-
-	DbStaging struct {
-		db
-	} `json:"dbStaging"`
-
-	DbProduction struct {
-		db
-	} `json:"dbProduction"`
+	DbPostgres struct {
+        Dnam string `json:"dnam"`
+        Host string `json:"host"`
+        Port string    `json:"port"`
+        User string `json:"user"`
+        Pass string `json:"pass"`
+        Pkey string `json:"pkey"`
+        Sslm string `json:"sslm"`
+	} `json:"dbPostgres"`
 	DoSpaces struct {
-		UseSpaces    bool   `json:"useSpaces"`
+		UseSpaces    string   `json:"useSpaces"`
 		AccessKey    string `json:"accessKey"`
 		Secret       string `json:"secret"`
 		BucketName   string `json:"bucketName"`
@@ -64,11 +52,10 @@ type Config struct {
 		EndpointUrl  string `json:"endpointUrl"`
 		VanityUrl    string `json:"vanityUrl"`
 	} `json:"doSpaces"`
-
 	TempFileDir string `json:"tempFileDir"`
 	UploadPrefix       string   `json:"uploadPrefix"`
     RootDir string `json:"rootDir"`
-	Var02       int8   `json:"var02"`
+	Var02       string   `json:"var02"`
 }
 
 func (c *Config) Open(filePath string) (fileStream []byte, err error) {
@@ -91,6 +78,26 @@ func (c *Config) Load(fileStream []byte) (err error) {
 		return err
 	}
 	json.Unmarshal(fileStream, &c)
+    // set env variables here
+    os.Setenv("PGDNAM", c.DbPostgres.Dnam)
+    os.Setenv("PGHOST", c.DbPostgres.Host)
+    os.Setenv("PGPORT", string(c.DbPostgres.Port))
+    os.Setenv("PGUSER", c.DbPostgres.User)
+    os.Setenv("PGPASS", c.DbPostgres.Pass)
+    os.Setenv("PGPKEY", c.DbPostgres.Pkey)
+    os.Setenv("PGSSLM", c.DbPostgres.Sslm)
+    os.Setenv("DOUSES", c.DoSpaces.UseSpaces)
+    os.Setenv("DOAKEY", c.DoSpaces.AccessKey)
+    os.Setenv("DOSECR", c.DoSpaces.Secret)
+    os.Setenv("DOBCKT", c.DoSpaces.BucketName)
+    os.Setenv("DOCDOM", c.DoSpaces.CustomDomain)
+    os.Setenv("DOREGN", c.DoSpaces.RegionName)
+    os.Setenv("DOENDU", c.DoSpaces.EndpointUrl)
+    os.Setenv("DOVANU", c.DoSpaces.VanityUrl)
+    os.Setenv("TMPDIR", c.TempFileDir)
+    os.Setenv("ULOADP", c.UploadPrefix)
+    os.Setenv("ROOTDR", c.RootDir)
+    os.Setenv("VAR002", c.Var02)
 	return err
 }
 

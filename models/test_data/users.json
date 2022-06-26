@@ -1,5 +1,15 @@
 {
-    "userNodes": [
+    "user": 
+        {
+            "id": "5cc4a649-8138-4223-a62c-263cbb8a12b3",
+            "auth": "ac763201-f677-4ce7-b045-b5b5deefeeac",
+            "key": "5468bb9b-2536-43ee-977d-5ce26a1b5670",
+            "username": "mjslayer",
+            "firstname": "Michael",
+            "lastname": "Slayer",
+            "nickname": "Mike"
+        },
+    "users": [
         {
             "id": "f8b0f997-1dcc-4e56-915c-9f62f52345ee",
             "auth": "b9a3c679-cbc3-4e7b-8fd7-6aad20d5b2c4",

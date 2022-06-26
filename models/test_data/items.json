@@ -1,7 +1,8 @@
 {
-    "itemNodes": [
-
-
+    "item": {
+        "id": "723a1838-a3b2-4fcd-9ec9-24f8b2c2dde8"
+    },
+    "items": [
         {
             "id": "2940d429-9d97-4d9e-a80f-67d56e42d226",
             "parentId": "",
@@ -30,18 +31,16 @@
             "downloadCode": "",
             "downloadExpiration": "",
             "brandIds": ["d9a05383-cc15-4ffe-8496-f869a3223ba7"],
-            "categoryIds": [
+            "collectionIds": [
                 "b9d8b54b-a58c-4487-b6ca-81e34e3e9ce3",
-                "906e8d39-8038-4a2c-9917-6f3a1f57723d"
-            ],
-            "departmentIds": ["67473dd3-81c4-4927-98b0-66b8c79fa50b"],
-            "tagIds": [
+                "906e8d39-8038-4a2c-9917-6f3a1f57723d",
+                "67473dd3-81c4-4927-98b0-66b8c79fa50b",
                 "2eeef1d0-b826-42ba-a71d-ff0d28c9aa77",
                 "754d5430-3a12-48f1-aaaf-82fcff98249f",
                 "814ac5b3-8db4-45fa-891d-25c59b10146e",
                 "1595c865-2678-4a6b-b4cd-ec8752954661"
             ],
-            "imageNodes": [
+            "images": [
                 {
                     "url": "https://example.com/GCSH08MA/00.jpg",
                     "title": "GCSH08MA Product Photo",
@@ -103,19 +102,16 @@
             "filePath": "",
             "downloadCode": "",
             "downloadExpiration": "",
-            "brandIds": ["d9a05383-cc15-4ffe-8496-f869a3223ba7"],
-            "categoryIds": [
+            "collectionIds": [
+                "d9a05383-cc15-4ffe-8496-f869a3223ba7",
                 "b9d8b54b-a58c-4487-b6ca-81e34e3e9ce3",
-                "906e8d39-8038-4a2c-9917-6f3a1f57723d"
-            ],
-            "departmentIds": ["67473dd3-81c4-4927-98b0-66b8c79fa50b"],
-            "tagIds": [
+                "906e8d39-8038-4a2c-9917-6f3a1f57723d",
                 "2eeef1d0-b826-42ba-a71d-ff0d28c9aa77",
                 "754d5430-3a12-48f1-aaaf-82fcff98249f",
                 "814ac5b3-8db4-45fa-891d-25c59b10146e",
                 "1595c865-2678-4a6b-b4cd-ec8752954661"
             ],
-            "imageNodes": [
+            "images": [
                 {
                     "url": "https://example.com/GCSH08MA/00.jpg",
                     "title": "GCSH08MA Product Photo",

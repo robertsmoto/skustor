@@ -26,7 +26,7 @@
             "nickname": "Jake"
         }
     ],
-    "locationNodes": [
+    "placeNodes": [
         {
             "id": "fc304fc5-fd16-432a-85f2-8cb602b645e6",
             "name": "Store 1",

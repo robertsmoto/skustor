@@ -20,6 +20,7 @@ import (
     "log"
 
     "github.com/robertsmoto/skustor/tools"
+    "github.com/robertsmoto/skustor/configs"
 	"github.com/spf13/cobra"
 )
 
@@ -75,46 +76,64 @@ var pgbuilderCmd = &cobra.Command{
         ALTER TABLE price_class ADD COLUMN IF NOT EXISTS note VARCHAR (100);
 
         -- ##################################
-        --  table: cluster
+        --  table: aaa_collection
         -- ##################################
-        CREATE TABLE IF NOT EXISTS cluster (
+        CREATE TABLE IF NOT EXISTS aaa_collection (
             id UUID PRIMARY KEY);
-        ALTER TABLE cluster
+        ALTER TABLE aaa_collection
             ADD COLUMN IF NOT EXISTS sv_user_id UUID
             REFERENCES sv_user(id);
-        ALTER TABLE cluster
+        ALTER TABLE aaa_collection
             ADD COLUMN IF NOT EXISTS parent_id UUID
-            REFERENCES cluster(id);
-        ALTER TABLE cluster ADD COLUMN IF NOT EXISTS type VARCHAR (200);
-        ALTER TABLE cluster ADD COLUMN IF NOT EXISTS position
-            INTEGER NOT NULL DEFAULT 0;
-        ALTER TABLE cluster ADD COLUMN IF NOT EXISTS name VARCHAR (200);
-        ALTER TABLE cluster ADD COLUMN IF NOT EXISTS description VARCHAR (200);
-        ALTER TABLE cluster ADD COLUMN IF NOT EXISTS keywords VARCHAR (200);
-        ALTER TABLE cluster ADD COLUMN IF NOT EXISTS link_url VARCHAR (200);
-        ALTER TABLE cluster ADD COLUMN IF NOT EXISTS link_text VARCHAR (200);
+            REFERENCES aaa_collection(id);
+        ALTER TABLE aaa_collection ADD COLUMN IF NOT EXISTS document JSONB;
         -- indexes
-        CREATE INDEX IF NOT EXISTS cluster_sv_user_id_idx ON cluster (sv_user_id);
-        CREATE INDEX IF NOT EXISTS cluster_type_idx ON cluster (type);
+
+        CREATE INDEX IF NOT EXISTS aaa_collection_id_idx ON aaa_collection (id);
+        CREATE INDEX IF NOT EXISTS aaa_collection_sv_user_id_idx ON aaa_collection (sv_user_id);
+
 
         -- ##################################
-        --  table: location
+        --  table: collection
         -- ##################################
-        CREATE TABLE IF NOT EXISTS location (
+        CREATE TABLE IF NOT EXISTS collection (
             id UUID PRIMARY KEY);
-        ALTER TABLE location
+        ALTER TABLE collection
             ADD COLUMN IF NOT EXISTS sv_user_id UUID
             REFERENCES sv_user(id);
-        ALTER TABLE location ADD COLUMN IF NOT EXISTS type VARCHAR (100);
-        ALTER TABLE location ADD COLUMN IF NOT EXISTS name VARCHAR (100);
-        ALTER TABLE location ADD COLUMN IF NOT EXISTS description VARCHAR (100);
-        ALTER TABLE location ADD COLUMN IF NOT EXISTS phone VARCHAR (20);
-        ALTER TABLE location ADD COLUMN IF NOT EXISTS email VARCHAR (100);
-        ALTER TABLE location ADD COLUMN IF NOT EXISTS website VARCHAR (100);
-        ALTER TABLE location ADD COLUMN IF NOT EXISTS domain VARCHAR (100);
+        ALTER TABLE collection
+            ADD COLUMN IF NOT EXISTS parent_id UUID
+            REFERENCES collection(id);
+        ALTER TABLE collection ADD COLUMN IF NOT EXISTS type VARCHAR (200);
+        ALTER TABLE collection ADD COLUMN IF NOT EXISTS position
+            INTEGER NOT NULL DEFAULT 0;
+        ALTER TABLE collection ADD COLUMN IF NOT EXISTS name VARCHAR (200);
+        ALTER TABLE collection ADD COLUMN IF NOT EXISTS description VARCHAR (200);
+        ALTER TABLE collection ADD COLUMN IF NOT EXISTS keywords VARCHAR (200);
+        ALTER TABLE collection ADD COLUMN IF NOT EXISTS link_url VARCHAR (200);
+        ALTER TABLE collection ADD COLUMN IF NOT EXISTS link_text VARCHAR (200);
         -- indexes
-        CREATE INDEX IF NOT EXISTS location_sv_user_id_idx ON location (sv_user_id);
-        CREATE INDEX IF NOT EXISTS location_type_idx ON location (type);
+        CREATE INDEX IF NOT EXISTS collection_sv_user_id_idx ON collection (sv_user_id);
+        CREATE INDEX IF NOT EXISTS collection_type_idx ON collection (type);
+
+        -- ##################################
+        --  table: place
+        -- ##################################
+        CREATE TABLE IF NOT EXISTS place (
+            id UUID PRIMARY KEY);
+        ALTER TABLE place
+            ADD COLUMN IF NOT EXISTS sv_user_id UUID
+            REFERENCES sv_user(id);
+        ALTER TABLE place ADD COLUMN IF NOT EXISTS type VARCHAR (100);
+        ALTER TABLE place ADD COLUMN IF NOT EXISTS name VARCHAR (100);
+        ALTER TABLE place ADD COLUMN IF NOT EXISTS description VARCHAR (100);
+        ALTER TABLE place ADD COLUMN IF NOT EXISTS phone VARCHAR (20);
+        ALTER TABLE place ADD COLUMN IF NOT EXISTS email VARCHAR (100);
+        ALTER TABLE place ADD COLUMN IF NOT EXISTS website VARCHAR (100);
+        ALTER TABLE place ADD COLUMN IF NOT EXISTS domain VARCHAR (100);
+        -- indexes
+        CREATE INDEX IF NOT EXISTS place_sv_user_id_idx ON place (sv_user_id);
+        CREATE INDEX IF NOT EXISTS place_type_idx ON place (type);
 
         -- ##################################
         --  table: address
@@ -125,8 +144,8 @@ var pgbuilderCmd = &cobra.Command{
             ADD COLUMN IF NOT EXISTS sv_user_id UUID
             REFERENCES sv_user(id);
         ALTER TABLE address
-            ADD COLUMN IF NOT EXISTS location_id UUID
-            REFERENCES location(id);
+            ADD COLUMN IF NOT EXISTS place_id UUID
+            REFERENCES place(id);
         ALTER TABLE address ADD COLUMN IF NOT EXISTS type VARCHAR (100);
         ALTER TABLE address ADD COLUMN IF NOT EXISTS street1 VARCHAR (100);
         ALTER TABLE address ADD COLUMN IF NOT EXISTS street2 VARCHAR (100);
@@ -150,8 +169,8 @@ var pgbuilderCmd = &cobra.Command{
             ADD COLUMN IF NOT EXISTS parent_id UUID
             REFERENCES item(id);
         ALTER TABLE item
-            ADD COLUMN IF NOT EXISTS location_id UUID
-            REFERENCES location(id);
+            ADD COLUMN IF NOT EXISTS place_id UUID
+            REFERENCES place(id);
         ALTER TABLE item
             ADD COLUMN IF NOT EXISTS price_class_id UUID;
         ALTER TABLE item
@@ -203,24 +222,24 @@ var pgbuilderCmd = &cobra.Command{
         CREATE INDEX IF NOT EXISTS item_type_idx ON item (type);
 
         -- ##################################
-        -- table: join_cluster_item
+        -- table: join_collection_item
         -- ##################################
-        CREATE TABLE IF NOT EXISTS join_cluster_item (id UUID PRIMARY KEY);
-        ALTER TABLE join_cluster_item
+        CREATE TABLE IF NOT EXISTS join_collection_item (id UUID PRIMARY KEY);
+        ALTER TABLE join_collection_item
             ADD COLUMN IF NOT EXISTS sv_user_id UUID
             REFERENCES sv_user(id);
-        ALTER TABLE join_cluster_item
-            ADD COLUMN IF NOT EXISTS cluster_id UUID
-            REFERENCES cluster(id);
-        ALTER TABLE join_cluster_item
+        ALTER TABLE join_collection_item
+            ADD COLUMN IF NOT EXISTS collection_id UUID
+            REFERENCES collection(id);
+        ALTER TABLE join_collection_item
             ADD COLUMN IF NOT EXISTS item_id UUID
             REFERENCES item(id);
-        ALTER TABLE join_cluster_item ADD COLUMN IF NOT EXISTS position
+        ALTER TABLE join_collection_item ADD COLUMN IF NOT EXISTS position
             INTEGER NOT NULL DEFAULT 0;
         -- indexes
-        CREATE INDEX IF NOT EXISTS jci_sv_user_id_idx ON join_cluster_item (sv_user_id);
-        CREATE INDEX IF NOT EXISTS jci_itemid_idx ON join_cluster_item (item_id);
-        CREATE INDEX IF NOT EXISTS jci_clusterid_idx ON join_cluster_item (cluster_id);
+        CREATE INDEX IF NOT EXISTS jci_sv_user_id_idx ON join_collection_item (sv_user_id);
+        CREATE INDEX IF NOT EXISTS jci_itemid_idx ON join_collection_item (item_id);
+        CREATE INDEX IF NOT EXISTS jci_collectionid_idx ON join_collection_item (collection_id);
 
         -- ##################################
         -- table: image
@@ -230,8 +249,8 @@ var pgbuilderCmd = &cobra.Command{
             ADD COLUMN IF NOT EXISTS sv_user_id UUID NOT NULL
             REFERENCES sv_user(id);
         ALTER TABLE image
-            ADD COLUMN IF NOT EXISTS cluster_id UUID
-            REFERENCES cluster(id);
+            ADD COLUMN IF NOT EXISTS collection_id UUID
+            REFERENCES collection(id);
         ALTER TABLE image
             ADD COLUMN IF NOT EXISTS item_id UUID
             REFERENCES item(id);
@@ -245,19 +264,24 @@ var pgbuilderCmd = &cobra.Command{
         ALTER TABLE image ADD COLUMN IF NOT EXISTS caption VARCHAR (200);
         -- indexes
         CREATE INDEX IF NOT EXISTS image_sv_user_id_idx ON image (sv_user_id);
-        CREATE INDEX IF NOT EXISTS image_clusterid_idx ON image (cluster_id);
+        CREATE INDEX IF NOT EXISTS image_collectionid_idx ON image (collection_id);
         CREATE INDEX IF NOT EXISTS image_itemid_idx ON image (item_id);
         CREATE UNIQUE INDEX
-            IF NOT EXISTS image_cluster_item_position_size_idx
-            ON image (cluster_id, item_id, position, size);
+            IF NOT EXISTS image_collection_item_position_size_idx
+            ON image (collection_id, item_id, position, size);
 
         `
 
-        fmt.Println(qstr)
+        conf := configs.Config{}
+        err := configs.Load(&conf)
+        if err != nil {
+            log.Print("Configs error", err)
+        }
+
 
 
         // open each db
-        devPostgres := tools.PostgresDev{}
+        devPostgres := tools.PostgresDb{}
         devConn, err := tools.Open(&devPostgres)
         if err != nil {
             log.Print("Connection error", err)

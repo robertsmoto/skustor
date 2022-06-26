@@ -56,7 +56,7 @@ func ImgHandler(i downloaderResizerProcessorUpserterUploader, db *sql.DB) {
 	err = i.Download()
 	err = i.Resize()
 	i.Process()
-	err = i.Upsert(db)
+	i.Upsert(db)
 	err = i.UploadToSpaces() // to AWS cdn
 	if err != nil {
 		log.Print("Error image.Resize() ", err)
@@ -77,7 +77,7 @@ type ResizedImage struct {
 	size         string // eg "LG" "MD" or "SM"
 }
 
-type Image struct {
+type SvImage struct {
 	Id             string `json:"id" validate:"omitempty,uuid4"`
 	Url            string `json:"url" validate:"omitempty,url"`
 	Title          string `json:"title" validate:"omitempty,lte=200"`
@@ -110,23 +110,8 @@ type Image struct {
 	ResizedImages  []ResizedImage
 }
 
-type ImageNodes struct {
-	Nodes []Image `json:"imageNodes" validate:"dive"`
-}
-
-func (s *ImageNodes) Load(fileBuffer []byte) (err error) {
-	json.Unmarshal(fileBuffer, &s)
-	return err
-}
-
-func (s *ImageNodes) Validate() (err error) {
-	validate := validator.New()
-	err = validate.Struct(s)
-	return err
-}
-
 func (s *Image) Download() (err error) {
-	//Downloads image from url to tempFileDir
+	// Downloads image from url to tempFileDir
 	// validates url and filetype
 	isValid := ValidateUrl(s.Url)
 	if isValid == false {
@@ -134,9 +119,10 @@ func (s *Image) Download() (err error) {
 		os.Exit(1)
 	}
 
-	s.baseFileName, s.fullFileName = GetFileName(s.Url)
 
-	s.filePath = CreateTempFilePath(s.TempFileDir, s.fullFileName)
+    baseFileName, fullFileName := GetFileName(s.Url)
+    s.baseFileName = baseFileName
+	s.filePath = filepath.Join(os.Getenv("TMPDIR"), "images/downloads", fullFileName)
 	if err != nil {
 		log.Fatal(err)
 		os.Exit(1)
@@ -163,7 +149,7 @@ func (s *Image) Resize() (err error) {
 
 		imgFile, err := os.Open(s.filePath)
 		if err != nil {
-			log.Print(err)
+            log.Print("Resize open error 01: ", err)
 			os.Exit(1)
 		}
 		defer imgFile.Close()
@@ -174,14 +160,14 @@ func (s *Image) Resize() (err error) {
 
 		imgFile, err = os.Open(s.filePath)
 		if err != nil {
-			log.Print(err)
+            log.Print("Resize open error 02: ", err)
 			os.Exit(1)
 		}
 		defer imgFile.Close()
 
 		decodedImage, _, err := image.Decode(imgFile)
 		if err != nil {
-			log.Print(err)
+            log.Print("Resize decode: ", err)
 		}
 
 		// calculate new image sizes
@@ -190,7 +176,7 @@ func (s *Image) Resize() (err error) {
 		// create new file name and dirs
 		newFileName := CreateNewFileName(s.baseFileName, newWidth, newHeight)
 
-		tempFilePath := CreateTempFilePath(s.TempFileDir, newFileName)
+		tempFilePath := filepath.Join(os.Getenv("TMPDIR"), "images/resized", newFileName)
 		uploadPath := CreateUploadPath(s.UploadPrefix,
 			s.UserDir, newFileName, s.Date)
 
@@ -199,7 +185,7 @@ func (s *Image) Resize() (err error) {
 		var f *os.File
 		f, err = os.Create(tempFilePath)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal("Create tempFilePath ", err)
 		}
 
 		// resize the image in memory
@@ -350,6 +336,50 @@ func (s *Image) UploadToSpaces() (err error) {
 	return err
 }
 
+
+
+type Image struct {
+	SvImage `json:"image" validate:"dive"`
+}
+
+func (s *Image) Load(fileBuffer []byte) {
+    var err error
+	json.Unmarshal(fileBuffer, &s)
+    if err != nil {
+        log.Print("Image.Load() ", err)
+    }
+}
+
+func (s *Image) Validate() {
+    var err error
+	validate := validator.New()
+	err = validate.Struct(s)
+    if err != nil {
+        log.Print("Image.Validate() ", err)
+    }
+}
+
+type Images struct {
+	Nodes []SvImage `json:"images" validate:"dive"`
+}
+
+func (s *Images) Load(fileBuffer []byte) {
+    var err error
+	json.Unmarshal(fileBuffer, &s)
+    if err != nil {
+        log.Print("Images.Load() ", err)
+    }
+}
+
+func (s *Images) Validate() {
+    var err error
+	validate := validator.New()
+	err = validate.Struct(s)
+    if err != nil {
+        log.Print("Images.Validate() ", err)
+    }
+}
+
 func ValidateUrl(url string) bool {
 	//ValidateUrl checks that the url and filetype is valid.
 	if strings.HasPrefix(url, "http") == false {
@@ -415,10 +445,10 @@ func CreateNewFileName(fileName string, w, h int) string {
 	return fileName
 }
 
-func CreateTempFilePath(tempFileDir, fileName string) (tempPath string) {
-	tempPath = filepath.Join(tempFileDir, fileName)
-	return tempPath
-}
+//func CreateTempFilePath(tempFileDir, fileName string) (tempPath string) {
+	//tempPath = filepath.Join(tempFileDir, fileName)
+	//return tempPath
+//}
 
 func CreateUploadPath(
 	uploadPrefix, userDir, fileName, date string) string {

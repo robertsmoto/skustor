@@ -3,12 +3,13 @@ package models
 import (
 	"database/sql"
 	"encoding/json"
-	"log"
+    "errors"
+	"fmt"
 
 	"github.com/go-playground/validator/v10"
 )
 
-type Unit struct {
+type SvUnit struct {
 	Id              string `json:"id" validate:"omitempty,uuid4"`
 	SvUserId        string `json:"svUserId" validate:"omitempty,uuid4"`
 	Singular        string `json:"singular" validate:"omitempty,lte=50"`
@@ -16,30 +17,16 @@ type Unit struct {
 	Plural          string `json:"plural" validate:"omitempty,lte=50"`
 	PluralDisplay   string `json:"pluralDisplay" validate:"omitempty,lte=50"`
 }
-type UnitNodes struct {
-	Nodes []Unit `json:"unitNodes" validate:"dive"`
+
+func (s *SvUnit) Process(userId string) (err error) {
+    if userId == "" {
+        return errors.New("SvUnit.Process() requires userId.")
+    }
+    s.SvUserId = userId
+    return nil
 }
 
-func (s *UnitNodes) Load(fileBuffer *[]byte) (err error) {
-	json.Unmarshal(*fileBuffer, &s)
-	return err
-}
-
-func (s *UnitNodes) Validate() (err error) {
-	validate := validator.New()
-	err = validate.Struct(s)
-	if err != nil {
-		log.Print("UnitNodes.Validate() ", err)
-	}
-	return err
-}
-
-func (s *Unit) Process() {
-	log.Print("Unit.Process() Not iplemented.")
-}
-
-func (s *Unit) Upsert(db *sql.DB) (err error) {
-
+func (s *SvUnit) Upsert(db *sql.DB) (err error) {
 	qstr := `
         INSERT INTO unit (
             id, sv_user_id, singular, singular_display, plural, plural_display
@@ -58,61 +45,141 @@ func (s *Unit) Upsert(db *sql.DB) (err error) {
             plural=$5,
             plural_display=$5
         WHERE unit.id = $1;`
-
 	_, err = db.Exec(
 		qstr, FormatUUID(s.Id), FormatUUID(s.SvUserId), s.Singular,
 		s.SingularDisplay, s.Plural, s.PluralDisplay,
 	)
-
 	if err != nil {
-		log.Print("Unit.Upsert()", err)
+		return fmt.Errorf("SvUnit.Upsert() %s", err)
 	}
-
-	return err
+    return nil
 }
 
-func (s *Unit) ForeignKeyUpdate(db *sql.DB) (err error) {
-	log.Print("Unit.ForeignKeyUpdate() Not implemented.")
-	return err
+func (s *SvUnit) ForeignKeyUpdate(db *sql.DB) (err error) {
+	fmt.Println("SvUnit.ForeignKeyUpdate() Not implemented.")
+    return nil
 }
 
-func (s *Unit) RelatedTableUpsert(db *sql.DB) (err error) {
-	log.Print("Unit.RelatedTableUpsert() Not implemented.")
-	return err
+func (s *SvUnit) RelatedTableUpsert(db *sql.DB) (err error) {
+	fmt.Print("SvUnit.RelatedTableUpsert() Not implemented.")
+    return nil
 }
 
-type PriceClass struct {
-	Id       string `json:"id"`
-	SvUserId string `json:"svUserId" validate:"omitempty,uuid4"`
+func (s *SvUnit) Delete(db *sql.DB) (err error) {
+	fmt.Print("SvUnit.Delete() Not implemented.")
+    return nil
+}
+
+type Unit struct {
+	SvUnit `json:"unit"`
+}
+
+func (s *Unit) Load(fileBuffer *[]byte) (err error) {
+	err = json.Unmarshal(*fileBuffer, &s)
+	if err != nil {
+		return fmt.Errorf("Unit.Load() %s", err)
+	}
+    return nil
+}
+
+func (s *Unit) Validate() (err error) {
+	validate := validator.New()
+	err = validate.Struct(s)
+	if err != nil {
+		return fmt.Errorf("Unit.Validate() %s", err)
+	}
+    return nil
+}
+
+type Units struct {
+	Nodes []Unit `json:"units" validate:"dive"`
+}
+
+func (s *Units) Load(fileBuffer *[]byte) (err error) {
+	err = json.Unmarshal(*fileBuffer, &s)
+	if err != nil {
+		return fmt.Errorf("Units.Load() %s", err)
+	}
+    return nil
+}
+
+func (s *Units) Validate() (err error) {
+	validate := validator.New()
+	err = validate.Struct(s)
+	if err != nil {
+		return fmt.Errorf("Units.Validate() %s", err)
+	}
+    return nil
+}
+
+func (s *Units) Process(userId string) (err error) {
+    for _, node := range s.Nodes {
+        err = node.Process(userId)
+        if err != nil {
+            return fmt.Errorf("Units.Process() %s", err)
+        }
+    }
+    return nil
+}
+
+func (s *Units) Upsert(db *sql.DB) (err error) {
+    for _, node := range s.Nodes {
+        err = node.Upsert(db)
+        if err != nil {
+            return fmt.Errorf("Units.Upsert() %s", err)
+        }
+    }
+    return nil
+}
+
+func (s *Units) ForeignKeyUpdate(db *sql.DB) (err error) {
+    for _, node := range s.Nodes {
+        err = node.ForeignKeyUpdate(db)
+        if err != nil {
+            return fmt.Errorf("Units.Upsert() %s", err)
+        }
+    }
+    return nil
+}
+
+func (s *Units) RelatedTableUpsert(db *sql.DB) (err error) {
+    for _, node := range s.Nodes {
+        err = node.RelatedTableUpsert(db)
+        if err != nil {
+            return fmt.Errorf("Units.RelatedTableUpsert() %s", err)
+        }
+    }
+    return nil
+}
+
+func (s *Units) Delete(db *sql.DB) (err error) {
+    for _, node := range s.Nodes {
+        err = node.Delete(db)
+        if err != nil {
+            return fmt.Errorf("Units.Delete() %s", err)
+        }
+    }
+    return nil
+}
+
+type SvPriceClass struct {
+    Id       string `json:"id" validate:"omitempty,uuid4"`
 	Type     string `json:"type" validate:"omitempty,lte=100,oneof=grossMargin markup fixed"`
+	SvUserId string `json:"svUserId" validate:"omitempty,uuid4"`
 	Name     string `json:"name" validate:"omitempty,lte=100"`
 	Amount   uint32 `json:"amount" validate:"omitempty,number"`
 	Note     string `json:"note" validate:"omitempty,lte=100"`
 }
-type PriceClassNodes struct {
-	Nodes []PriceClass `json:"priceClassNodes" validate:"dive"`
+
+func (s *SvPriceClass) Process(userId string) (err error) {
+    if userId == "" {
+        return fmt.Errorf("SvPriceClass.Process() requires userId")
+    }
+    s.SvUserId = userId
+    return nil
 }
 
-func (s *PriceClassNodes) Load(fileBuffer *[]byte) (err error) {
-	json.Unmarshal(*fileBuffer, &s)
-	return err
-}
-
-func (s *PriceClassNodes) Validate() (err error) {
-	validate := validator.New()
-	err = validate.Struct(s)
-	if err != nil {
-		log.Print("PriceClassNodes.Validate() ", err)
-	}
-	return err
-}
-
-func (s *PriceClass) Process() {
-	log.Print("PriceClass.Process() Not iplemented.")
-}
-
-func (s *PriceClass) Upsert(db *sql.DB) (err error) {
-
+func (s *SvPriceClass) Upsert(db *sql.DB) (err error) {
 	qstr := `
         INSERT INTO price_class (
             id, sv_user_id, type, name, amount, note
@@ -128,26 +195,121 @@ func (s *PriceClass) Upsert(db *sql.DB) (err error) {
         ON CONFLICT (id) DO UPDATE
         SET type=$3, name=$4, amount=$5, note=$6
         WHERE price_class.id = $1;`
-
 	_, err = db.Exec(
 		qstr, FormatUUID(s.Id), FormatUUID(s.SvUserId), s.Type,
 		s.Name, s.Amount, s.Note,
 	)
-
 	if err != nil {
-		log.Print("PriceClass.Upsert()", err)
+		return fmt.Errorf("SvPriceClass.Upsert() %s", err)
 	}
-	return err
+    return nil
 }
 
-func (s *PriceClass) ForeignKeyUpdate(db *sql.DB) (err error) {
-	log.Print("Unit.ForeignKeyUpdate() Not implemented.")
-	return err
+func (s *SvPriceClass) ForeignKeyUpdate(db *sql.DB) (err error) {
+	fmt.Println("SvUnit.ForeignKeyUpdate() Not implemented.")
+    return nil
 }
 
-func (s *PriceClass) RelatedTableUpsert(db *sql.DB) (err error) {
-	log.Print("Unit.RelatedTableUpsert() Not implemented.")
-	return err
+func (s *SvPriceClass) RelatedTableUpsert(db *sql.DB) (err error) {
+	fmt.Println("SvUnit.RelatedTableUpsert() Not implemented.")
+    return nil
+}
+
+func (s *SvPriceClass) Delete(db *sql.DB) (err error) {
+	fmt.Println("SvUnit.Delete() Not implemented.")
+    return nil
+}
+
+type PriceClass struct {
+	SvPriceClass `json:"priceClass"`
+}
+
+func (s *PriceClass) Load(fileBuffer *[]byte) (err error) {
+	err = json.Unmarshal(*fileBuffer, &s)
+	if err != nil {
+		return fmt.Errorf("PriceClass.Load() %s", err)
+	}
+    return nil
+}
+
+func (s *PriceClass) Validate() (err error) {
+	validate := validator.New()
+	err = validate.Struct(s)
+	if err != nil {
+		return fmt.Errorf("PriceClass.Validate() %s", err)
+	}
+    return nil
+}
+
+type PriceClasses struct {
+	Nodes []PriceClass `json:"priceClasses" validate:"dive"`
+}
+
+func (s *PriceClasses) Load(fileBuffer *[]byte) (err error) {
+	err = json.Unmarshal(*fileBuffer, &s)
+	if err != nil {
+		return fmt.Errorf("PriceClasses.Load() %s", err)
+	}
+	return nil
+}
+
+func (s *PriceClasses) Validate() (err error) {
+	validate := validator.New()
+	err = validate.Struct(s)
+	if err != nil {
+		return fmt.Errorf("PriceClasses.Validate() %s", err)
+	}
+	return nil
+}
+
+func (s *PriceClasses) Process(userId string) (err error) {
+    for _, node := range s.Nodes {
+        err = node.Process(userId)
+        if err != nil {
+            return fmt.Errorf("PriceClasses.Process() %s", err)
+        }
+    }
+    return nil
+}
+
+func (s *PriceClasses) Upsert(db *sql.DB) (err error) {
+    for _, node := range s.Nodes {
+        err = node.Upsert(db)
+        if err != nil {
+            return fmt.Errorf("PriceClasses.Upsert() %s", err)
+        }
+    }
+    return nil
+}
+
+func (s *PriceClasses) ForeignKeyUpdate(db *sql.DB) (err error) {
+    for _, node := range s.Nodes {
+        err = node.ForeignKeyUpdate(db)
+        if err != nil {
+            return fmt.Errorf("PriceClasses.ForeignKeyUpdate() %s", err)
+        }
+    }
+    return nil
+}
+
+func (s *PriceClasses) RelatedTableUpsert(db *sql.DB) (err error) {
+    for _, node := range s.Nodes {
+        err = node.RelatedTableUpsert(db)
+        if err != nil {
+            return fmt.Errorf("PriceClasses.RelatedTableUpsert() %s", err)
+        }
+    }
+    return nil
+}
+
+func (s *PriceClasses) Delete(db *sql.DB) (err error) {
+    for _, node := range s.Nodes {
+        err = node.Delete(db)
+        if err != nil {
+            return fmt.Errorf("PriceClasses.Delete() %s", err)
+        }
+    }
+    return nil
 }
 
 type Identifiers struct {
@@ -170,17 +332,15 @@ type Identifiers struct {
 	Isbn13Img  string `json:"isbn13Img" validate:"omitempty,url"`
 }
 
-type Item struct {
-	ImageNodes
-	Identifiers
+type SvItem struct {
 
-	Id                string `json:"id" validate:"required,uuid4"`
+	Id                string `json:"id" validate:"omitempty,uuid4"`
+	Type              string `json:"type" validate:"omitempty,lte=100,oneof=rawMaterial part product"`
 	SvUserId          string `json:"svUserId" validate:"omitempty,uuid4"`
 	ParentId          string `json:"parentId" validate:"omitempty,uuid4"`
 	LocationId        string `json:"locationId" validate:"omitempty,uuid4"`
 	PriceClassId      string `json:"priceClassId" validate:"omitempty,uuid4"`
 	UnitId            string `json:"unitId" validate:"omitempty,uuid4"`
-	Type              string `json:"type" validate:"omitempty,lte=100,oneof=rawMaterial part product"`
 	IsVariable        uint8  `json:"isVariable" validate:"omitempty,number,oneof=0 1"`
 	IsBundle          uint8  `json:"isBundle" validate:"omitempty,number,oneof=0 1"`
 	Position          uint8  `json:"position" validate:"omitempty,number"`
@@ -211,39 +371,24 @@ type Item struct {
 	DownloadCode       string `json:"downloadCode" validate:"omitempty,lte=100"`
 	DownloadExpiration string `json:"downloadExpiration" validate:"omitempty,datetime=2006-01-02,lte=100"`
 
-	ClusterIds []string `json:"clusterIds" validate:"dive,omitempty,uuid4"`
-	VariationNodes
+	Identifiers
+    Image
+    Images
+    ImageIds []string
+    Collection
+    Collections
+	CollectionIds []string `json:"collectionIds" validate:"dive,omitempty,uuid4"`
 }
 
-type VariationNodes struct {
-	Nodes []Cluster `json:"variationNodes" vaidate:"dive"`
+func (s *SvItem) Process(userId string) (err error) {
+    if userId == "" {
+        return fmt.Errorf("svItem.Process() requires userId")
+    }
+    s.SvUserId = userId
+    return nil
 }
 
-type ItemNodes struct {
-	Nodes []Item `json:"itemNodes" vaidate:"dive"`
-}
-
-func (s *ItemNodes) Load(fileBuffer *[]byte) (err error) {
-	json.Unmarshal(*fileBuffer, &s)
-	return err
-}
-
-func (s *ItemNodes) Validate() (err error) {
-	validate := validator.New()
-	err = validate.Struct(s)
-	if err != nil {
-		log.Print("ItemNodes.Validate() ", err)
-	}
-	return err
-}
-
-func (s *Item) Process() {
-	log.Print("Item.Process() Not iplemented.")
-}
-
-func (s *Item) Upsert(db *sql.DB) (err error) {
-	// check if struct is empty
-
+func (s *SvItem) Upsert(db *sql.DB) (err error) {
 	qstr := `
         INSERT INTO item (
             id, type, is_variable, is_bundle, position, sku, name, description,
@@ -307,8 +452,6 @@ func (s *Item) Upsert(db *sql.DB) (err error) {
             download_code=$25,
             download_expiration=$26
         WHERE item.id = $1;`
-	// execute it
-
 	_, err = db.Exec(
 		qstr, FormatUUID(s.Id), s.Type, s.IsVariable, s.IsBundle, s.Position,
 		s.SKU, s.Name, s.Description, s.Keywords, s.Cost, s.CostOverride,
@@ -317,14 +460,13 @@ func (s *Item) Upsert(db *sql.DB) (err error) {
 		s.Length, s.Width, s.Height, s.Weight, s.FileName, s.FilePath,
 		s.DownloadCode, s.DownloadExpiration,
 	)
-
 	if err != nil {
-		log.Print("Item.Upsert()", err)
+		return fmt.Errorf("SvItem.Upsert() %s", err)
 	}
-	return err
+    return nil
 }
 
-func (s *Item) ForeignKeyUpdate(db *sql.DB) (err error) {
+func (s *SvItem) ForeignKeyUpdate(db *sql.DB) (err error) {
 	qstr := `
         UPDATE item
         SET sv_user_id = $2,
@@ -333,48 +475,122 @@ func (s *Item) ForeignKeyUpdate(db *sql.DB) (err error) {
             unit_id = $5,
             price_class_id = $6
         WHERE id = $1;`
-
 	_, err = db.Exec(qstr, FormatUUID(s.Id), FormatUUID(s.SvUserId),
 		FormatUUID(s.ParentId), FormatUUID(s.LocationId), FormatUUID(s.UnitId),
 		FormatUUID(s.PriceClassId),
 	)
 	if err != nil {
-		log.Print("Item.ForeignKeyUpdate()", err)
+		return fmt.Errorf("SvItem.ForeignKeyUpdate() %s", err)
 	}
-	return err
+    return nil
 }
 
-func (s *Item) RelatedTableUpsert(db *sql.DB) (err error) {
-
-	if s.ClusterIds != nil {
-		for _, id := range s.ClusterIds {
-			err = JoinClusterItemUpsert(
+func (s *SvItem) RelatedTableUpsert(db *sql.DB) (err error) {
+	if s.CollectionIds != nil {
+		for _, id := range s.CollectionIds {
+			err = JoinCollectionItemUpsert(
 				db,
 				s.SvUserId,
-				id,   // cluster
+				id,   // collection
 				s.Id, // item
 				s.Position,
 			)
 			if err != nil {
-				log.Print("Item.RelatedTableUpsert() 01 ", err)
+				return fmt.Errorf("SvItem.RelatedTableUpsert() 01 %s", err)
 			}
 		}
 	}
+    return nil
+}
 
-	if s.VariationNodes.Nodes != nil {
-		for _, node := range s.VariationNodes.Nodes {
-			err = JoinClusterItemUpsert(
-				db,
-				s.SvUserId,
-				node.Id, // cluster
-				s.Id,    // item
-				node.Position,
-			)
-			if err != nil {
-				log.Print("Item.RelatedTableUpsert() 02 ", err)
-			}
-		}
+type Item struct {
+	SvItem `json:"item"`
+}
+
+func (s *Item) Load(fileBuffer *[]byte) (err error) {
+	err = json.Unmarshal(*fileBuffer, &s)
+	if err != nil {
+		return fmt.Errorf("Item.Load() %s", err)
 	}
+    return nil
+}
 
-	return err
+func (s *Item) Validate() (err error){
+	validate := validator.New()
+	err = validate.Struct(s)
+	if err != nil {
+		return fmt.Errorf("Item.Validate() %s", err)
+	}
+    return nil
+}
+
+type Items struct {
+	Nodes []SvItem `json:"items" vaidate:"dive"`
+}
+
+func (s *Items) Load(fileBuffer *[]byte) (err error) {
+	err = json.Unmarshal(*fileBuffer, &s)
+	if err != nil {
+		return fmt.Errorf("Items.Load() %s", err)
+	}
+    return nil
+}
+
+func (s *Items) Validate() (err error) {
+	validate := validator.New()
+	err = validate.Struct(s)
+	if err != nil {
+		return fmt.Errorf("Items.Validate() %s", err)
+	}
+    return nil
+}
+
+func (s *Items) Process(userId string) (err error) {
+    for _, node := range s.Nodes {
+        err = node.Process(userId)
+        if err != nil {
+            return fmt.Errorf("Items.Process() %s", err)
+        }
+    }
+    return nil
+}
+
+func (s *Items) Upsert(db *sql.DB) (err error) {
+    for _, node := range s.Nodes {
+        err = node.Upsert(db)
+        if err != nil {
+            return fmt.Errorf("Items.Upsert() %s", err)
+        }
+    }
+    return nil
+}
+
+func (s *Items) ForeignKeyUpdate(db *sql.DB) (err error) {
+    for _, node := range s.Nodes {
+        err = node.ForeignKeyUpdate(db)
+        if err != nil {
+            return fmt.Errorf("Items.ForeignKeyUpdate() %s", err)
+        }
+    }
+    return nil
+}
+
+func (s *Items) RelatedTableUpsert(db *sql.DB) (err error) {
+    for _, node := range s.Nodes {
+        err = node.RelatedTableUpsert(db)
+        if err != nil {
+            return fmt.Errorf("Items.RelatedTableUpsert() %s", err)
+        }
+    }
+    return nil
+}
+
+func (s *Items) Delete(db *sql.DB) (err error) {
+    for _, node := range s.Nodes {
+        err = node.Delete(db)
+        if err != nil {
+            return fmt.Errorf("Items.Delete() %s", err)
+        }
+    }
+    return nil
 }

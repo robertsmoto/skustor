@@ -1,10 +1,33 @@
 {
-    "groupNodes": [
+    "aaaCollection": {
+        "id": "0f93a63a-13db-40e8-aa65-eecd37a86e8e",
+        "type": "productTag",
+        "parentId": "",
+        "name": "Made with nautural materials.",
+        "description": "100% Cotton",
+        "keywords": "natural, materials, cotton",
+        "linkUrl": "",
+        "linkText": "",
+        "imageNodes": [
+            {
+                "url": "https://example.com/cotton.jpg",
+                "title": "100% Cotton",
+                "alt": "Cotton being processed in a textile mill.",
+                "caption": "Nature makes clothes with cotton.",
+                "bypassProcessing": 1,
+                "position": 0,
+                "size": "LG",
+                "height": "40",
+                "width": "40"
+            }
+        ]
+    },
+    "aaaCollections": [
 
         {
-            "parentId": "",
             "id": "eeb75266-7f4a-4d8e-9a8a-2c0ada73e7b1",
             "type": "brand",
+            "parentId": "",
             "name": "Gabriels",
             "description": "American clothing company.",
             "keywords": "Gabriels, american, denim, jeans",
@@ -19,13 +42,13 @@
                     "title": "Gabriels Clothing Company Logo",
                     "alt": "Gabriels Clothing Company Logo",
                     "caption": "America's clothing comapany since 1889.",
-                    "order": 0
+                    "position": 0
                 }
             ]
         },{
-            "parentId": "",
             "id": "58ec8f06-fb10-4103-84a4-eafbfc6d45ae",
             "type": "brand",
+            "parentId": "",
             "name": "American Sparrow",
             "description": "Rooted in authenticity, powered by positivity.",
             "keywords": "american, sparrow, apparel",
@@ -52,9 +75,9 @@
                 }
             ]
         },{
-            "parentId": "",
             "id": "3df59d48-c673-4c4b-986a-eaf4d254cfc2",
             "type": "brand",
+            "parentId": "",
             "name": "Answer",
             "description": "American clothing brand and retailer.",
             "keywords": "answer, american, denim, jeans, apparel",
@@ -70,9 +93,9 @@
                 }
             ]
         },{
-            "parentId": "",
             "id": "79419d9d-6320-45a7-89f3-fa6215359cf8",
             "type": "brand",
+            "parentId": "",
             "name": "Calvin Klause",
             "description": "German fashion house established in 1968.",
             "keywords": "leather, accessories, german, fashion",
