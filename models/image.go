@@ -51,12 +51,12 @@ type downloaderResizerProcessorUpserterUploader interface {
 	uploader
 }
 
-func ImgHandler(i downloaderResizerProcessorUpserterUploader, db *sql.DB) {
+func ImgHandler(i downloaderResizerProcessorUpserterUploader, userId string, db *sql.DB) {
 	var err error
 	err = i.Download()
 	err = i.Resize()
 	i.Process()
-	i.Upsert(db)
+	i.Upsert(userId, db)
 	err = i.UploadToSpaces() // to AWS cdn
 	if err != nil {
 		log.Print("Error image.Resize() ", err)
@@ -119,9 +119,8 @@ func (s *Image) Download() (err error) {
 		os.Exit(1)
 	}
 
-
-    baseFileName, fullFileName := GetFileName(s.Url)
-    s.baseFileName = baseFileName
+	baseFileName, fullFileName := GetFileName(s.Url)
+	s.baseFileName = baseFileName
 	s.filePath = filepath.Join(os.Getenv("TMPDIR"), "images/downloads", fullFileName)
 	if err != nil {
 		log.Fatal(err)
@@ -149,7 +148,7 @@ func (s *Image) Resize() (err error) {
 
 		imgFile, err := os.Open(s.filePath)
 		if err != nil {
-            log.Print("Resize open error 01: ", err)
+			log.Print("Resize open error 01: ", err)
 			os.Exit(1)
 		}
 		defer imgFile.Close()
@@ -160,14 +159,14 @@ func (s *Image) Resize() (err error) {
 
 		imgFile, err = os.Open(s.filePath)
 		if err != nil {
-            log.Print("Resize open error 02: ", err)
+			log.Print("Resize open error 02: ", err)
 			os.Exit(1)
 		}
 		defer imgFile.Close()
 
 		decodedImage, _, err := image.Decode(imgFile)
 		if err != nil {
-            log.Print("Resize decode: ", err)
+			log.Print("Resize decode: ", err)
 		}
 
 		// calculate new image sizes
@@ -336,27 +335,25 @@ func (s *Image) UploadToSpaces() (err error) {
 	return err
 }
 
-
-
 type Image struct {
 	SvImage `json:"image" validate:"dive"`
 }
 
 func (s *Image) Load(fileBuffer []byte) {
-    var err error
+	var err error
 	json.Unmarshal(fileBuffer, &s)
-    if err != nil {
-        log.Print("Image.Load() ", err)
-    }
+	if err != nil {
+		log.Print("Image.Load() ", err)
+	}
 }
 
 func (s *Image) Validate() {
-    var err error
+	var err error
 	validate := validator.New()
 	err = validate.Struct(s)
-    if err != nil {
-        log.Print("Image.Validate() ", err)
-    }
+	if err != nil {
+		log.Print("Image.Validate() ", err)
+	}
 }
 
 type Images struct {
@@ -364,20 +361,20 @@ type Images struct {
 }
 
 func (s *Images) Load(fileBuffer []byte) {
-    var err error
+	var err error
 	json.Unmarshal(fileBuffer, &s)
-    if err != nil {
-        log.Print("Images.Load() ", err)
-    }
+	if err != nil {
+		log.Print("Images.Load() ", err)
+	}
 }
 
 func (s *Images) Validate() {
-    var err error
+	var err error
 	validate := validator.New()
 	err = validate.Struct(s)
-    if err != nil {
-        log.Print("Images.Validate() ", err)
-    }
+	if err != nil {
+		log.Print("Images.Validate() ", err)
+	}
 }
 
 func ValidateUrl(url string) bool {
@@ -446,8 +443,8 @@ func CreateNewFileName(fileName string, w, h int) string {
 }
 
 //func CreateTempFilePath(tempFileDir, fileName string) (tempPath string) {
-	//tempPath = filepath.Join(tempFileDir, fileName)
-	//return tempPath
+//tempPath = filepath.Join(tempFileDir, fileName)
+//return tempPath
 //}
 
 func CreateUploadPath(

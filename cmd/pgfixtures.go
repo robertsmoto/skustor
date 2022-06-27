@@ -23,7 +23,7 @@ import (
 
     "github.com/robertsmoto/skustor/models"
     "github.com/robertsmoto/skustor/configs"
-    "github.com/robertsmoto/skustor/tools"
+    "github.com/robertsmoto/skustor/internal/postgres"
 	"github.com/spf13/cobra"
 )
 
@@ -48,39 +48,39 @@ var pgfixturesCmd = &cobra.Command{
         }
 
         //instantiate the model structs
-        user := models.User{}
-        users := models.Users{}
-        place := models.Place{}
-        places := models.Places{}
-        priceClass := models.PriceClass{}
-        priceClasses := models.PriceClasses{}
-        unit := models.Unit{}
-        units := models.Units{}
-        collection := models.Collection{}
-        collections := models.Collections{}
-        item := models.Item{}
-        items := models.Items{}
+        //user := models.User{}
+        //users := models.Users{}
+        //place := models.Place{}
+        //places := models.Places{}
+        //priceClass := models.PriceClass{}
+        //priceClasses := models.PriceClasses{}
+        //unit := models.Unit{}
+        //units := models.Units{}
+        collectionNodes := models.CollectionNodes{}
+        contentNodes := models.ContentNodes{}
+        //item := models.Item{}
+        //items := models.Items{}
 
         // loads and validates the nodes (singular versions of structs)
         loaderNodes := []models.LoaderProcesserUpserter {
-            &user,
-            &users,
-            &place,
-            &places,
-            &priceClass,
-            &priceClasses,
-            &unit,
-            &units,
-            &collection,
-            &collections,
-            &item,
-            &items,
+            //&user,
+            //&users,
+            //&place,
+            //&places,
+            //&priceClass,
+            //&priceClasses,
+            //&unit,
+            //&units,
+            &collectionNodes,
+            &contentNodes,
+            //&item,
+            //&items,
         }
 
 
         // open the db
-        devPostgres := tools.PostgresDb{}
-        pgDb, err := tools.Open(&devPostgres)
+        devPostgres := postgres.PostgresDb{}
+        pgDb, err := postgres.Open(&devPostgres)
         userId := "f8b0f997-1dcc-4e56-915c-9f62f52345ee"
 
         for _, node := range loaderNodes {

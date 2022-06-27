@@ -19,7 +19,7 @@ import (
 	"fmt"
     "log"
 
-    "github.com/robertsmoto/skustor/tools"
+    "github.com/robertsmoto/skustor/internal/postgres"
     "github.com/robertsmoto/skustor/configs"
 	"github.com/spf13/cobra"
 )
@@ -76,24 +76,6 @@ var pgbuilderCmd = &cobra.Command{
         ALTER TABLE price_class ADD COLUMN IF NOT EXISTS note VARCHAR (100);
 
         -- ##################################
-        --  table: aaa_collection
-        -- ##################################
-        CREATE TABLE IF NOT EXISTS aaa_collection (
-            id UUID PRIMARY KEY);
-        ALTER TABLE aaa_collection
-            ADD COLUMN IF NOT EXISTS sv_user_id UUID
-            REFERENCES sv_user(id);
-        ALTER TABLE aaa_collection
-            ADD COLUMN IF NOT EXISTS parent_id UUID
-            REFERENCES aaa_collection(id);
-        ALTER TABLE aaa_collection ADD COLUMN IF NOT EXISTS document JSONB;
-        -- indexes
-
-        CREATE INDEX IF NOT EXISTS aaa_collection_id_idx ON aaa_collection (id);
-        CREATE INDEX IF NOT EXISTS aaa_collection_sv_user_id_idx ON aaa_collection (sv_user_id);
-
-
-        -- ##################################
         --  table: collection
         -- ##################################
         CREATE TABLE IF NOT EXISTS collection (
@@ -104,18 +86,29 @@ var pgbuilderCmd = &cobra.Command{
         ALTER TABLE collection
             ADD COLUMN IF NOT EXISTS parent_id UUID
             REFERENCES collection(id);
-        ALTER TABLE collection ADD COLUMN IF NOT EXISTS type VARCHAR (200);
-        ALTER TABLE collection ADD COLUMN IF NOT EXISTS position
-            INTEGER NOT NULL DEFAULT 0;
-        ALTER TABLE collection ADD COLUMN IF NOT EXISTS name VARCHAR (200);
-        ALTER TABLE collection ADD COLUMN IF NOT EXISTS description VARCHAR (200);
-        ALTER TABLE collection ADD COLUMN IF NOT EXISTS keywords VARCHAR (200);
-        ALTER TABLE collection ADD COLUMN IF NOT EXISTS link_url VARCHAR (200);
-        ALTER TABLE collection ADD COLUMN IF NOT EXISTS link_text VARCHAR (200);
+        ALTER TABLE collection ADD COLUMN IF NOT EXISTS document JSONB;
         -- indexes
-        CREATE INDEX IF NOT EXISTS collection_sv_user_id_idx ON collection (sv_user_id);
-        CREATE INDEX IF NOT EXISTS collection_type_idx ON collection (type);
 
+        CREATE INDEX IF NOT EXISTS collection_id_idx ON collection (id);
+        CREATE INDEX IF NOT EXISTS collection_sv_user_id_idx ON collection (sv_user_id);
+
+        -- ##################################
+        --  table: content
+        -- ##################################
+        CREATE TABLE IF NOT EXISTS content (
+            id UUID PRIMARY KEY);
+        ALTER TABLE content
+            ADD COLUMN IF NOT EXISTS sv_user_id UUID
+            REFERENCES sv_user(id);
+        ALTER TABLE content
+            ADD COLUMN IF NOT EXISTS parent_id UUID
+            REFERENCES content(id);
+        ALTER TABLE content ADD COLUMN IF NOT EXISTS document JSONB;
+        -- indexes
+
+        CREATE INDEX IF NOT EXISTS content_sv_user_id_idx ON content (sv_user_id);
+        CREATE INDEX IF NOT EXISTS content_id_idx ON content (id);
+        
         -- ##################################
         --  table: place
         -- ##################################
@@ -124,16 +117,28 @@ var pgbuilderCmd = &cobra.Command{
         ALTER TABLE place
             ADD COLUMN IF NOT EXISTS sv_user_id UUID
             REFERENCES sv_user(id);
-        ALTER TABLE place ADD COLUMN IF NOT EXISTS type VARCHAR (100);
-        ALTER TABLE place ADD COLUMN IF NOT EXISTS name VARCHAR (100);
-        ALTER TABLE place ADD COLUMN IF NOT EXISTS description VARCHAR (100);
-        ALTER TABLE place ADD COLUMN IF NOT EXISTS phone VARCHAR (20);
-        ALTER TABLE place ADD COLUMN IF NOT EXISTS email VARCHAR (100);
-        ALTER TABLE place ADD COLUMN IF NOT EXISTS website VARCHAR (100);
-        ALTER TABLE place ADD COLUMN IF NOT EXISTS domain VARCHAR (100);
+        ALTER TABLE place ADD COLUMN IF NOT EXISTS document JSONB;
         -- indexes
+
         CREATE INDEX IF NOT EXISTS place_sv_user_id_idx ON place (sv_user_id);
-        CREATE INDEX IF NOT EXISTS place_type_idx ON place (type);
+        CREATE INDEX IF NOT EXISTS place_id_idx ON place (id);
+
+        -- ##################################
+        --  table: person
+        -- ##################################
+        CREATE TABLE IF NOT EXISTS person (
+            id UUID PRIMARY KEY);
+        ALTER TABLE person
+            ADD COLUMN IF NOT EXISTS sv_user_id UUID
+            REFERENCES sv_user(id);
+        ALTER TABLE person
+            ADD COLUMN IF NOT EXISTS place_id UUID
+            REFERENCES place(id);
+        ALTER TABLE person ADD COLUMN IF NOT EXISTS document JSONB;
+        -- indexes
+
+        CREATE INDEX IF NOT EXISTS person_id_idx ON person (id);
+        CREATE INDEX IF NOT EXISTS person_sv_user_id_idx ON person (sv_user_id);
 
         -- ##################################
         --  table: address
@@ -158,7 +163,7 @@ var pgbuilderCmd = &cobra.Command{
         CREATE INDEX IF NOT EXISTS address_type_idx ON address (type);
 
         -- ##################################
-        -- table: item
+        --  table: item
         -- ##################################
         CREATE TABLE IF NOT EXISTS item (
             id UUID PRIMARY KEY);
@@ -169,57 +174,19 @@ var pgbuilderCmd = &cobra.Command{
             ADD COLUMN IF NOT EXISTS parent_id UUID
             REFERENCES item(id);
         ALTER TABLE item
-            ADD COLUMN IF NOT EXISTS place_id UUID
-            REFERENCES place(id);
+            ADD COLUMN IF NOT EXISTS location_id UUID
+            REFERENCES location(id);
         ALTER TABLE item
-            ADD COLUMN IF NOT EXISTS price_class_id UUID;
+            ADD COLUMN IF NOT EXISTS price_class_id UUID
+            REFERENCES price_class(id);
         ALTER TABLE item
-            ADD COLUMN IF NOT EXISTS unit_id UUID;
-        ALTER TABLE item ADD COLUMN IF NOT EXISTS type VARCHAR (50);
-        ALTER TABLE item ADD COLUMN IF NOT EXISTS is_variable
-            INTEGER NOT NULL DEFAULT 0;
-        ALTER TABLE item ADD COLUMN IF NOT EXISTS is_bundle
-            INTEGER NOT NULL DEFAULT 0;
-        ALTER TABLE item ADD COLUMN IF NOT EXISTS position
-            INTEGER NOT NULL DEFAULT 0;
-        ALTER TABLE item ADD COLUMN IF NOT EXISTS sku VARCHAR (50);
-        ALTER TABLE item ADD COLUMN IF NOT EXISTS name VARCHAR (200);
-        ALTER TABLE item ADD COLUMN IF NOT EXISTS description VARCHAR (200);
-        ALTER TABLE item ADD COLUMN IF NOT EXISTS keywords VARCHAR (200);
-        ALTER TABLE item ADD COLUMN IF NOT EXISTS cost
-            BIGINT NOT NULL DEFAULT 0;
-        ALTER TABLE item ADD COLUMN IF NOT EXISTS cost_override
-            BIGINT NOT NULL DEFAULT 0;
-        ALTER TABLE item ADD COLUMN IF NOT EXISTS price BIGINT NOT NULL DEFAULT 0;
-        ALTER TABLE item ADD COLUMN IF NOT EXISTS price_override
-            BIGINT NOT NULL DEFAULT 0;
-        ALTER TABLE item ADD COLUMN IF NOT EXISTS price_is_fixed
-            INTEGER NOT NULL DEFAULT 0;
-        ALTER TABLE item ADD COLUMN IF NOT EXISTS price_discount
-            INTEGER NOT NULL DEFAULT 0;
-        ALTER TABLE item ADD COLUMN IF NOT EXISTS quantity_available
-            INTEGER NOT NULL DEFAULT 0;
-        ALTER TABLE item ADD COLUMN IF NOT EXISTS quantity_min
-            INTEGER NOT NULL DEFAULT 0;
-        ALTER TABLE item ADD COLUMN IF NOT EXISTS quantity_max
-            INTEGER NOT NULL DEFAULT 0;
-        ALTER TABLE item ADD COLUMN IF NOT EXISTS length
-            INTEGER NOT NULL DEFAULT 0;
-        ALTER TABLE item ADD COLUMN IF NOT EXISTS width
-            INTEGER NOT NULL DEFAULT 0;
-        ALTER TABLE item ADD COLUMN IF NOT EXISTS height
-            INTEGER NOT NULL DEFAULT 0;
-        ALTER TABLE item ADD COLUMN IF NOT EXISTS weight
-            INTEGER NOT NULL DEFAULT 0;
-        ALTER TABLE item ADD COLUMN IF NOT EXISTS file_name VARCHAR (100);
-        ALTER TABLE item ADD COLUMN IF NOT EXISTS file_path VARCHAR (100);
-        ALTER TABLE item ADD COLUMN IF NOT EXISTS download_code VARCHAR (100);
-        ALTER TABLE item ADD COLUMN IF NOT EXISTS download_expiration VARCHAR (100);
+            ADD COLUMN IF NOT EXISTS unit_id UUID
+            REFERENCES unit(id);
+        ALTER TABLE item ADD COLUMN IF NOT EXISTS document JSONB;
         -- indexes
+
         CREATE INDEX IF NOT EXISTS item_sv_user_id_idx ON item (sv_user_id);
-        CREATE INDEX IF NOT EXISTS item_priceclassid_idx ON item (price_class_id);
-        CREATE INDEX IF NOT EXISTS item_unitid_idx ON item (unit_id);
-        CREATE INDEX IF NOT EXISTS item_type_idx ON item (type);
+        CREATE INDEX IF NOT EXISTS item_id_idx ON item (id);
 
         -- ##################################
         -- table: join_collection_item
@@ -281,26 +248,19 @@ var pgbuilderCmd = &cobra.Command{
 
 
         // open each db
-        devPostgres := tools.PostgresDb{}
-        devConn, err := tools.Open(&devPostgres)
+        devPostgres := postgres.PostgresDb{}
+        devConn, err := postgres.Open(&devPostgres)
         if err != nil {
             log.Print("Connection error", err)
         }
         _, err = devConn.Exec(qstr)
         if err != nil {
             log.Print("Error creating or updating database.", err)
+        } else {
+            log.Print("Successfully updated postgresDb.")
         }
 
-
-        fmt.Println(devConn)
-
         devConn.Close()
-        
-        // run the query on each db
-
-        // close the db
-
-
 	},
 }
 

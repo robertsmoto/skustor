@@ -1,48 +1,63 @@
 package models
 
 import (
+    //"fmt"
     "os"
     "testing"
+
+
+    "github.com/robertsmoto/skustor/configs"
+    "github.com/robertsmoto/skustor/internal/postgres"
 )
 
-func Test_PlaceLoadAndValidate(t *testing.T) {
+func Test_PlaceInterfaces(t *testing.T) {
+    var err error
+
+    // loading env variables (will eventually be loaded by main)
+    conf := configs.Config{}
+    err = configs.Load(&conf)
+    if err != nil {
+        t.Errorf("Test_PlaceInterfaces %s", err)
+    }
+
     // read file (will eventually come from the request)
+    testFile, err := os.ReadFile("./test_data/places.json")
+    if err != nil {
+        t.Errorf("Test_PlaceInterfaces %s", err)
+    }
+
+    // open the db connections
+    postgres := postgres.PostgresDb{}
+    pgDb, err := postgres.Open(&postgres)
+
+    // instantiate the structs
+    placeNodes := PlaceNodes{}
+
+    // Little Johnnie user
+    userId := "f8b0f997-1dcc-4e56-915c-9f62f52345ee"
+
+    procStructs := []LoaderProcesserUpserter{&placeNodes}
+    for _, s := range procStructs {
+        err = JsonLoaderUpserterHandler(s, userId, &testFile, pgDb)
+        if err != nil {
+        t.Errorf("Test_PlaceInterfaces %s", err)
+        }
+    }
+    pgDb.Close()
+}
+
+func Test_PlaceLoadAndValidate(t *testing.T) {
     testFile, err := os.ReadFile("./test_data/places.json")
     if err != nil {
         t.Errorf("Test_PlaceLoadAndValidate %s", err)
     }
-
-    // instantiate the address structs
-    address := Address{}
-    addresses := Addresses{}
-    // test the loader and validator
-    address.Load(&testFile)
-    address.Validate()
-    addresses.Load(&testFile)
-    addresses.Validate()
-    if address.Id != "b5d72565-a305-44c3-b979-24bba466b637" {
-        t.Error("Address.Id 01 ", err)
-    }
-    for i, address := range addresses.Nodes {
-        if i == 0 && address.Id != "a3f982c9-6537-440c-8191-39445044f2f9" {
-            t.Error("Address.Id 02 ", err)
-        }
-    }
-
-    // instantiate the structs
-    place := Place{}
-    places := Places{}
-    // test the loader and validator
-    place.Load(&testFile)
-    place.Validate()
-    places.Load(&testFile)
-    places.Validate()
-    if place.Id != "becf155e-77ee-419d-bfae-d63c8cd687b1" {
-        t.Error("Place.Id 01 ", err)
-    }
-    for i, place := range places.Nodes {
-        if i == 0 && place.Id != "58d94686-4dd6-4c10-b255-fc40ebfd56e1" {
-            t.Error("Place.Id 02 ", err)
+    placeNodes := PlaceNodes{}
+    placeNodes.Load(&testFile)
+    placeNodes.Validate()
+    for i, node := range placeNodes.Nodes {
+        testId := "58d94686-4dd6-4c10-b255-fc40ebfd56e1"
+        if i == 0 && node.Id != testId {
+            t.Errorf("node.Id 02 %s != %s ", node.Id, testId)
         }
     }
 }

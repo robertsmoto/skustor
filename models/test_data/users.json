@@ -1,15 +1,5 @@
 {
-    "user": 
-        {
-            "id": "5cc4a649-8138-4223-a62c-263cbb8a12b3",
-            "auth": "ac763201-f677-4ce7-b045-b5b5deefeeac",
-            "key": "5468bb9b-2536-43ee-977d-5ce26a1b5670",
-            "username": "mjslayer",
-            "firstname": "Michael",
-            "lastname": "Slayer",
-            "nickname": "Mike"
-        },
-    "users": [
+    "userNodes": [
         {
             "id": "f8b0f997-1dcc-4e56-915c-9f62f52345ee",
             "auth": "b9a3c679-cbc3-4e7b-8fd7-6aad20d5b2c4",
@@ -18,6 +8,14 @@
             "firstname": "John",
             "lastname": "Smith",
             "nickname": "Little Johnnie"
+        },{
+            "id": "5cc4a649-8138-4223-a62c-263cbb8a12b3",
+            "auth": "ac763201-f677-4ce7-b045-b5b5deefeeac",
+            "key": "5468bb9b-2536-43ee-977d-5ce26a1b5670",
+            "username": "mjslayer",
+            "firstname": "Michael",
+            "lastname": "Slayer",
+            "nickname": "Mike"
         },{
             "id": "bdc4e93d-d009-4265-ad27-5605b5426ae2",
             "auth": "398df27d-e2a8-457f-a7a2-b86a6fb2a528",

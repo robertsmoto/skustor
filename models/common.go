@@ -7,16 +7,6 @@ import (
 	"io"
 )
 
-//type ModelNodes interface {
-        //SvUserNodes
-        //PlaceNodes
-        //PriceClassNodes
-        //UnitNodes
-        //CollectionNodes
-        //ItemNodes
-
-//}
-
 type loader interface {
 	Load(fileBuffer *[]byte) (err error)
 }
@@ -25,13 +15,8 @@ type validater interface {
 	Validate() (err error)
 }
 
-type processer interface {
-    Process(userId string) (err error)
-
-}
-
 type upserter interface {
-	Upsert(db *sql.DB) (err error)
+	Upsert(userId string, db *sql.DB) (err error)
 }
 
 type foreignKeyUpdater interface {
@@ -43,25 +28,23 @@ type relatedTableUpserter interface {
 }
 
 type LoaderProcesserUpserter interface {
-    loader
-    validater
-    processer
+	loader
+	validater
 	upserter
 	foreignKeyUpdater
 	relatedTableUpserter
 }
 
 func JsonLoaderUpserterHandler(data LoaderProcesserUpserter, userId string, fileBuffer *[]byte, db *sql.DB) (err error) {
-    err = data.Load(fileBuffer)
-    err = data.Validate()
-    err = data.Process(userId)
-	err = data.Upsert(db)
+	err = data.Load(fileBuffer)
+	err = data.Validate()
+	err = data.Upsert(userId, db)
 	err = data.ForeignKeyUpdate(db)
 	err = data.RelatedTableUpsert(db)
-    if err != nil {
-        return fmt.Errorf("JsonLoaderUpserterHandler %s", err)
-    }
-    return nil
+	if err != nil {
+		return fmt.Errorf("JsonLoaderUpserterHandler %s", err)
+	}
+	return nil
 }
 
 func JoinCollectionItemUpsert(db *sql.DB, svUserId, clusterId, itemId string, position uint8) (err error) {
@@ -85,12 +68,12 @@ func JoinCollectionItemUpsert(db *sql.DB, svUserId, clusterId, itemId string, po
 	return err
 }
 
-func FormatUUID(str string) *string {
+func FormatUUID(str string) string {
 	if str == "" {
-		return nil
+		return ""
 	} else {
 		ret := str
-		return &ret
+		return ret
 	}
 }
 

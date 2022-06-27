@@ -1,8 +1,5 @@
 {
-    "item": {
-        "id": "723a1838-a3b2-4fcd-9ec9-24f8b2c2dde8"
-    },
-    "items": [
+    "itemNodes": [
         {
             "id": "2940d429-9d97-4d9e-a80f-67d56e42d226",
             "parentId": "",
@@ -30,8 +27,8 @@
             "filePath": "",
             "downloadCode": "",
             "downloadExpiration": "",
-            "brandIds": ["d9a05383-cc15-4ffe-8496-f869a3223ba7"],
             "collectionIds": [
+                "d9a05383-cc15-4ffe-8496-f869a3223ba7",
                 "b9d8b54b-a58c-4487-b6ca-81e34e3e9ce3",
                 "906e8d39-8038-4a2c-9917-6f3a1f57723d",
                 "67473dd3-81c4-4927-98b0-66b8c79fa50b",
@@ -40,7 +37,7 @@
                 "814ac5b3-8db4-45fa-891d-25c59b10146e",
                 "1595c865-2678-4a6b-b4cd-ec8752954661"
             ],
-            "images": [
+            "imageNodes": [
                 {
                     "url": "https://example.com/GCSH08MA/00.jpg",
                     "title": "GCSH08MA Product Photo",
@@ -111,7 +108,7 @@
                 "814ac5b3-8db4-45fa-891d-25c59b10146e",
                 "1595c865-2678-4a6b-b4cd-ec8752954661"
             ],
-            "images": [
+            "imageNodes": [
                 {
                     "url": "https://example.com/GCSH08MA/00.jpg",
                     "title": "GCSH08MA Product Photo",

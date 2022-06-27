@@ -1,22 +1,5 @@
 {
-    "person": {
-        "id": "0340a432-f7a9-428e-a70b-6a7a4f8bcdbc",
-        "type": "customer",
-        "placeId": "cadbef27-406a-41f9-a7db-dd65ea0b8525",
-        "salutation": "Mr.",
-        "firstname": "Herbert",
-        "lastname": "Wright",
-        "nickname": "Herb",
-        "phone": "903-233-3312",
-        "mobile": "903-233-1265",
-        "email": "HerbertTWright@jourrapide.com",
-        "addressIds": [
-            "fd4a66a1-989d-48d7-90bf-22722b1184a1",
-            "d582d666-9afe-48b0-84b4-e42101b8505b",
-            "a5eda519-92e1-4f28-8fa4-aae6d08872df"
-        ]
-    },
-    "people": [
+    "personNodes": [
         {
             "id": "18788cb9-1abd-4822-9efa-f28d4443e042",
             "type": "contact",
@@ -33,6 +16,23 @@
                 "2bb49f4c-deb0-4191-a453-b59676a8d8f7",
                 "5a270fe2-5a03-4efa-b102-4434d44bda8a"
             ]
+        },{
+            "id": "0340a432-f7a9-428e-a70b-6a7a4f8bcdbc",
+            "type": "customer",
+            "placeId": "cadbef27-406a-41f9-a7db-dd65ea0b8525",
+            "salutation": "Mr.",
+            "firstname": "Herbert",
+            "lastname": "Wright",
+            "nickname": "Herb",
+            "phone": "903-233-3312",
+            "mobile": "903-233-1265",
+            "email": "HerbertTWright@jourrapide.com",
+            "addressIds": [
+                "fd4a66a1-989d-48d7-90bf-22722b1184a1",
+                "d582d666-9afe-48b0-84b4-e42101b8505b",
+                "a5eda519-92e1-4f28-8fa4-aae6d08872df"
+        ]
+
         },{
             "id": "1a241ff6-2df0-4c9a-b42c-5bd03c1136af",
             "type": "contact",

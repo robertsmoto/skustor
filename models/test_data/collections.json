@@ -1,28 +1,5 @@
 {
-    "collection": {
-        "id": "0f93a63a-13db-40e8-aa65-eecd37a86e8e",
-        "type": "productTag",
-        "parentId": "",
-        "name": "Made with nautural materials.",
-        "description": "100% Cotton",
-        "keywords": "natural, materials, cotton",
-        "linkUrl": "",
-        "linkText": "",
-        "imageNodes": [
-            {
-                "url": "https://example.com/cotton.jpg",
-                "title": "100% Cotton",
-                "alt": "Cotton being processed in a textile mill.",
-                "caption": "Nature makes clothes with cotton.",
-                "bypassProcessing": 1,
-                "position": 0,
-                "size": "LG",
-                "height": "40",
-                "width": "40"
-            }
-        ]
-    },
-    "collections": [
+    "collectionNodes": [
 
         {
             "id": "eeb75266-7f4a-4d8e-9a8a-2c0ada73e7b1",
@@ -42,7 +19,30 @@
                     "title": "Gabriels Clothing Company Logo",
                     "alt": "Gabriels Clothing Company Logo",
                     "caption": "America's clothing comapany since 1889.",
-                    "position": 0
+                    "position": 0,
+                    "bypassProcessing": 1
+                }
+            ]
+        },{
+            "id": "0f93a63a-13db-40e8-aa65-eecd37a86e8e",
+            "type": "productTag",
+            "parentId": "",
+            "name": "Made with nautural materials.",
+            "description": "100% Cotton",
+            "keywords": "natural, materials, cotton",
+            "linkUrl": "",
+            "linkText": "",
+            "imageNodes": [
+                {
+                    "url": "https://example.com/cotton.jpg",
+                    "title": "100% Cotton",
+                    "alt": "Cotton being processed in a textile mill.",
+                    "caption": "Nature makes clothes with cotton.",
+                    "bypassProcessing": 1,
+                    "position": 0,
+                    "size": "LG",
+                    "height": "40",
+                    "width": "40"
                 }
             ]
         },{
@@ -89,7 +89,8 @@
                     "title": "Answer Clothing Company",
                     "alt": "Answer Clothing Company",
                     "caption": "You have questions, we have the Answer.",
-                    "position": 0
+                    "position": 0,
+                    "bypassProcessing": 1
                 }
             ]
         },{
@@ -107,7 +108,8 @@
                     "title": "Calvin Klause Clothing Company Logo",
                     "alt": "Calvin Klause Clothing Company Logo",
                     "caption": "Calvin Klause modern German style.",
-                    "position": 0
+                    "position": 0,
+                    "bypassProcessing": 1
                 }
             ]
         },{

@@ -7,9 +7,10 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/pborman/uuid"
+	"github.com/tidwall/gjson"
 )
 
-type SvUser struct {
+type User struct {
 	Id        string `json:"id" validate:"omitempty,uuid4"`
 	Auth      string `json:"auth" validate:"omitempty,uuid4"`
 	Key       string `json:"key" validate:"omitempty,uuid4"`
@@ -17,155 +18,112 @@ type SvUser struct {
 	Firstname string `json:"firstname" validate:"omitempty,lte=100"`
 	Lastname  string `json:"lastname" validate:"omitempty,lte=100"`
 	Nickname  string `json:"nickname" validate:"omitempty,lte=100"`
+    Document  string
 }
 
-func (s *SvUser) Process(userId string) (err error) {
-    fmt.Println("SvUser.Process() Not iplemented.")
-    if err != nil {
-        return fmt.Errorf("SvUser.Process() %s", err)
-    }
-    return nil
+
+type UserNodes struct {
+	Nodes []User `json:"userNodes" validate:"dive"`
+	Gjson gjson.Result
 }
 
-func (s *SvUser) Upsert(db *sql.DB) (err error) {
-	if *s == (SvUser{}) {
-		return nil
+func (s *UserNodes) Load(fileBuffer *[]byte) (err error) {
+	value := gjson.Get(string(*fileBuffer), "userNodes")
+	s.Gjson = value
+
+	json.Unmarshal(*fileBuffer, &s)
+	if err != nil {
+		return fmt.Errorf("UserNodes.Load() %s", err)
 	}
-	// construct the sql upsert statement
-	qstr := `
-        INSERT INTO sv_user (
-            id, auth, key, username, firstname, lastname, nickname
+	return nil
+}
+
+func (s *UserNodes) Validate() (err error) {
+	validate := validator.New()
+	err = validate.Struct(s)
+	if err != nil {
+		return fmt.Errorf("UserNodes.Validate() %s", err)
+	}
+	return nil
+}
+
+func (s *UserNodes) Upsert(userId string, db *sql.DB) (err error) {
+	for i, node := range s.Nodes {
+		node.Document = s.Gjson.Array()[i].String()
+        qstr := `
+            INSERT INTO sv_user (
+                id, auth, key, username, firstname, lastname, nickname
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            ON CONFLICT (id) DO UPDATE
+            SET auth = $2,
+                key = $3,
+                username = $4,
+                firstname = $5,
+                lastname = $6,
+                nickname = $7
+            WHERE sv_user.id = $1;`
+        // execute it
+
+        _, err = db.Exec(
+            qstr, uuid.Parse(node.Id), uuid.Parse(node.Auth), uuid.Parse(node.Key),
+            node.Username, node.Firstname, node.Lastname, node.Nickname,
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
-        ON CONFLICT (id) DO UPDATE
-        SET auth = $2,
-            key = $3,
-            username = $4,
-            firstname = $5,
-            lastname = $6,
-            nickname = $7
-        WHERE sv_user.id = $1;`
-	// execute it
-
-	_, err = db.Exec(
-		qstr, uuid.Parse(s.Id), uuid.Parse(s.Auth), uuid.Parse(s.Key),
-		s.Username, s.Firstname, s.Lastname, s.Nickname,
-	)
-	if err != nil {
-		return fmt.Errorf("SvUser.Upsert() %s", err)
+		if err != nil {
+			return fmt.Errorf("UserNodes.Upsert() %s", err)
+		}
 	}
-    return nil
+	return nil
 }
 
-func (s *SvUser) ForeignKeyUpdate(db *sql.DB) (err error) {
-	fmt.Println("SvUser.ForeignKeyUpsert Not implemented.")
-	if err != nil {
-		return fmt.Errorf("SvUser.ForeignKeyUpdate() %s", err)
-	}
-    return nil
+func (s *UserNodes) ForeignKeyUpdate(db *sql.DB) (err error) {
+    fmt.Println("UserNodes.ForeignKeyUpdate Not implemented.")
+	//for _, node := range s.Nodes {
+		//qstr := `
+            //UPDATE collection
+            //SET parent_id = $2
+            //WHERE collection.id = $1;`
+
+		//_, err = db.Exec(
+			//qstr, FormatUUID(node.Id), FormatUUID(node.ParentId),
+		//)
+		//if err != nil {
+			//return fmt.Errorf("Collections.ForeignKeyUpdate() %s", err)
+		//}
+	//}
+	return nil
 }
 
-func (s *SvUser) RelatedTableUpsert(db *sql.DB) (err error) {
-	fmt.Println("SvUser.RelatedTableUpsert Not implemented.")
-	if err != nil {
-		return fmt.Errorf("SvUser.RelatedTableUpsert() %s", err)
-	}
-    return nil
+func (s *UserNodes) RelatedTableUpsert(db *sql.DB) (err error) {
+    fmt.Println("UserNodes.ForeignKeyUpdate Not implemented.")
+	//for _, node := range s.Nodes {
+		//if s.ItemIds != nil {
+		//for _, id := range s.ItemIds {
+		//err = JoinCollectionItemUpsert(
+		//db,
+		//s.SvUserId,
+		//s.Id,
+		//id,
+		//s.Position,
+		//)
+		//}
+		//if err != nil {
+		//return fmt.Errorf("Collection.RelatedTableUpsert() 01 %s", err)
+		//}
+		//}
+		//if err != nil {
+			//return fmt.Errorf("Collections.RelatedTableUpsert() %s", err)
+		//}
+	//}
+	return nil
 }
 
-func (s *SvUser) Delete(db *sql.DB) (err error) {
-	fmt.Print("SvUser.Delete() Not implemented.")
-    return nil
-}
-
-type User struct {
-	SvUser `json:"user"`
-}
-
-func (s *User) Load(fileBuffer *[]byte) (err error) {
-	err = json.Unmarshal(*fileBuffer, &s)
-	if err != nil {
-		return fmt.Errorf("User.Load() %s", err)
-	}
-    return err
-}
-
-func (s *User) Validate() (err error) {
-	validate := validator.New()
-	err = validate.Struct(s)
-	if err != nil {
-		return fmt.Errorf("User.Validate() %s", err)
-	}
-    return nil
-}
-
-type Users struct {
-	Nodes []SvUser `json:"users" validate:"dive"`
-}
-
-func (s *Users) Load(fileBuffer *[]byte) (err error) {
-	err = json.Unmarshal(*fileBuffer, &s)
-	if err != nil {
-		return fmt.Errorf("Users.Load() %s", err)
-	}
-    return nil
-}
-
-func (s *Users) Validate() (err error) {
-	validate := validator.New()
-	err = validate.Struct(s)
-	if err != nil {
-		return fmt.Errorf("Users.Validate() %s", err)
-	}
-    return nil
-}
-
-func (s *Users) Process(userId string) (err error) {
-    for _, node := range s.Nodes {
-        err = node.Process(userId)
-        if err != nil {
-            return fmt.Errorf("Users.Process() %s", err)
-        }
-    }
-    return nil
-}
-
-func (s *Users) Upsert(db *sql.DB) (err error) {
-    for _, node := range s.Nodes {
-        err = node.Upsert(db)
-        if err != nil {
-            return fmt.Errorf("Users.Upsert() %s", err)
-        }
-    }
-    return nil
-}
-
-func (s *Users) ForeignKeyUpdate(db *sql.DB) (err error) {
-    for _, node := range s.Nodes {
-        err = node.ForeignKeyUpdate(db)
-        if err != nil {
-            return fmt.Errorf("Users.ForeignKeyUpdate() %s", err)
-        }
-    }
-    return nil
-}
-
-func (s *Users) RelatedTableUpsert(db *sql.DB) (err error) {
-    for _, node := range s.Nodes {
-        err = node.RelatedTableUpsert(db)
-        if err != nil {
-            return fmt.Errorf("Users.RelatedTableUpsert() %s", err)
-        }
-    }
-    return nil
-}
-
-func (s *Users) Delete(db *sql.DB) (err error) {
-    for _, node := range s.Nodes {
-        err = node.Delete(db)
-        if err != nil {
-            return fmt.Errorf("Users.Delete() %s", err)
-        }
-    }
-    return nil
+func (s *UserNodes) Delete(db *sql.DB) (err error) {
+	fmt.Println("UserNodes.Delete() Not implemented.")
+	//for _, node := range s.Nodes {
+	//if err != nil {
+	//return fmt.Errorf("Collections.Delete() %s", err)
+	//}
+	//}
+	return nil
 }
