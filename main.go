@@ -17,6 +17,9 @@ package main
 
 import (
     "fmt"
+    "log"
+    "net/http"
+    "github.com/gorilla/mux"
 
     "github.com/robertsmoto/skustor/internal/configs"
     "github.com/robertsmoto/skustor/cmd"
@@ -28,4 +31,16 @@ func main() {
 
     configs.Load(&configs.Config{})
     fmt.Print("Loaded configs env variables ...")
+
+    r := mux.NewRouter().StrictSlash(true)
+    //r.HandleFunc("/allgroceries", AllGroceries) // ----> To request all groceries
+    //r.HandleFunc("/groceries/{name}", SingleGrocery) // ----> To request a specific grocery
+    r.HandleFunc("/upsert", upsertData).Methods("POST") // ----> To add  new grocery to buy
+    //r.HandleFunc("/groceries/{name}", UpdateGrocery).Methods("PUT")// ----> To update a grocery
+    //r.HandleFunc("/groceries/{name}", DeleteGrocery).Methods("DELETE") // ----> Delete a grocery
+    log.Fatal(http.ListenAndServe(":10000", r))
 }
+
+
+
+

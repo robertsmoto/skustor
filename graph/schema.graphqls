@@ -1,6 +1,6 @@
 type Collection {
   id: ID!
-  document: JSON!
+  document: String!
   parentId: ID
   imageIds: ID
   itemIds: ID
@@ -12,7 +12,7 @@ type Query {
 
 input NewCollection {
   id: ID!
-  document: JSON!
+  document: String!
 }
 
 type Mutation {

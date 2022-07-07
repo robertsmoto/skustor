@@ -15,7 +15,7 @@ func Test_CollectionInterfaces(t *testing.T) {
 
 	// loading env variables (will eventually be loaded by main)
 	conf := configs.Config{}
-	err = configs.Load(&conf)
+	configs.Load(&conf)
 	if err != nil {
 		t.Errorf("Test_CollectionInterfaces %s", err)
 	}

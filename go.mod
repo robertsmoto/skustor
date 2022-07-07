@@ -9,6 +9,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.12.6
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.26.11
 	github.com/go-playground/validator/v10 v10.11.0
+	github.com/gorilla/mux v1.8.0
 	github.com/lib/pq v1.10.6
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
