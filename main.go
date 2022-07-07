@@ -33,11 +33,7 @@ func main() {
     fmt.Print("Loaded configs env variables ...")
 
     r := mux.NewRouter().StrictSlash(true)
-    //r.HandleFunc("/allgroceries", AllGroceries) // ----> To request all groceries
-    //r.HandleFunc("/groceries/{name}", SingleGrocery) // ----> To request a specific grocery
-    r.HandleFunc("/upsert", upsertData).Methods("POST") // ----> To add  new grocery to buy
-    //r.HandleFunc("/groceries/{name}", UpdateGrocery).Methods("PUT")// ----> To update a grocery
-    //r.HandleFunc("/groceries/{name}", DeleteGrocery).Methods("DELETE") // ----> Delete a grocery
+    r.HandleFunc("/upsert", UpsertData).Methods("POST")
     log.Fatal(http.ListenAndServe(":10000", r))
 }
 

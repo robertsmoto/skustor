@@ -8,7 +8,7 @@ import (
     //"io/ioutil"
     "net/http"
 
-    //"github.com/gorilla/mux"
+    "github.com/gorilla/mux"
     "github.com/robertsmoto/skustor/internal/configs"
     //"github.com/robertsmoto/skustor/internal/models"
 	//"github.com/robertsmoto/skustor/internal/postgres"
@@ -16,10 +16,14 @@ import (
 )
 
 
-func upsertDataHandler(w http.ResponseWriter, r *http.Request) {
+func UpsertData(w http.ResponseWriter, r *http.Request) {
 
     fmt.Println("Endpoint hit: upsertData")
     fmt.Println("request: r")
+
+    vars := mux.Vars(r)
+    w.WriteHeader(http.StatusOK)
+    fmt.Fprintf(w, "Category: %v\n", vars["category"])
 
     //vars := mux.Vars(r)
 
@@ -58,4 +62,3 @@ func upsertDataHandler(w http.ResponseWriter, r *http.Request) {
 	//}
 
 }
-
