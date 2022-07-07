@@ -1,11 +1,13 @@
 package models
 
 import (
-	//"fmt"
-	"github.com/robertsmoto/skustor/configs"
-	"github.com/robertsmoto/skustor/internal/postgres"
+    "fmt"
+    "log"
 	"os"
 	"testing"
+
+	"github.com/robertsmoto/skustor/internal/configs"
+	"github.com/robertsmoto/skustor/internal/postgres"
 )
 
 func Test_CollectionInterfaces(t *testing.T) {
@@ -25,8 +27,7 @@ func Test_CollectionInterfaces(t *testing.T) {
 	}
 
 	// open the db connections
-	postgres := postgres.PostgresDb{}
-	pgDb, err := postgres.Open(&postgres)
+	pgDb, err := postgres.Open(&postgres.PostgresDb{})
 
 	// instantiate the structs
 	//collection := Collection{}
@@ -42,6 +43,22 @@ func Test_CollectionInterfaces(t *testing.T) {
 			t.Errorf("Test_CollectionInterfaces %s", err)
 		}
 	}
+
+    qstr := `
+        SELECT document FROM collection
+        WHERE id = 'eeb75266-7f4a-4d8e-9a8a-2c0ada73e7b1';
+        `
+    var x string
+    result := pgDb.QueryRow(qstr).Scan(&x)
+
+    fmt.Println("result ", x)
+    fmt.Printf("result %T ", result)
+
+    if err != nil {
+        log.Print("Error creating or updating database.", err)
+    } else {
+        log.Print("Successfully updated postgresDb.")
+    }
 
 	//err = JsonLoaderUpserterHandler(&collection, userId, &testFile, pgDb)
 	//if err != nil {

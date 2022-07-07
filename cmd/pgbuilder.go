@@ -20,7 +20,7 @@ import (
     "log"
 
     "github.com/robertsmoto/skustor/internal/postgres"
-    "github.com/robertsmoto/skustor/configs"
+    //"github.com/robertsmoto/skustor/internal/configs"
 	"github.com/spf13/cobra"
 )
 
@@ -239,13 +239,11 @@ var pgbuilderCmd = &cobra.Command{
 
         `
 
-        conf := configs.Config{}
-        err := configs.Load(&conf)
-        if err != nil {
-            log.Print("Configs error", err)
-        }
-
-
+        //conf := configs.Config{}
+        //err := configs.Load(&conf)
+        //if err != nil {
+            //log.Print("Configs error", err)
+        //}
 
         // open each db
         devPostgres := postgres.PostgresDb{}

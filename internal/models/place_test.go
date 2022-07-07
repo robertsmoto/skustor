@@ -6,7 +6,7 @@ import (
     "testing"
 
 
-    "github.com/robertsmoto/skustor/configs"
+    "github.com/robertsmoto/skustor/internal/configs"
     "github.com/robertsmoto/skustor/internal/postgres"
 )
 
@@ -27,8 +27,7 @@ func Test_PlaceInterfaces(t *testing.T) {
     }
 
     // open the db connections
-    postgres := postgres.PostgresDb{}
-    pgDb, err := postgres.Open(&postgres)
+	pgDb, err := postgres.Open(&postgres.PostgresDb{})
 
     // instantiate the structs
     placeNodes := PlaceNodes{}

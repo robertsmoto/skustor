@@ -15,8 +15,17 @@ limitations under the License.
 */
 package main
 
-import "github.com/robertsmoto/skustor/cmd"
+import (
+    "fmt"
+
+    "github.com/robertsmoto/skustor/internal/configs"
+    "github.com/robertsmoto/skustor/cmd"
+)
 
 func main() {
+    // for the cli
 	cmd.Execute()
+
+    configs.Load(&configs.Config{})
+    fmt.Print("Loaded configs env variables ...")
 }

@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/robertsmoto/skustor/configs"
+	"github.com/robertsmoto/skustor/internal/configs"
 	"log"
 	"os"
 	"path/filepath"

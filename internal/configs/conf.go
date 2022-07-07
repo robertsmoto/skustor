@@ -3,7 +3,7 @@ package configs
 import (
 	"encoding/json"
 	"errors"
-	//"log"
+    //"log"
 	"os"
 	"path/filepath"
 )
@@ -19,17 +19,19 @@ type OpenerLoader interface {
 	Loader
 }
 
-func Load(conf OpenerLoader) (err error) {
+func Load(conf OpenerLoader) { 
 	filePath := os.Getenv("CONFPATH")
 	if filePath == "" {
-		os.Setenv("CONFPATH", "/home/robertsmoto/dev/skustor/configs/conf.json")
+		os.Setenv("CONFPATH", "/home/robertsmoto/dev/skustor/internal/configs/conf.json")
 		filePath = os.Getenv("CONFPATH")
 	}
 	filePath, _ = filepath.Abs(filePath)
 
 	file, err := conf.Open(filePath)
 	err = conf.Load(file)
-	return err
+    if err != nil {
+        panic("Configs.Load() error.")
+    }
 }
 
 type Config struct {

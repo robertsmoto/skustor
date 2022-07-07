@@ -21,8 +21,8 @@ import (
     "os"
     "path"
 
-    "github.com/robertsmoto/skustor/models"
-    "github.com/robertsmoto/skustor/configs"
+    //"github.com/robertsmoto/skustor/internal/configs"
+    "github.com/robertsmoto/skustor/internal/models"
     "github.com/robertsmoto/skustor/internal/postgres"
 	"github.com/spf13/cobra"
 )
@@ -38,11 +38,11 @@ var pgfixturesCmd = &cobra.Command{
 		fmt.Println("building fixtures ...")
 
 
-        conf := configs.Config{}
-        err := configs.Load(&conf)
+        //conf := configs.Config{}
+        //err := configs.Load(&conf)
 
         fixturesFile, err := os.ReadFile(
-            path.Join(conf.RootDir, "cmd/data/fixtures.json"))
+            path.Join(os.Getenv("ROOTDR"), "cmd/data/fixtures.json"))
         if err != nil {
             log.Printf("pgfixturesCmd %s", err)
         }

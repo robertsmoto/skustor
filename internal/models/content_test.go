@@ -2,7 +2,7 @@ package models
 
 import (
 	//"fmt"
-    "github.com/robertsmoto/skustor/configs"
+    "github.com/robertsmoto/skustor/internal/configs"
     "github.com/robertsmoto/skustor/internal/postgres"
 	"os"
 	"testing"
@@ -25,8 +25,7 @@ func Test_ContentInterfaces(t *testing.T) {
     }
 
     // open the db connections
-    postgres := postgres.PostgresDb{}
-    pgDb, err := postgres.Open(&postgres)
+	pgDb, err := postgres.Open(&postgres.PostgresDb{})
 
     // instantiate the structs
     //collection := Collection{}
