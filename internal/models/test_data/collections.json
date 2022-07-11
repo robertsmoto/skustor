@@ -1,4 +1,36 @@
 {
+    "collection": {
+        "id": "9b82c1cc-d303-418e-adbb-fca176a847ab",
+        "type": "brand",
+        "parentId": "",
+        "name": "Test Brand",
+        "description": "Test Description",
+        "keywords": "test, keyword",
+        "linkUrl": "https://www.testbrand.com",
+        "linkText": "This is a link text.",
+        "itemIds": [
+            "2940d429-9d97-4d9e-a80f-67d56e42d226",
+            "a4ce7648-e499-40d1-8e6b-0c2ef0a7856e"
+        ],
+        "contentIds": [
+            "2f877877-7669-42b6-abed-6ebc20ba4c5b",
+            "cdd96446-7dbc-437d-a7c1-1621761f1465"
+        ],
+        "imageIds": [
+            "",
+            ""
+        ],
+        "imageNodes": [
+            {
+                "url": "https://cdn-stage.sodavault.com/media/111111111111/svLogo.png",
+                "title": "Gabriels Clothing Company Logo",
+                "alt": "Gabriels Clothing Company Logo",
+                "caption": "America's clothing comapany since 1889.",
+                "position": 0,
+                "bypassProcessing": 1
+            }
+        ]
+    },
     "collectionNodes": [
 
         {
@@ -10,8 +42,17 @@
             "keywords": "Gabriels, american, denim, jeans",
             "linkUrl": "https://www.gabriels.com",
             "linkText": "Gabriels Clothing Company",
-            "productIds": [
+            "itemIds": [
+                "2940d429-9d97-4d9e-a80f-67d56e42d226",
                 "a4ce7648-e499-40d1-8e6b-0c2ef0a7856e"
+            ],
+            "contentIds": [
+                "2f877877-7669-42b6-abed-6ebc20ba4c5b",
+                "cdd96446-7dbc-437d-a7c1-1621761f1465"
+            ],
+            "imageIds": [
+                "",
+                ""
             ],
             "imageNodes": [
                 {

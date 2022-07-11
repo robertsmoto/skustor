@@ -31,12 +31,12 @@ func Test_CollectionInterfaces(t *testing.T) {
 
 	// instantiate the structs
 	//collection := Collection{}
-	collections := CollectionNodes{}
+	collectionNodes := CollectionNodes{}
 
 	// Little Johnnie user
 	userId := "f8b0f997-1dcc-4e56-915c-9f62f52345ee"
 
-	structs := []LoaderProcesserUpserter{&collections}
+	structs := []LoaderProcesserUpserter{&collectionNodes}
 	for _, s := range structs {
 		err = JsonLoaderUpserterHandler(s, userId, &testFile, pgDb)
 		if err != nil {

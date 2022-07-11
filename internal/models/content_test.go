@@ -2,57 +2,58 @@ package models
 
 import (
 	//"fmt"
-    "github.com/robertsmoto/skustor/internal/configs"
-    "github.com/robertsmoto/skustor/internal/postgres"
 	"os"
 	"testing"
+
+	"github.com/robertsmoto/skustor/internal/configs"
+	"github.com/robertsmoto/skustor/internal/postgres"
 )
 
 func Test_ContentInterfaces(t *testing.T) {
-    var err error
+	var err error
 
-    // loading env variables (will eventually be loaded by main)
-    conf := configs.Config{}
-    err = configs.Load(&conf)
-    if err != nil {
-        t.Errorf("Test_ContentInterfaces %s", err)
-    }
+	// loading env variables (will eventually be loaded by main)
+	conf := configs.Config{}
+	configs.Load(&conf)
+	if err != nil {
+		t.Errorf("Test_ContentInterfaces %s", err)
+	}
 
-    // read file (will eventually come from the request)
-    testFile, err := os.ReadFile("./test_data/content.json")
-    if err != nil {
-        t.Errorf("Test_ContentInterfaces %s", err)
-    }
+	// read file (will eventually come from the request)
+	testFile, err := os.ReadFile("./test_data/content.json")
+	if err != nil {
+		t.Errorf("Test_ContentInterfaces %s", err)
+	}
 
-    // open the db connections
+	// open the db connections
 	pgDb, err := postgres.Open(&postgres.PostgresDb{})
 
-    // instantiate the structs
-    //collection := Collection{}
-    contentNodes := ContentNodes{}
+	// instantiate the structs
+	//collection := Collection{}
+	contentNodes := ContentNodes{}
 
-    // Little Johnnie user
-    userId := "f8b0f997-1dcc-4e56-915c-9f62f52345ee"
+	// Little Johnnie user
+	userId := "f8b0f997-1dcc-4e56-915c-9f62f52345ee"
 
-    procStructs := []LoaderProcesserUpserter{&contentNodes}
-    for _, s := range procStructs {
-        err = JsonLoaderUpserterHandler(s, userId, &testFile, pgDb)
-        if err != nil {
-        t.Errorf("Test_CollectionInterfaces %s", err)
-        }
-}
+	procStructs := []LoaderProcesserUpserter{&contentNodes}
+	for _, s := range procStructs {
+		err = JsonLoaderUpserterHandler(s, userId, &testFile, pgDb)
+		if err != nil {
+			t.Errorf("Test_CollectionInterfaces %s", err)
+		}
+	}
 
-//err = JsonLoaderUpserterHandler(&collection, userId, &testFile, pgDb)
-//if err != nil {
-//t.Errorf("Test_CollectionInterfaces %s", err)
-//}
+	//err = JsonLoaderUpserterHandler(&collection, userId, &testFile, pgDb)
+	//if err != nil {
+	//t.Errorf("Test_CollectionInterfaces %s", err)
+	//}
 
-//err = JsonLoaderUpserterHandler(&collections, userId, &testFile, pgDb)
-//if err != nil {
-//t.Errorf("Test_CollectionInterfaces %s", err)
-//}
+	//err = JsonLoaderUpserterHandler(&collections, userId, &testFile, pgDb)
+	//if err != nil {
+	//t.Errorf("Test_CollectionInterfaces %s", err)
+	//}
 
-pgDb.Close()
+	pgDb.Close()
 
 }
 

@@ -19,7 +19,7 @@ type Collection struct {
 }
 
 type CollectionNodes struct {
-	Nodes []Collection `json:"collectionNodes" validate:"dive"`
+	Nodes []*Collection `json:"collectionNodes" validate:"dive"`
 	Gjson gjson.Result
 }
 
@@ -57,7 +57,7 @@ func (s *CollectionNodes) Upsert(userId string, db *sql.DB) (err error) {
             WHERE collection.id = $1;`
 
 		_, err = db.Exec(
-			qstr, FormatUUID(node.Id), FormatUUID(userId), node.Document,
+			qstr, node.Id, userId, node.Document,
 		)
 		if err != nil {
 			return fmt.Errorf("Collections.Upsert() %s", err)
@@ -68,13 +68,16 @@ func (s *CollectionNodes) Upsert(userId string, db *sql.DB) (err error) {
 
 func (s *CollectionNodes) ForeignKeyUpdate(db *sql.DB) (err error) {
 	for _, node := range s.Nodes {
+		if node.ParentId == "" {
+			continue
+		}
 		qstr := `
             UPDATE collection
             SET parent_id = $2
             WHERE collection.id = $1;`
 
 		_, err = db.Exec(
-			qstr, FormatUUID(node.Id), FormatUUID(node.ParentId),
+			qstr, node.Id, node.ParentId,
 		)
 		if err != nil {
 			return fmt.Errorf("Collections.ForeignKeyUpdate() %s", err)
@@ -83,7 +86,7 @@ func (s *CollectionNodes) ForeignKeyUpdate(db *sql.DB) (err error) {
 	return nil
 }
 
-func (s *CollectionNodes) RelatedTableUpsert(db *sql.DB) (err error) {
+func (s *CollectionNodes) RelatedTableUpsert(userId string, db *sql.DB) (err error) {
 	for _, node := range s.Nodes {
 		fmt.Println("node", node)
 		//if s.ItemIds != nil {

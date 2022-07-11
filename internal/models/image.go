@@ -77,269 +77,43 @@ type ResizedImage struct {
 	size         string // eg "LG" "MD" or "SM"
 }
 
-type SvImage struct {
+type Image struct {
 	Id             string `json:"id" validate:"omitempty,uuid4"`
 	Url            string `json:"url" validate:"omitempty,url"`
+	urlHash        string `json:"-"`  
 	Title          string `json:"title" validate:"omitempty,lte=200"`
 	Alt            string `json:"alt" validate:"omitempty,lte=100"`
 	Caption        string `json:"caption" validate:"omitempty,lte=200"`
 	Position       uint8  `json:"position" validate:"omitempty,number"`
-	Bypass         uint8  `json:"bypassProcessing" validate:"omitempty,number,oneof=0 1"`
+	Process        uint8  `json:"process" validate:"required,number,oneof=0 1"`
 	Height         string `json:"height" validate:"omitempty,lte=20"`
 	Width          string `json:"width" validate:"omitempty,lte=20"`
 	Size           string `json:"size" validate:"omitempty,lte=20,oneof=LG MD SM"`
-	SvUserId       string // constructed
-	ClusterId      string // constructed
-	ItemId         string // constructed
-	TempFileDir    string // constructed :: location to download temp files
-	UploadPrefix   string // constructed :: eg. "media"
-	VanityUrl      string // constructed
-	UserDir        string // constructed :: eg. "98c56d78fe3a"
-	Date           string // constructed :: eg. "2020-05-04"
-	DoBucket       string // constructed
-	DoCacheControl string // constructed eg. "max-age=60"
-	DoContentType  string // constructed eg. "image/webp"
-	DoEndpointUrl  string // constructed
-	DoAccessKey    string // constructed
-	DoSecret       string // constructed
-	DoRegionName   string // constructed
-	baseFileName   string
-	fullFileName   string
-	filePath       string
-	ImgSizes       []ImgSize
-	ResizedImages  []ResizedImage
+    SvUserId       string `json:"-"`  // constructed
+	TempFileDir    string `json:"-"`  // constructed :: location to download temp files
+	UploadPrefix   string `json:"-"`  // constructed :: eg. "media"
+	VanityUrl      string `json:"-"`  // constructed
+	UserDir        string `json:"-"`  // constructed :: eg. "98c56d78fe3a"
+	Date           string `json:"-"`  // constructed :: eg. "2020-05-04"
+	DoBucket       string `json:"-"`  // constructed
+	DoCacheControl string `json:"-"`  // constructed eg. "max-age=60"
+	DoContentType  string `json:"-"`  // constructed eg. "image/webp"
+	DoEndpointUrl  string `json:"-"`  // constructed
+	DoAccessKey    string `json:"-"`  // constructed
+	DoSecret       string `json:"-"`  // constructed
+	DoRegionName   string `json:"-"`  // constructed
+	BaseFileName   string `json:"-"`  
+	fullFileName   string `json:"-"`  
+	filePath       string `json:"-"`  
+	ImgSizes       []ImgSize `json:"-"`  
+	ResizedImages  []ResizedImage `json:"-"`  
 }
 
-func (s *Image) Download() (err error) {
-	// Downloads image from url to tempFileDir
-	// validates url and filetype
-	isValid := ValidateUrl(s.Url)
-	if isValid == false {
-		log.Fatal("Image url is not valid. ", s.Url)
-		os.Exit(1)
-	}
-
-	baseFileName, fullFileName := GetFileName(s.Url)
-	s.baseFileName = baseFileName
-	s.filePath = filepath.Join(os.Getenv("TMPDIR"), "images/downloads", fullFileName)
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
-	}
-
-	err = DownloadFile(s.Url, s.filePath)
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
-	}
-	return err
+type ImageNodes struct {
+	Nodes []*Image `json:"imageNodes" validate:"dive"`
 }
 
-func (s *Image) Resize() (err error) {
-	// Resizes, renames and encodes original image.
-	if s.Bypass > 0 {
-		return err
-	}
-	if s.ImgSizes == nil {
-		return err
-	}
-
-	for _, size := range s.ImgSizes {
-
-		imgFile, err := os.Open(s.filePath)
-		if err != nil {
-			log.Print("Resize open error 01: ", err)
-			os.Exit(1)
-		}
-		defer imgFile.Close()
-
-		imgConfig, _, err := image.DecodeConfig(imgFile)
-		imgWidth := imgConfig.Width
-		imgHeight := imgConfig.Height
-
-		imgFile, err = os.Open(s.filePath)
-		if err != nil {
-			log.Print("Resize open error 02: ", err)
-			os.Exit(1)
-		}
-		defer imgFile.Close()
-
-		decodedImage, _, err := image.Decode(imgFile)
-		if err != nil {
-			log.Print("Resize decode: ", err)
-		}
-
-		// calculate new image sizes
-		newWidth, newHeight := CalcNewSize(imgWidth, imgHeight, size.ratio)
-
-		// create new file name and dirs
-		newFileName := CreateNewFileName(s.baseFileName, newWidth, newHeight)
-
-		tempFilePath := filepath.Join(os.Getenv("TMPDIR"), "images/resized", newFileName)
-		uploadPath := CreateUploadPath(s.UploadPrefix,
-			s.UserDir, newFileName, s.Date)
-
-		// create local dir
-		// if successful, the created file can be used for I/O
-		var f *os.File
-		f, err = os.Create(tempFilePath)
-		if err != nil {
-			log.Fatal("Create tempFilePath ", err)
-		}
-
-		// resize the image in memory
-		// resizedImage is of image.Image type
-		resizedImage := ResizeBaseImage(decodedImage, newWidth, newHeight)
-
-		// encode image
-		// Encode takes two arguments, io.writer and image.Image
-		err = webpbin.Encode(f, resizedImage)
-		if err != nil {
-			f.Close()
-			log.Fatal(err)
-		}
-		f.Close()
-
-		// add resize information to struct
-		rsi := ResizedImage{}
-		rsi.tempFilePath = tempFilePath
-		rsi.key = uploadPath // aws key
-		rsi.url = filepath.Join(s.VanityUrl, uploadPath)
-		rsi.width = fmt.Sprint(newWidth)
-		rsi.height = fmt.Sprint(newHeight)
-		rsi.size = size.size
-		s.ResizedImages = append(s.ResizedImages, rsi)
-	}
-
-	return err
-}
-
-func (s *Image) Process() {
-	var data []string
-	data = append(data, s.SvUserId, s.ClusterId, s.ItemId, s.Size, string(s.Position))
-	s.Id = Md5Hasher(data)
-}
-
-func (s *Image) Upsert(db *sql.DB) (err error) {
-
-	// now add the resizeImg.NewSizes to the image table
-	qstr := `
-    INSERT INTO image (
-        id,
-        sv_user_id,
-        cluster_id, 
-        item_id,
-        url,
-        size,
-        position,
-        height,
-        width,
-        title,
-        alt,
-        caption
-    )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-    ON CONFLICT (id)
-    DO UPDATE
-    SET url = $5,
-        size = $6,
-        position = $7,
-        height = $8,
-        width = $9,
-        title = $10,
-        alt = $11,
-        caption = $12
-    WHERE
-        image.id = $1;`
-
-	// execute qstr
-	//lgImg {0=tempFilePath, 1=key 2=url, 3=width, 4=height, 5=size eg "LG"]
-
-	if s.ResizedImages != nil {
-		// loop through the new sizes
-		for _, rsi := range s.ResizedImages {
-			_, err = db.Exec(
-				qstr,
-				s.Id, FormatUUID(s.SvUserId), FormatUUID(s.ClusterId),
-				FormatUUID(s.ItemId), rsi.url, rsi.size, s.Position, rsi.height,
-				rsi.width, s.Title, s.Alt, s.Caption,
-			)
-		}
-	}
-	if s.Bypass > 0 {
-		// record the bypass image
-		_, err = db.Exec(
-			qstr,
-			s.Id, FormatUUID(s.SvUserId), FormatUUID(s.ClusterId),
-			FormatUUID(s.ItemId), s.Url, s.Size, s.Position, s.Height, s.Width,
-			s.Title, s.Alt, s.Caption,
-		)
-	}
-	if err != nil {
-		log.Print("\nCommiting image to db: ", err)
-	}
-	return err
-}
-
-func (s *Image) UploadToSpaces() (err error) {
-	//img {0=tempFilePath, 1=key 2=url, 3=width, 4=height, 5=size eg "LG"]
-
-	if s.ResizedImages == nil {
-		return err
-	}
-	customResolver := aws.EndpointResolverWithOptionsFunc(
-		func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-			return aws.Endpoint{URL: s.DoEndpointUrl}, nil
-		},
-	)
-
-	cfg, err := config.LoadDefaultConfig(context.TODO(),
-		config.WithEndpointResolverWithOptions(customResolver),
-		config.WithCredentialsProvider(
-			credentials.NewStaticCredentialsProvider(
-				s.DoAccessKey, s.DoSecret, "")),
-	)
-
-	if err != nil {
-		panic("AWS configuration error, " + err.Error())
-	}
-
-	client := s3.NewFromConfig(cfg, func(o *s3.Options) {
-		o.Region = s.DoRegionName
-	})
-
-	for _, rsi := range s.ResizedImages {
-		file, err := os.Open(rsi.tempFilePath)
-		if err != nil {
-			log.Print("Unable to open file ", rsi.tempFilePath)
-			return err
-		}
-
-		defer file.Close()
-
-		input := &s3.PutObjectInput{
-			Bucket:       &s.DoBucket,
-			Key:          &rsi.key, // <-- uploadPath
-			Body:         file,
-			CacheControl: &s.DoCacheControl,
-			ContentType:  &s.DoContentType,
-			ACL:          "public-read",
-		}
-
-		_, err = PutFile(context.TODO(), client, input)
-		if err != nil {
-			fmt.Print(err)
-			return err
-		}
-	}
-	return err
-}
-
-type Image struct {
-	SvImage `json:"image" validate:"dive"`
-}
-
-func (s *Image) Load(fileBuffer []byte) {
+func (s *ImageNodes) Load(fileBuffer []byte) {
 	var err error
 	json.Unmarshal(fileBuffer, &s)
 	if err != nil {
@@ -347,7 +121,7 @@ func (s *Image) Load(fileBuffer []byte) {
 	}
 }
 
-func (s *Image) Validate() {
+func (s *ImageNodes) Validate() {
 	var err error
 	validate := validator.New()
 	err = validate.Struct(s)
@@ -356,25 +130,241 @@ func (s *Image) Validate() {
 	}
 }
 
-type Images struct {
-	Nodes []SvImage `json:"images" validate:"dive"`
+func (s *ImageNodes) RecordOriginalImage(db *sql.DB) (err error) {
+    // Checks if image record exists in db.
+    for _, node := range s.Nodes {
+        node.urlHash = Md5Hasher([]string{node.Url})
+        // store all original image data in db for future checks,
+        // so images are only processed one time.
+        documentMap := map[string]interface{}{
+            "url": node.Url, 
+            "title": node.Title,
+            "alt": node.Alt,
+            "caption": node.Caption,
+            "position": node.Position,
+            "height": node.Height,
+            "width": node.Width,
+            "size": node.Size,
+        }
+        documentJson, _ := json.Marshal(documentMap)
+        qstr := `
+            INSERT INTO image (id, document)
+            values ($1, $2)
+            ON CONFLICT (id) DO UPDATE
+            SET document = $2
+            WHERE image.id = $1;`
+        _, err = db.Exec(qstr, node.urlHash, string(documentJson))
+    }
+    return nil
 }
 
-func (s *Images) Load(fileBuffer []byte) {
-	var err error
-	json.Unmarshal(fileBuffer, &s)
-	if err != nil {
-		log.Print("Images.Load() ", err)
-	}
+func (s *ImageNodes) Download() (err error) {
+    for _, node := range s.Nodes {
+        if node.Process == 0 {
+            continue
+        }
+        isValid := ValidateUrl(node.Url)
+        if isValid == false {
+            return fmt.Errorf("Image url is not valid %s", node.Url)
+        }
+        baseFileName, fullFileName := GetFileName(node.Url)
+        node.BaseFileName = baseFileName
+        node.filePath = filepath.Join(
+            os.Getenv("TMPDIR"),
+            "images/downloads",
+            fullFileName,
+        )
+        if err != nil {
+            return fmt.Errorf("Internal error Image.Download() 01")
+        }
+        err = DownloadFile(node.Url, node.filePath)
+        if err != nil {
+            log.Fatal(err)
+            os.Exit(1)
+        }
+    }
+	return err
 }
 
-func (s *Images) Validate() {
-	var err error
-	validate := validator.New()
-	err = validate.Struct(s)
-	if err != nil {
-		log.Print("Images.Validate() ", err)
-	}
+func (s *ImageNodes) Resize() (err error) {
+    for _, node := range s.Nodes {
+        // Resizes, renames and encodes original image.
+        if node.Process == 0 {
+            continue
+        }
+        if node.ImgSizes == nil {
+            return err
+        }
+        // Check that download file exists
+        _, err = os.Stat(node.filePath)
+        if err != nil {
+            return fmt.Errorf("Download file does not exist: %s", err)
+        }
+        for _, size := range node.ImgSizes {
+            imgFile, err := os.Open(node.filePath)
+            if err != nil {
+                return fmt.Errorf("Resize open error 01: %s", err)
+            }
+            defer imgFile.Close()
+            imgConfig, _, err := image.DecodeConfig(imgFile)
+            imgWidth := imgConfig.Width
+            imgHeight := imgConfig.Height
+            imgFile, err = os.Open(node.filePath)
+            if err != nil {
+                return fmt.Errorf("Resize open error 02: %s", err)
+            }
+            defer imgFile.Close()
+            decodedImage, _, err := image.Decode(imgFile)
+            if err != nil {
+                return fmt.Errorf("Resize decode: %s", err)
+            }
+            // calculate new image sizes
+            newWidth, newHeight := CalcNewSize(imgWidth, imgHeight, size.ratio)
+            // create new file name and dirs
+            newFileName := CreateNewFileName(node.BaseFileName, newWidth, newHeight)
+            tempFilePath := filepath.Join(
+                os.Getenv("TMPDIR"),
+                "images/resized",
+                newFileName,
+            )
+            uploadPath := CreateUploadPath(node.UploadPrefix,
+                node.UserDir, newFileName, node.Date)
+            // create local dir
+            // if successful, the created file can be used for I/O
+            var f *os.File
+            f, err = os.Create(tempFilePath)
+            if err != nil {
+                return fmt.Errorf("Create tempFilePath %s", err)
+            }
+            // resize the image in memory
+            // resizedImage is of image.Image type
+            resizedImage := ResizeBaseImage(decodedImage, newWidth, newHeight)
+            // encode image
+            // Encode takes two arguments, io.writer and image.Image
+            err = webpbin.Encode(f, resizedImage)
+            if err != nil {
+                return fmt.Errorf("Image encoding error %s", err)
+            }
+            f.Close()
+            // add resize information to struct
+            rsi := ResizedImage{}
+            rsi.tempFilePath = tempFilePath
+            rsi.key = uploadPath // aws key
+            rsi.url = filepath.Join(node.VanityUrl, uploadPath)
+            rsi.width = fmt.Sprint(newWidth)
+            rsi.height = fmt.Sprint(newHeight)
+            rsi.size = size.size
+            node.ResizedImages = append(node.ResizedImages, rsi)
+        }
+    }
+	return err
+}
+
+func (s *ImageNodes) Upsert(db *sql.DB) (err error) {
+	// now add the resizeImg.NewSizes to the image table
+    for _, node := range s.Nodes {
+        if node.Process == 0 {
+            continue
+        }
+        for _, i := range node.ResizedImages {
+            // creates unique id on url, size
+            idHash := Md5Hasher([]string{i.url, i.size})
+            documentMap := map[string]interface{}{
+                "url": i.url, 
+                "title": node.Title,
+                "alt": node.Alt,
+                "caption": node.Caption,
+                "position": node.Position,
+                "height": i.height,
+                "width": i.width,
+                "size": i.size,
+            }
+            documentJson, _ := json.Marshal(documentMap)
+            qstr := `
+                INSERT INTO image (id, parent_id, document)
+                values ($1, $2, $3)
+                ON CONFLICT (id) DO UPDATE
+                SET parent_id = $2,
+                    document = $3
+                WHERE image.id = $1;`
+            _, err = db.Exec(qstr, idHash, node.urlHash, string(documentJson))
+            if err != nil {
+                return fmt.Errorf("Image.Upsert %s", err)
+            }
+        }
+    }
+	return nil
+}
+
+func (s *ImageNodes) UploadToSpaces() (err error) {
+	//img {0=tempFilePath, 1=key 2=url, 3=width, 4=height, 5=size eg "LG"]
+    for _, node := range s.Nodes {
+        if node.Process == 0 {
+            continue
+        }
+        if node.ResizedImages == nil {
+            return err
+        }
+        customResolver := aws.EndpointResolverWithOptionsFunc(
+            func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+                return aws.Endpoint{URL: node.DoEndpointUrl}, nil
+            },
+        )
+
+        cfg, err := config.LoadDefaultConfig(context.TODO(),
+            config.WithEndpointResolverWithOptions(customResolver),
+            config.WithCredentialsProvider(
+                credentials.NewStaticCredentialsProvider(
+                    node.DoAccessKey, node.DoSecret, "")),
+        )
+
+        if err != nil {
+            panic("AWS configuration error, " + err.Error())
+        }
+
+        client := s3.NewFromConfig(cfg, func(o *s3.Options) {
+            o.Region = node.DoRegionName
+        })
+
+        for _, rsi := range node.ResizedImages {
+            file, err := os.Open(rsi.tempFilePath)
+            if err != nil {
+                log.Print("Unable to open file ", rsi.tempFilePath)
+                return err
+            }
+
+            defer file.Close()
+
+            input := &s3.PutObjectInput{
+                Bucket:       &node.DoBucket,
+                Key:          &rsi.key, // <-- uploadPath
+                Body:         file,
+                CacheControl: &node.DoCacheControl,
+                ContentType:  &node.DoContentType,
+                ACL:          "public-read",
+            }
+
+            _, err = PutFile(context.TODO(), client, input)
+            if err != nil {
+                fmt.Print(err)
+                return err
+            }
+        }
+    }
+	return err
+}
+
+func (s *ImageNodes) RemoveTempFile() (err error) {
+    for _, node := range s.Nodes {
+        if node.Process == 0 {
+            continue
+        }
+        e := os.Remove(node.filePath)
+        if e != nil {
+            return fmt.Errorf("Image.RemoveTempFile %s", err)
+        }
+    }
+    return nil
 }
 
 func ValidateUrl(url string) bool {

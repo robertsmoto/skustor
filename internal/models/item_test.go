@@ -1,48 +1,47 @@
 package models
 
 import (
-    //"fmt"
+	//"fmt"
 	"os"
 	"testing"
 
-
-    "github.com/robertsmoto/skustor/internal/configs"
-    "github.com/robertsmoto/skustor/internal/postgres"
+	"github.com/robertsmoto/skustor/internal/configs"
+	"github.com/robertsmoto/skustor/internal/postgres"
 )
 
 func Test_ItemInterfaces(t *testing.T) {
-    var err error
+	var err error
 
-    // loading env variables (will eventually be loaded by main)
-    conf := configs.Config{}
-    err = configs.Load(&conf)
-    if err != nil {
-        t.Errorf("Test_ContentInterfaces %s", err)
-    }
+	// loading env variables (will eventually be loaded by main)
+	conf := configs.Config{}
+	configs.Load(&conf)
+	if err != nil {
+		t.Errorf("Test_ContentInterfaces %s", err)
+	}
 
-    // read file (will eventually come from the request)
-    testFile, err := os.ReadFile("./test_data/items.json")
-    if err != nil {
-        t.Errorf("Test_ContentInterfaces %s", err)
-    }
+	// read file (will eventually come from the request)
+	testFile, err := os.ReadFile("./test_data/items.json")
+	if err != nil {
+		t.Errorf("Test_ContentInterfaces %s", err)
+	}
 
-    // open the db connections
+	// open the db connections
 	pgDb, err := postgres.Open(&postgres.PostgresDb{})
 
-    // instantiate the structs
-    itemNodes := ItemNodes{}
+	// instantiate the structs
+	itemNodes := ItemNodes{}
 
-    // Little Johnnie user
-    userId := "f8b0f997-1dcc-4e56-915c-9f62f52345ee"
+	// Little Johnnie user
+	userId := "f8b0f997-1dcc-4e56-915c-9f62f52345ee"
 
-    procStructs := []LoaderProcesserUpserter{&itemNodes}
-    for _, s := range procStructs {
-        err = JsonLoaderUpserterHandler(s, userId, &testFile, pgDb)
-        if err != nil {
-        t.Errorf("Test_ItemInterfaces %s", err)
-        }
-    }
-    pgDb.Close()
+	procStructs := []LoaderProcesserUpserter{&itemNodes}
+	for _, s := range procStructs {
+		err = JsonLoaderUpserterHandler(s, userId, &testFile, pgDb)
+		if err != nil {
+			t.Errorf("Test_ItemInterfaces %s", err)
+		}
+	}
+	pgDb.Close()
 }
 
 func Test_ItemLoadAndValidate(t *testing.T) {

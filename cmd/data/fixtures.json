@@ -110,7 +110,7 @@
             "pluralDisplay": "cm"
         }
     ],
-    "clusterNodes": [
+    "collectionNodes": [
         {
             "id": "eeb75266-7f4a-4d8e-9a8a-2c0ada73e7b1",
             "type": "brand",
@@ -384,7 +384,7 @@
             "name": "Calvin Kause Jeans for Women 4801 Fitted Straight Legs",
             "description": "Fitted jeans for the stylish woman.",
             "keywords": "calvin, jeans, 4801, fitted, straight",
-            "priceClassId": "c4d32eed-b64d-4a26-a904-1321fd035f34",
+            "priceClassId": "a6c4ff7d-b4d4-4c91-8618-fae5f8df436d",
             "imageNodes": [
                 {
                     "url": "https://example.com/images/APWMCKJN4801-00.jpg",
@@ -424,7 +424,7 @@
                     "height": "800"
                 }
             ],
-            "clusterIds": [
+            "collectionIds": [
                 "1d7ed412-91cf-4962-a5be-09f81691acc4",
                 "988170a9-330c-4501-b2a1-20cd7bfcaa93"
             ]

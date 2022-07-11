@@ -10,9 +10,10 @@ import (
 )
 
 type Place struct {
-	Id              string `json:"id" validate:"omitempty,uuid4"`
-	SvUserId string
-	Document string
+    BaseData
+    //Id       string `json:"id" validate:"omitempty,uuid4"`
+    //SvUserId string
+    //Document string
 
 	//Id          string   `json:"id" validate:"omitempty,uuid4"`
 	//SvUserId    string   `json:"svUserId" validate:"omitempty,uuid4"`
@@ -29,7 +30,7 @@ type Place struct {
 }
 
 type PlaceNodes struct {
-	Nodes []Place `json:"placeNodes" validate:"dive"`
+	Nodes []*Place `json:"placeNodes" validate:"dive"`
 	Gjson gjson.Result
 }
 
@@ -65,10 +66,7 @@ func (s *PlaceNodes) Upsert(userId string, db *sql.DB) (err error) {
             SET sv_user_id = $2,
                 document = $3
             WHERE place.id = $1;`
-
-		_, err = db.Exec(
-			qstr, FormatUUID(node.Id), FormatUUID(userId), node.Document,
-		)
+		_, err = db.Exec(qstr, node.Id, userId, node.Document)
 		if err != nil {
 			return fmt.Errorf("PlaceNodes.Upsert() %s", err)
 		}
@@ -77,43 +75,43 @@ func (s *PlaceNodes) Upsert(userId string, db *sql.DB) (err error) {
 }
 
 func (s *PlaceNodes) ForeignKeyUpdate(db *sql.DB) (err error) {
-    fmt.Println("PlaceNodes.ForeignKeyUpdate Not implemented.")
+	fmt.Println("PlaceNodes.ForeignKeyUpdate Not implemented.")
 	//for _, node := range s.Nodes {
-		//qstr := `
-            //UPDATE collection
-            //SET parent_id = $2
-            //WHERE collection.id = $1;`
+	//qstr := `
+	//UPDATE collection
+	//SET parent_id = $2
+	//WHERE collection.id = $1;`
 
-		//_, err = db.Exec(
-			//qstr, FormatUUID(node.Id), FormatUUID(node.ParentId),
-		//)
-		//if err != nil {
-			//return fmt.Errorf("Collections.ForeignKeyUpdate() %s", err)
-		//}
+	//_, err = db.Exec(
+	//qstr, FormatUUID(node.Id), FormatUUID(node.ParentId),
+	//)
+	//if err != nil {
+	//return fmt.Errorf("Collections.ForeignKeyUpdate() %s", err)
+	//}
 	//}
 	return nil
 }
 
-func (s *PlaceNodes) RelatedTableUpsert(db *sql.DB) (err error) {
-    fmt.Println("PlaceNodes.ForeignKeyUpdate Not implemented.")
+func (s *PlaceNodes) RelatedTableUpsert(userId string, db *sql.DB) (err error) {
+	fmt.Println("PlaceNodes.ForeignKeyUpdate Not implemented.")
 	//for _, node := range s.Nodes {
-		//if s.ItemIds != nil {
-		//for _, id := range s.ItemIds {
-		//err = JoinCollectionItemUpsert(
-		//db,
-		//s.SvUserId,
-		//s.Id,
-		//id,
-		//s.Position,
-		//)
-		//}
-		//if err != nil {
-		//return fmt.Errorf("Collection.RelatedTableUpsert() 01 %s", err)
-		//}
-		//}
-		//if err != nil {
-			//return fmt.Errorf("Collections.RelatedTableUpsert() %s", err)
-		//}
+	//if s.ItemIds != nil {
+	//for _, id := range s.ItemIds {
+	//err = JoinCollectionItemUpsert(
+	//db,
+	//s.SvUserId,
+	//s.Id,
+	//id,
+	//s.Position,
+	//)
+	//}
+	//if err != nil {
+	//return fmt.Errorf("Collection.RelatedTableUpsert() 01 %s", err)
+	//}
+	//}
+	//if err != nil {
+	//return fmt.Errorf("Collections.RelatedTableUpsert() %s", err)
+	//}
 	//}
 	return nil
 }

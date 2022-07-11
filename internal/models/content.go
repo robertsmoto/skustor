@@ -10,20 +10,15 @@ import (
 )
 
 type Content struct {
-	SvUserId string
-	Id       string `json:"id" validate:"omitempty,uuid4"`
-	ParentId string `json:"parentId" validate:"omitempty,uuid4"`
-	Document string
+	BaseData
 
-	//AuthorIds   []string `json:"authorIds" validate:"dive,omitempty,uuid4"`
-	//WebsiteIds  []string `json:"websiteIds" validate:"dive,omitempty,uuid4"`
-	//CategoryIds []string `json:"categoryIds" validate:"dive,omitempty,uuid4"`
-	//TagIds      []string `json:"tagIds" validate:"dive,omitempty,uuid4"`
+	//UserIds   []string `json:"userIds" validate:"dive,omitempty,uuid4"`
+	//PlaceIds  []string `json:"placeIds" validate:"dive,omitempty,uuid4"`
+	//CollectionIds []string `json:"collectionIds" validate:"dive,omitempty,uuid4"`
 	//ImageIds    []string `json:"imageIds" validate:"dive,omitempty,uuid4"`
 
 	//type: article, page, docs
 	//PublishedTime string   `json:"publishedTime" validate:"omitempty,datetime=15:04 MST"`
-
 	//Published     string   `json:"published" validate:"omitempty,datetime=2006-01-02"`
 	//Modified      string   `json:"modified" validate:"omitempty,datetime=2006-01-02"`
 	//Keywords      string   `json:"keywords"`
@@ -34,7 +29,7 @@ type Content struct {
 }
 
 type ContentNodes struct {
-	Nodes []Content `json:"contentNodes" validate:"dive"`
+	Nodes []*Content `json:"contentNodes" validate:"dive"`
 	Gjson gjson.Result
 }
 
@@ -70,10 +65,7 @@ func (s *ContentNodes) Upsert(userId string, db *sql.DB) (err error) {
             SET sv_user_id = $2,
                 document = $3
             WHERE content.id = $1;`
-
-		_, err = db.Exec(
-			qstr, FormatUUID(node.Id), FormatUUID(userId), node.Document,
-		)
+		_, err = db.Exec(qstr, node.Id, userId, node.Document)
 		if err != nil {
 			return fmt.Errorf("ContentNodes.Upsert() %s", err)
 		}
@@ -83,14 +75,14 @@ func (s *ContentNodes) Upsert(userId string, db *sql.DB) (err error) {
 
 func (s *ContentNodes) ForeignKeyUpdate(db *sql.DB) (err error) {
 	for _, node := range s.Nodes {
+		if node.ParentId == "" {
+			continue
+		}
 		qstr := `
             UPDATE content
             SET parent_id = $2
             WHERE content.id = $1;`
-
-		_, err = db.Exec(
-			qstr, FormatUUID(node.Id), FormatUUID(node.ParentId),
-		)
+		_, err = db.Exec(qstr, node.Id, node.ParentId)
 		if err != nil {
 			return fmt.Errorf("ContentNodes.ForeignKeyUpdate() %s", err)
 		}
@@ -98,27 +90,28 @@ func (s *ContentNodes) ForeignKeyUpdate(db *sql.DB) (err error) {
 	return nil
 }
 
-func (s *ContentNodes) RelatedTableUpsert(db *sql.DB) (err error) {
-	for _, node := range s.Nodes {
-		fmt.Println("node", node)
-		//if s.ItemIds != nil {
-		//for _, id := range s.ItemIds {
-		//err = JoinContentItemUpsert(
-		//db,
-		//s.SvUserId,
-		//s.Id,
-		//id,
-		//s.Position,
-		//)
-		//}
-		//if err != nil {
-		//return fmt.Errorf("Content.RelatedTableUpsert() 01 %s", err)
-		//}
-		//}
-		if err != nil {
-			return fmt.Errorf("ContentNodes.RelatedTableUpsert() %s", err)
-		}
-	}
+func (s *ContentNodes) RelatedTableUpsert(userId string, db *sql.DB) (err error) {
+	fmt.Println("ContentNodes.RelatedTableUpsert() Not implemented.")
+	//for _, node := range s.Nodes {
+	//fmt.Println("node", node)
+	////if s.ItemIds != nil {
+	////for _, id := range s.ItemIds {
+	////err = JoinContentItemUpsert(
+	////db,
+	////s.SvUserId,
+	////s.Id,
+	////id,
+	////s.Position,
+	////)
+	////}
+	////if err != nil {
+	////return fmt.Errorf("Content.RelatedTableUpsert() 01 %s", err)
+	////}
+	////}
+	//if err != nil {
+	//return fmt.Errorf("ContentNodes.RelatedTableUpsert() %s", err)
+	//}
+	//}
 	return nil
 }
 

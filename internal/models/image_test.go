@@ -1,17 +1,35 @@
 package models
 
 import (
-	"github.com/robertsmoto/skustor/internal/configs"
-	"log"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/robertsmoto/skustor/internal/configs"
+	"github.com/robertsmoto/skustor/internal/postgres"
 )
 
 func SetEnvConfig() (err error) {
 	conf := configs.Config{}
 	configs.Load(&conf)
 	return err
+}
+
+func Test_CheckProcessed(t *testing.T) {
+    // check manually in db to see if record was created
+    imageNodes := ImageNodes{}
+    i := Image{
+        Url: "https://www.example.com/test_processed.jpg",
+        Process: 0,
+    }
+    imageNodes.Nodes = append(imageNodes.Nodes, &i)
+	devPostgres := postgres.PostgresDb{}
+	pgDb, err := postgres.Open(&devPostgres)
+    defer pgDb.Close()
+    imageNodes.RecordOriginalImage(pgDb)
+    if err != nil {
+		t.Error("Db error.")
+    }
 }
 
 func TestValidateUrl(t *testing.T) {
@@ -55,7 +73,6 @@ func TestDownloadFile(t *testing.T) {
 		os.Getenv("TMPDIR"), "images/downloads", "logos.jpg")
 	err := DownloadFile(url, filePath)
 	if err != nil {
-		log.Printf("Error downloading file: %s", err)
 		t.Error("TestDownlodFile Error")
 	}
 
@@ -132,6 +149,7 @@ func TestWebImage(t *testing.T) {
 	)
 
 	i.Url = "https://cdn-stage.sodavault.com/media/111111111111/svLogo.png"
+    i.Process = 1
 
 	i.TempFileDir = os.Getenv("TMPDIR")
 	i.UploadPrefix = os.Getenv("ULOADP")
@@ -146,34 +164,56 @@ func TestWebImage(t *testing.T) {
 	i.DoRegionName = os.Getenv("DOREGN")
 	i.VanityUrl = os.Getenv("DOVANU")
 
-	err := i.Download()
-	if err != nil {
-		t.Error("Download error: ", err)
-	}
-	_, err = os.Stat(i.filePath)
-	if err != nil {
-		t.Errorf("Download file does not exist: %s", err)
-	}
 
-	err = i.Resize()
-	if err != nil {
-		t.Error("Resize image ", err)
-	}
+    iNodes := ImageNodes{}
+    iNodes.Nodes = append(iNodes.Nodes, &i)
+    var err error
 
-	//lgImg {0=tempFilePath, 1=key 2=url, 3=width, 4=height, 5=size eg "LG"]
-	for _, rsi := range i.ResizedImages {
-		_, err = os.Stat(rsi.tempFilePath)
+    // check database
+    devPostgres := postgres.PostgresDb{}
+    pgDb, err := postgres.Open(&devPostgres)
+    defer pgDb.Close()
 
-		if err != nil {
-			t.Errorf("Error making new image size: %s", err)
-		}
-	}
+    err = iNodes.RecordOriginalImage(pgDb)
+    if err != nil {
+        t.Error("CheckProcessed error: ", err)
+    }
 
-	// upload to cdn
-	err = i.UploadToSpaces()
-	if err != nil {
-		log.Print("Upload to spaces: ", err)
-	}
+    err = iNodes.Download()
+    if err != nil {
+        t.Error("Download error: ", err)
+    }
+    //_, err = os.Stat(iNodes.filePath)
+    //if err != nil {
+        //t.Errorf("Download file does not exist: %s", err)
+    //}
+    err = iNodes.Resize()
+    if err != nil {
+        t.Error("Resize image ", err)
+    }
+    //lgImg {0=tempFilePath, 1=key 2=url, 3=width, 4=height, 5=size eg "LG"]
+    for _, rsi := range i.ResizedImages {
+        _, err = os.Stat(rsi.tempFilePath)
 
-	// use newSizes information to record entries in the db
+        if err != nil {
+            t.Errorf("Error making new image size: %s", err)
+        }
+    }
+    // upsert new sizes to db
+    err = iNodes.Upsert(pgDb)
+    if err != nil {
+        t.Errorf("Upsert %s", err)
+    }
+    // upload to cdn
+    err = iNodes.UploadToSpaces()
+    if err != nil {
+        t.Errorf("Upload to spaces %s", err)
+    }
+    // delete temp file
+    err = iNodes.RemoveTempFile()
+    if err != nil {
+        t.Errorf("Upload to spaces %s", err)
+    }
 }
+
+

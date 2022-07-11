@@ -1,48 +1,47 @@
 package models
 
 import (
-    //"fmt"
-    "os"
-    "testing"
+	//"fmt"
+	"os"
+	"testing"
 
-
-    "github.com/robertsmoto/skustor/internal/configs"
-    "github.com/robertsmoto/skustor/internal/postgres"
+	"github.com/robertsmoto/skustor/internal/configs"
+	"github.com/robertsmoto/skustor/internal/postgres"
 )
 
 func Test_UserInterfaces(t *testing.T) {
-    var err error
+	var err error
 
-    // loading env variables (will eventually be loaded by main)
-    conf := configs.Config{}
-    err = configs.Load(&conf)
-    if err != nil {
-        t.Errorf("Test_UserInterfaces %s", err)
-    }
+	// loading env variables (will eventually be loaded by main)
+	conf := configs.Config{}
+	configs.Load(&conf)
+	if err != nil {
+		t.Errorf("Test_UserInterfaces %s", err)
+	}
 
-    // read file (will eventually come from the request)
-    testFile, err := os.ReadFile("./test_data/users.json")
-    if err != nil {
-        t.Errorf("Test_UserInterfaces %s", err)
-    }
+	// read file (will eventually come from the request)
+	testFile, err := os.ReadFile("./test_data/users.json")
+	if err != nil {
+		t.Errorf("Test_UserInterfaces %s", err)
+	}
 
-    // open the db connections
+	// open the db connections
 	pgDb, err := postgres.Open(&postgres.PostgresDb{})
 
-    // instantiate the structs
-    userNodes := UserNodes{}
+	// instantiate the structs
+	userNodes := UserNodes{}
 
-    // Little Johnnie user
-    userId := "f8b0f997-1dcc-4e56-915c-9f62f52345ee"
+	// Little Johnnie user
+	userId := "f8b0f997-1dcc-4e56-915c-9f62f52345ee"
 
-    procStructs := []LoaderProcesserUpserter{&userNodes}
-    for _, s := range procStructs {
-        err = JsonLoaderUpserterHandler(s, userId, &testFile, pgDb)
-        if err != nil {
-        t.Errorf("Test_UserInterfaces %s", err)
-        }
-    }
-    pgDb.Close()
+	procStructs := []LoaderProcesserUpserter{&userNodes}
+	for _, s := range procStructs {
+		err = JsonLoaderUpserterHandler(s, userId, &testFile, pgDb)
+		if err != nil {
+			t.Errorf("Test_UserInterfaces %s", err)
+		}
+	}
+	pgDb.Close()
 }
 func Test_UserLoadAndValidate(t *testing.T) {
 	// read file (will eventually come from the request)
@@ -56,10 +55,10 @@ func Test_UserLoadAndValidate(t *testing.T) {
 	// test the loader and validator
 	userNodes.Load(&testFile)
 	userNodes.Validate()
-    for i, node := range userNodes.Nodes {
-        testId := "f8b0f997-1dcc-4e56-915c-9f62f52345ee"
-        if i == 0 && node.Id != testId {
-            t.Errorf("node.Id 02 %s != %s ", node.Id, testId)
-        }
-    }
+	for i, node := range userNodes.Nodes {
+		testId := "f8b0f997-1dcc-4e56-915c-9f62f52345ee"
+		if i == 0 && node.Id != testId {
+			t.Errorf("node.Id 02 %s != %s ", node.Id, testId)
+		}
+	}
 }
