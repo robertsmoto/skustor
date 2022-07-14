@@ -21,7 +21,7 @@ import (
 	"io"
 	"log"
 	"net/http"
-	//"net/http/httputil"
+    "time"
 
 	"github.com/robertsmoto/skustor/cmd"
 	"github.com/robertsmoto/skustor/internal/configs"
@@ -47,6 +47,12 @@ func main() {
 
 func UpsertDataHandler(w http.ResponseWriter, r *http.Request) {
 
+    start := time.Now()
+
+
+
+
+
 	// the request validation can be written in a separate function
 	// limit number requests per min
 	reqOrig := r.RemoteAddr
@@ -61,13 +67,13 @@ func UpsertDataHandler(w http.ResponseWriter, r *http.Request) {
 	ckAuth := "88355a6d-bffa-448f-8c73-1b420031dc95"
 	prefix := header.Get("prefix")
 	ckPrefix := "c083bf1d-8878-4ae3-97bd-e521f70c4717"
-	uid := header.Get("uid")
-	ckUid := "f8b0f997-1dcc-4e56-915c-9f62f52345ee"
+	aid := header.Get("aid")
+	ckAid := "f8b0f997-1dcc-4e56-915c-9f62f52345ee"
 	sub := "CURRENT"
 	ckSub := "CURRENT"
 
 	// this will come from sv-user table / redis eventually
-	if auth != ckAuth || prefix != ckPrefix || uid != ckUid || sub != ckSub {
+	if auth != ckAuth || prefix != ckPrefix || aid != ckAid || sub != ckSub {
         log.Fatal("User not authorized to access the api.")
         w.WriteHeader(500)
         w.Write([]byte("User not authorized to access the api."))
@@ -91,41 +97,100 @@ func UpsertDataHandler(w http.ResponseWriter, r *http.Request) {
         w.Write([]byte("User not authorized to access the api."))
 	}
 
-	// instantiate the structs
-	collectionNodes := models.CollectionNodes{}
-    priceClassNodes := models.PriceClassNodes{}
-    unitNodes := models.UnitNodes{}
-    itemNodes := models.ItemNodes{}
-	contentNodes := models.ContentNodes{}
-
-	// add them to slice of interface
-	loaderNodes := []models.LoaderProcesserUpserter{
-		&collectionNodes,
-        &priceClassNodes,
-        &unitNodes,
-        &itemNodes,
-		&contentNodes,
-	}
-
 	// open the db connections
 	devPostgres := postgres.PostgresDb{}
 	pgDb, err := postgres.Open(&devPostgres)
 
-	for _, node := range loaderNodes {
-        
-        fmt.Printf("## node ", node, " type %T ", node, "\n")
-		err = models.JsonLoaderUpserterHandler(
-			node, uid, &body, pgDb,
-		)
-		if err != nil {
-            // return error
-            log.Printf("main.Main() json loader.", err)
+	// instantiate the structs
+	accountNodes := models.AccountNodes{}
+	collectionNodes := models.CollectionNodes{}
+    contentNodes := models.ContentNodes{}
+    itemNodes := models.ItemNodes{}
+    imageNodes := models.ImageNodes{}
+    personNodes := models.PersonNodes{}
+    placeNodes := models.PlaceNodes{}
+
+	// loader validator
+    lvNodes := []models.LoaderValidator{
+        &accountNodes,
+        &collectionNodes,
+        &contentNodes,
+        &itemNodes,
+        &imageNodes,
+        &personNodes,
+        &placeNodes,
+    }
+	for _, node := range lvNodes {
+        err = models.LoadValidateHandler(node, &body)
+        if err != nil {
+            log.Println("main 01", err)
             w.WriteHeader(500)
             w.Write([]byte("Internal error."))
-		}
+        }
 	}
+
+	// upsert
+    upsertNodes := []models.Upserter{
+        &accountNodes,
+        &collectionNodes,
+        &contentNodes,
+        &itemNodes,
+        &imageNodes,
+        &personNodes,
+        &placeNodes,
+    }
+	for _, node := range upsertNodes {
+        err = models.UpsertHandler(node, aid, pgDb)
+        if err != nil {
+            log.Println("main 02", err)
+            w.WriteHeader(500)
+            w.Write([]byte("Internal error."))
+        }
+	}
+
+	// foreign key update
+    fkNodes := []models.ForeignKeyUpdater{
+        &accountNodes,
+        &collectionNodes,
+        &contentNodes,
+        &itemNodes,
+        &imageNodes,
+        &personNodes,
+        &placeNodes,
+    }
+	for _, node := range fkNodes {
+        err = models.ForeignKeyUpdateHandler(node, pgDb)
+        if err != nil {
+            log.Println("main 03", err)
+            w.WriteHeader(500)
+            w.Write([]byte("Internal error."))
+        }
+	}
+
+	// related table upsert
+    rtNodes := []models.RelatedTableUpserter{
+        &accountNodes,
+        &collectionNodes,
+        &contentNodes,
+        &itemNodes,
+        &imageNodes,
+        &personNodes,
+        &placeNodes,
+    }
+	for _, node := range rtNodes {
+        err = models.RelatedTableUpsertHandler(node, aid, pgDb)
+        if err != nil {
+            log.Println("main 04", err)
+            w.WriteHeader(500)
+            w.Write([]byte("Internal error."))
+        }
+	}
+
 	pgDb.Close()
+    elapsed := time.Since(start)
 	w.WriteHeader(200)
+    timeTook := fmt.Sprintf("Gets it done fast. Upsert time %s", elapsed)
+    w.Write([]byte(timeTook))
 }
 
 func DeleteDataHandler(w http.ResponseWriter, r *http.Request) {

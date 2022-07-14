@@ -110,11 +110,11 @@ func TestCreateTempFilePath(t *testing.T) {
 
 func TestCreateUploadPath(t *testing.T) {
 
-	userDir := "111111111111"
+	accountDir := "111111111111"
 	date := "2022-05-15"
 
 	fileName := "prettyPicture_800x400.webp"
-	uploadPath := CreateUploadPath(os.Getenv("ULOADP"), userDir, fileName, date)
+	uploadPath := CreateUploadPath(os.Getenv("ULOADP"), accountDir, fileName, date)
 	if uploadPath != "media/111111111111/2022/05/15/prettyPicture_800x400.webp" {
 		t.Errorf("New upload path was not created correctly. %s", uploadPath)
 	}
@@ -153,7 +153,7 @@ func TestWebImage(t *testing.T) {
 
 	i.TempFileDir = os.Getenv("TMPDIR")
 	i.UploadPrefix = os.Getenv("ULOADP")
-	i.UserDir = "111111111111"
+	i.AccountDir = "111111111111"
 	i.Date = "2022-06-01"
 	i.DoCacheControl = "max-age=2592000" // one month
 	i.DoContentType = "image/webp"

@@ -11,13 +11,7 @@ import (
 
 type Place struct {
     BaseData
-    //Id       string `json:"id" validate:"omitempty,uuid4"`
-    //SvUserId string
-    //Document string
-
-	//Id          string   `json:"id" validate:"omitempty,uuid4"`
-	//SvUserId    string   `json:"svUserId" validate:"omitempty,uuid4"`
-	//Type        string   `json:"type" valdidate:"omitempty,lte=100,oneof=company store warehouse website"`
+    AllIdNodes
 	//Name        string   `json:"name" validate:"omitempty,lte=100"`
 	//Description string   `json:"description" validate:"omitempty,lte=200"`
 	//Phone       string   `json:"phone" validate:"omitempty,lte=20"`
@@ -54,74 +48,98 @@ func (s *PlaceNodes) Validate() (err error) {
 	return nil
 }
 
-func (s *PlaceNodes) Upsert(userId string, db *sql.DB) (err error) {
+func (s *PlaceNodes) Upsert(accountId string, db *sql.DB) (err error) {
 	for i, node := range s.Nodes {
 		node.Document = s.Gjson.Array()[i].String()
 		qstr := `
             INSERT INTO place (
-                id, sv_user_id, document
+                id, account_id, type, document
             )
-            VALUES ($1, $2, $3)
+            VALUES ($1, $2, $3, $4)
             ON CONFLICT (id) DO UPDATE
-            SET sv_user_id = $2,
-                document = $3
+            SET account_id = $2,
+                type = $3,
+                document = $4
             WHERE place.id = $1;`
-		_, err = db.Exec(qstr, node.Id, userId, node.Document)
+		_, err = db.Exec(qstr, node.Id, accountId, node.Type, node.Document)
 		if err != nil {
-			return fmt.Errorf("PlaceNodes.Upsert() %s", err)
+			return fmt.Errorf("PlaceNodes.Upsert %s", err)
 		}
 	}
 	return nil
 }
 
 func (s *PlaceNodes) ForeignKeyUpdate(db *sql.DB) (err error) {
-	fmt.Println("PlaceNodes.ForeignKeyUpdate Not implemented.")
-	//for _, node := range s.Nodes {
-	//qstr := `
-	//UPDATE collection
-	//SET parent_id = $2
-	//WHERE collection.id = $1;`
+	for _, node := range s.Nodes {
+		if node.ParentId == "" {
+			continue
+		}
+		qstr := `
+            UPDATE place
+            SET parent_id = $2
+            WHERE place.id = $1;`
 
-	//_, err = db.Exec(
-	//qstr, FormatUUID(node.Id), FormatUUID(node.ParentId),
-	//)
-	//if err != nil {
-	//return fmt.Errorf("Collections.ForeignKeyUpdate() %s", err)
-	//}
-	//}
+		_, err = db.Exec(
+			qstr, node.Id, node.ParentId,
+		)
+		if err != nil {
+			return fmt.Errorf("PlaceNodes.ForeignKeyUpdate %s", err)
+		}
+	}
 	return nil
 }
 
-func (s *PlaceNodes) RelatedTableUpsert(userId string, db *sql.DB) (err error) {
-	fmt.Println("PlaceNodes.ForeignKeyUpdate Not implemented.")
-	//for _, node := range s.Nodes {
-	//if s.ItemIds != nil {
-	//for _, id := range s.ItemIds {
-	//err = JoinCollectionItemUpsert(
-	//db,
-	//s.SvUserId,
-	//s.Id,
-	//id,
-	//s.Position,
-	//)
-	//}
-	//if err != nil {
-	//return fmt.Errorf("Collection.RelatedTableUpsert() 01 %s", err)
-	//}
-	//}
-	//if err != nil {
-	//return fmt.Errorf("Collections.RelatedTableUpsert() %s", err)
-	//}
-	//}
+func (s *PlaceNodes) RelatedTableUpsert(accountId string, db *sql.DB) (err error) {
+    for i, node := range s.Nodes {
+        structArray := []Upserter{}
+        ascendentColumn := "place_id"
+        if node.CollectionIdNodes.Nodes != nil {
+            node.CollectionIdNodes.ascendentColumn = ascendentColumn
+            node.CollectionIdNodes.ascendentNodeId = node.Id
+            structArray = append(structArray, &node.CollectionIdNodes)
+        }
+        if node.ContentIdNodes.Nodes != nil {
+            node.contentJson = s.Gjson.Array()[i].Get("contentIdNodes")
+            node.ContentIdNodes.ascendentColumn = ascendentColumn
+            node.ContentIdNodes.ascendentNodeId = node.Id
+            structArray = append(structArray, &node.ContentIdNodes)
+        }
+        if node.ImageIdNodes.Nodes != nil {
+            node.imageJson = s.Gjson.Array()[i].Get("imageIdNodes")
+            node.ImageIdNodes.ascendentColumn = ascendentColumn
+            node.ImageIdNodes.ascendentNodeId = node.Id
+            structArray = append(structArray, &node.ImageIdNodes)
+        }
+        if node.ItemIdNodes.Nodes != nil {
+            node.itemJson = s.Gjson.Array()[i].Get("itemIdNodes")
+            node.ItemIdNodes.ascendentColumn = ascendentColumn
+            node.ItemIdNodes.ascendentNodeId = node.Id
+            structArray = append(structArray, &node.ItemIdNodes)
+        }
+        //if node.PlaceIdNodes.Nodes != nil {
+            //node.placeJson = s.Gjson.Array()[i].Get("placeIdNodes")
+            //node.PlaceIdNodes.ascendentColumn = ascendentColumn
+            //node.PlaceIdNodes.ascendentNodeId = node.Id
+            //structArray = append(structArray, &node.PlaceIdNodes)
+        //}
+        if node.PersonIdNodes.Nodes != nil {
+            node.placeJson = s.Gjson.Array()[i].Get("personIdNodes")
+            node.PersonIdNodes.ascendentColumn = ascendentColumn
+            node.PersonIdNodes.ascendentNodeId = node.Id
+            structArray = append(structArray, &node.PersonIdNodes)
+        }
+        for _, sa := range structArray {
+            err = UpsertHandler(sa, accountId, db)
+            if err != nil {
+                return fmt.Errorf("PlaceNodes.RelatedTableUpsert %s", err)
+            }
+
+        }
+    }
 	return nil
 }
 
 func (s *PlaceNodes) Delete(db *sql.DB) (err error) {
 	fmt.Println("PlaceNodes.Delete() Not implemented.")
-	//for _, node := range s.Nodes {
-	//if err != nil {
-	//return fmt.Errorf("Collections.Delete() %s", err)
-	//}
-	//}
 	return nil
 }

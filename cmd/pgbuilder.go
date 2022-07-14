@@ -37,52 +37,21 @@ var pgbuilderCmd = &cobra.Command{
 
         qstr := `
         -- ##################################
-        --  table: sv_user
+        --  table: account
         -- ##################################
-        CREATE TABLE IF NOT EXISTS sv_user (
+        CREATE TABLE IF NOT EXISTS account (
             id UUID PRIMARY KEY);
-        ALTER TABLE sv_user ADD COLUMN IF NOT EXISTS auth UUID;
-        ALTER TABLE sv_user ADD COLUMN IF NOT EXISTS key UUID;
-        ALTER TABLE sv_user ADD COLUMN IF NOT EXISTS username VARCHAR (100);
-        ALTER TABLE sv_user ADD COLUMN IF NOT EXISTS firstname VARCHAR (100);
-        ALTER TABLE sv_user ADD COLUMN IF NOT EXISTS lastname VARCHAR (100);
-        ALTER TABLE sv_user ADD COLUMN IF NOT EXISTS nickname VARCHAR (100);
-
-        -- ##################################
-        --  table: unit
-        -- ##################################
-        CREATE TABLE IF NOT EXISTS unit (
-            id UUID PRIMARY KEY);
-        ALTER TABLE unit
-            ADD COLUMN IF NOT EXISTS sv_user_id UUID
-            REFERENCES sv_user(id)
-            ON DELETE CASCADE;
-        ALTER TABLE unit
+        ALTER TABLE account
             ADD COLUMN IF NOT EXISTS parent_id UUID
-            REFERENCES unit(id);
-        ALTER TABLE unit ADD COLUMN IF NOT EXISTS document JSONB;
-        -- indexes
-        CREATE INDEX IF NOT EXISTS unit_id_idx ON unit (id);
-        CREATE INDEX IF NOT EXISTS unit_parent_id_idx ON unit (parent_id);
-        CREATE INDEX IF NOT EXISTS unit_sv_user_id_idx ON unit (sv_user_id);
-
-        -- ##################################
-        --  table: price_class
-        -- ##################################
-        CREATE TABLE IF NOT EXISTS price_class (
-            id UUID PRIMARY KEY);
-        ALTER TABLE price_class
-            ADD COLUMN IF NOT EXISTS sv_user_id UUID
-            REFERENCES sv_user(id)
+            REFERENCES account(id)
             ON DELETE CASCADE;
-        ALTER TABLE price_class
-            ADD COLUMN IF NOT EXISTS parent_id UUID
-            REFERENCES price_class(id);
-        ALTER TABLE price_class ADD COLUMN IF NOT EXISTS document JSONB;
+        ALTER TABLE account ADD COLUMN IF NOT EXISTS auth UUID;
+        ALTER TABLE account ADD COLUMN IF NOT EXISTS key UUID;
+        ALTER TABLE account ADD COLUMN IF NOT EXISTS document JSONB;
         -- indexes
-        CREATE INDEX IF NOT EXISTS price_class_id_idx ON price_class (id);
-        CREATE INDEX IF NOT EXISTS price_class_parent_id_idx ON price_class (parent_id);
-        CREATE INDEX IF NOT EXISTS price_class_sv_user_id_idx ON price_class (sv_user_id);
+        CREATE INDEX IF NOT EXISTS account_parent_id_idx ON account (parent_id);
+        CREATE INDEX IF NOT EXISTS account_auth_idx ON account (auth);
+        CREATE INDEX IF NOT EXISTS account_key_idx ON account (key);
 
         -- ##################################
         --  table: collection
@@ -90,35 +59,42 @@ var pgbuilderCmd = &cobra.Command{
         CREATE TABLE IF NOT EXISTS collection (
             id UUID PRIMARY KEY);
         ALTER TABLE collection
-            ADD COLUMN IF NOT EXISTS sv_user_id UUID
-            REFERENCES sv_user(id)
+            ADD COLUMN IF NOT EXISTS account_id UUID
+            REFERENCES account(id)
             ON DELETE CASCADE;
         ALTER TABLE collection
             ADD COLUMN IF NOT EXISTS parent_id UUID
-            REFERENCES collection(id);
+            REFERENCES collection(id)
+            ON DELETE CASCADE;
+        ALTER TABLE collection ADD COLUMN IF NOT EXISTS type VARCHAR (20);
         ALTER TABLE collection ADD COLUMN IF NOT EXISTS document JSONB;
         -- indexes
 
         CREATE INDEX IF NOT EXISTS collection_id_idx ON collection (id);
+        CREATE INDEX IF NOT EXISTS collection_account_id_idx ON collection (account_id);
         CREATE INDEX IF NOT EXISTS collection_parent_id_idx ON collection (parent_id);
-        CREATE INDEX IF NOT EXISTS collection_sv_user_id_idx ON collection (sv_user_id);
+        CREATE INDEX IF NOT EXISTS collection_type_idx ON collection (type);
 
         -- ##################################
         --  table: image
         -- ##################################
         CREATE TABLE IF NOT EXISTS image (id UUID PRIMARY KEY);
         ALTER TABLE image
-            ADD COLUMN IF NOT EXISTS sv_user_id UUID
-            REFERENCES sv_user(id);
+            ADD COLUMN IF NOT EXISTS account_id UUID
+            REFERENCES account(id)
+            ON DELETE CASCADE;
         ALTER TABLE image
             ADD COLUMN IF NOT EXISTS parent_id UUID
-            REFERENCES image(id);
+            REFERENCES image(id)
+            ON DELETE CASCADE;
+        ALTER TABLE image ADD COLUMN IF NOT EXISTS type VARCHAR (20);
         ALTER TABLE image ADD COLUMN IF NOT EXISTS document JSONB;
         -- indexes
 
         CREATE INDEX IF NOT EXISTS image_id_idx ON image (id);
         CREATE INDEX IF NOT EXISTS image_parent_id_idx ON image (parent_id);
-        CREATE INDEX IF NOT EXISTS image_sv_user_id_idx ON image (sv_user_id);
+        CREATE INDEX IF NOT EXISTS image_account_id_idx ON image (account_id);
+        CREATE INDEX IF NOT EXISTS image_type_idx ON collection (type);
         
         -- ##################################
         --  table: content
@@ -126,17 +102,21 @@ var pgbuilderCmd = &cobra.Command{
         CREATE TABLE IF NOT EXISTS content (
             id UUID PRIMARY KEY);
         ALTER TABLE content
-            ADD COLUMN IF NOT EXISTS sv_user_id UUID
-            REFERENCES sv_user(id);
+            ADD COLUMN IF NOT EXISTS account_id UUID
+            REFERENCES account(id)
+            ON DELETE CASCADE;
         ALTER TABLE content
             ADD COLUMN IF NOT EXISTS parent_id UUID
-            REFERENCES content(id);
+            REFERENCES content(id)
+            ON DELETE CASCADE;
+        ALTER TABLE content ADD COLUMN IF NOT EXISTS type VARCHAR (20);
         ALTER TABLE content ADD COLUMN IF NOT EXISTS document JSONB;
         -- indexes
 
         CREATE INDEX IF NOT EXISTS content_id_idx ON content (id);
         CREATE INDEX IF NOT EXISTS content_parent_id_idx ON content (parent_id);
-        CREATE INDEX IF NOT EXISTS content_sv_user_id_idx ON content (sv_user_id);
+        CREATE INDEX IF NOT EXISTS content_account_id_idx ON content (account_id);
+        CREATE INDEX IF NOT EXISTS content_type_idx ON collection (type);
         
         -- ##################################
         --  table: place
@@ -144,17 +124,21 @@ var pgbuilderCmd = &cobra.Command{
         CREATE TABLE IF NOT EXISTS place (
             id UUID PRIMARY KEY);
         ALTER TABLE place
-            ADD COLUMN IF NOT EXISTS sv_user_id UUID
-            REFERENCES sv_user(id);
+            ADD COLUMN IF NOT EXISTS account_id UUID
+            REFERENCES account(id)
+            ON DELETE CASCADE;
         ALTER TABLE place
             ADD COLUMN IF NOT EXISTS parent_id UUID
-            REFERENCES content(id);
+            REFERENCES content(id)
+            ON DELETE CASCADE;
+        ALTER TABLE place ADD COLUMN IF NOT EXISTS type VARCHAR (20);
         ALTER TABLE place ADD COLUMN IF NOT EXISTS document JSONB;
         -- indexes
 
         CREATE INDEX IF NOT EXISTS place_id_idx ON place (id);
         CREATE INDEX IF NOT EXISTS place_parent_id_idx ON place (parent_id);
-        CREATE INDEX IF NOT EXISTS place_sv_user_id_idx ON place (sv_user_id);
+        CREATE INDEX IF NOT EXISTS place_account_id_idx ON place (account_id);
+        CREATE INDEX IF NOT EXISTS place_type_idx ON collection (type);
 
         -- ##################################
         --  table: person
@@ -162,20 +146,25 @@ var pgbuilderCmd = &cobra.Command{
         CREATE TABLE IF NOT EXISTS person (
             id UUID PRIMARY KEY);
         ALTER TABLE person
-            ADD COLUMN IF NOT EXISTS sv_user_id UUID
-            REFERENCES sv_user(id);
+            ADD COLUMN IF NOT EXISTS account_id UUID
+            REFERENCES account(id)
+            ON DELETE CASCADE;
         ALTER TABLE person
             ADD COLUMN IF NOT EXISTS parent_id UUID
-            REFERENCES content(id);
+            REFERENCES content(id)
+            ON DELETE CASCADE;
         ALTER TABLE person
             ADD COLUMN IF NOT EXISTS place_id UUID
-            REFERENCES place(id);
+            REFERENCES place(id)
+            ON DELETE CASCADE;
+        ALTER TABLE person ADD COLUMN IF NOT EXISTS type VARCHAR (20);
         ALTER TABLE person ADD COLUMN IF NOT EXISTS document JSONB;
         -- indexes
 
         CREATE INDEX IF NOT EXISTS person_id_idx ON person (id);
         CREATE INDEX IF NOT EXISTS person_parent_id_idx ON person (parent_id);
-        CREATE INDEX IF NOT EXISTS person_sv_user_id_idx ON person (sv_user_id);
+        CREATE INDEX IF NOT EXISTS person_account_id_idx ON person (account_id);
+        CREATE INDEX IF NOT EXISTS person_type_idx ON collection (type);
 
         -- ##################################
         --  table: item
@@ -183,71 +172,63 @@ var pgbuilderCmd = &cobra.Command{
         CREATE TABLE IF NOT EXISTS item (
             id UUID PRIMARY KEY);
         ALTER TABLE item
-            ADD COLUMN IF NOT EXISTS sv_user_id UUID
-            REFERENCES sv_user(id);
+            ADD COLUMN IF NOT EXISTS account_id UUID
+            REFERENCES account(id)
+            ON DELETE CASCADE;
         ALTER TABLE item
             ADD COLUMN IF NOT EXISTS parent_id UUID
-            REFERENCES item(id);
-        ALTER TABLE item
-            ADD COLUMN IF NOT EXISTS place_id UUID
-            REFERENCES place(id);
-        ALTER TABLE item
-            ADD COLUMN IF NOT EXISTS price_class_id UUID
-            REFERENCES price_class(id);
-        ALTER TABLE item
-            ADD COLUMN IF NOT EXISTS unit_id UUID
-            REFERENCES unit(id);
+            REFERENCES item(id)
+            ON DELETE CASCADE;
+        ALTER TABLE item ADD COLUMN IF NOT EXISTS type VARCHAR (20);
         ALTER TABLE item ADD COLUMN IF NOT EXISTS document JSONB;
         -- indexes
         CREATE INDEX IF NOT EXISTS item_id_idx ON item (id);
-        CREATE INDEX IF NOT EXISTS item_sv_user_id_idx ON item (sv_user_id);
+        CREATE INDEX IF NOT EXISTS item_account_id_idx ON item (account_id);
         CREATE INDEX IF NOT EXISTS item_parent_id_idx ON item (parent_id);
-        CREATE INDEX IF NOT EXISTS item_place_id_idx ON item (place_id);
-        CREATE INDEX IF NOT EXISTS item_price_class_id_idx ON item (price_class_id);
-        CREATE INDEX IF NOT EXISTS item_unit_id_idx ON item (unit_id);
+        CREATE INDEX IF NOT EXISTS item_type_idx ON collection (type);
 
         -- ##################################
-        -- table: join_collection_item
+        -- table: joins
         -- ##################################
-        CREATE TABLE IF NOT EXISTS join_collection_item (id UUID PRIMARY KEY);
-        ALTER TABLE join_collection_item
-            ADD COLUMN IF NOT EXISTS sv_user_id UUID
-            REFERENCES sv_user(id);
-        ALTER TABLE join_collection_item
+        CREATE TABLE IF NOT EXISTS joins (id UUID PRIMARY KEY);
+        ALTER TABLE joins
+            ADD COLUMN IF NOT EXISTS account_id UUID
+            REFERENCES account(id)
+            ON DELETE CASCADE;
+        ALTER TABLE joins
             ADD COLUMN IF NOT EXISTS collection_id UUID
             REFERENCES collection(id);
-        ALTER TABLE join_collection_item
-            ADD COLUMN IF NOT EXISTS item_id UUID
-            REFERENCES item(id);
-        -- indexes
-        CREATE INDEX IF NOT EXISTS jci_sv_user_id_idx
-            ON join_collection_item (sv_user_id);
-        CREATE INDEX IF NOT EXISTS jci_itemid_idx
-            ON join_collection_item (item_id);
-        CREATE INDEX IF NOT EXISTS jci_collectionid_idx
-            ON join_collection_item (collection_id);
-
-        -- ##################################
-        -- table: join_collection_content
-        -- ##################################
-        CREATE TABLE IF NOT EXISTS join_collection_content (id UUID PRIMARY KEY);
-        ALTER TABLE join_collection_content
-            ADD COLUMN IF NOT EXISTS sv_user_id UUID
-            REFERENCES sv_user(id);
-        ALTER TABLE join_collection_content
-            ADD COLUMN IF NOT EXISTS collection_id UUID
-            REFERENCES collection(id);
-        ALTER TABLE join_collection_content
+        ALTER TABLE joins
             ADD COLUMN IF NOT EXISTS content_id UUID
             REFERENCES content(id);
+        ALTER TABLE joins
+            ADD COLUMN IF NOT EXISTS image_id UUID
+            REFERENCES image(id);
+        ALTER TABLE joins
+            ADD COLUMN IF NOT EXISTS item_id UUID
+            REFERENCES item(id);
+        ALTER TABLE joins
+            ADD COLUMN IF NOT EXISTS person_id UUID
+            REFERENCES person(id);
+        ALTER TABLE joins
+            ADD COLUMN IF NOT EXISTS place_id UUID
+            REFERENCES place(id);
+        ALTER TABLE joins ADD COLUMN IF NOT EXISTS attributes JSONB;
         -- indexes
-        CREATE INDEX IF NOT EXISTS jcc_sv_user_id_idx
-            ON join_collection_content (sv_user_id);
-        CREATE INDEX IF NOT EXISTS jcc_collectionid_idx
-            ON join_collection_content (collection_id);
-        CREATE INDEX IF NOT EXISTS jcc_contentid_idx
-            ON join_collection_content (content_id);
-
+        CREATE INDEX IF NOT EXISTS joins_account_id_idx
+            ON joins (account_id);
+        CREATE INDEX IF NOT EXISTS joins_collection_id_idx
+            ON joins (collection_id);
+        CREATE INDEX IF NOT EXISTS joins_content_id_idx
+            ON joins (item_id);
+        CREATE INDEX IF NOT EXISTS joins_image_id_idx
+            ON joins (item_id);
+        CREATE INDEX IF NOT EXISTS joins_item_id_idx
+            ON joins (item_id);
+        CREATE INDEX IF NOT EXISTS joins_person_id_idx
+            ON joins (person_id);
+        CREATE INDEX IF NOT EXISTS joins_place_id_idx
+            ON joins (place_id);
         `
 
         // load config env variables

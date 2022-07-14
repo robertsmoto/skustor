@@ -25,6 +25,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/nfnt/resize"
 	"github.com/nickalie/go-webpbin"
+	"github.com/tidwall/gjson"
 )
 
 type downloader interface {
@@ -47,16 +48,16 @@ type downloaderResizerProcessorUpserterUploader interface {
 	downloader
 	resizer
 	processor
-	upserter
+	Upserter
 	uploader
 }
 
-func ImgHandler(i downloaderResizerProcessorUpserterUploader, userId string, db *sql.DB) {
+func ImgHandler(i downloaderResizerProcessorUpserterUploader, accountId string, db *sql.DB) {
 	var err error
 	err = i.Download()
 	err = i.Resize()
 	i.Process()
-	i.Upsert(userId, db)
+	i.Upsert(accountId, db)
 	err = i.UploadToSpaces() // to AWS cdn
 	if err != nil {
 		log.Print("Error image.Resize() ", err)
@@ -78,7 +79,8 @@ type ResizedImage struct {
 }
 
 type Image struct {
-	Id             string `json:"id" validate:"omitempty,uuid4"`
+    BaseData
+    AllIdNodes
 	Url            string `json:"url" validate:"omitempty,url"`
 	urlHash        string `json:"-"`  
 	Title          string `json:"title" validate:"omitempty,lte=200"`
@@ -89,11 +91,11 @@ type Image struct {
 	Height         string `json:"height" validate:"omitempty,lte=20"`
 	Width          string `json:"width" validate:"omitempty,lte=20"`
 	Size           string `json:"size" validate:"omitempty,lte=20,oneof=LG MD SM"`
-    SvUserId       string `json:"-"`  // constructed
+    AccountId      string `json:"-"`  // constructed
 	TempFileDir    string `json:"-"`  // constructed :: location to download temp files
 	UploadPrefix   string `json:"-"`  // constructed :: eg. "media"
 	VanityUrl      string `json:"-"`  // constructed
-	UserDir        string `json:"-"`  // constructed :: eg. "98c56d78fe3a"
+	AccountDir        string `json:"-"`  // constructed :: eg. "98c56d78fe3a"
 	Date           string `json:"-"`  // constructed :: eg. "2020-05-04"
 	DoBucket       string `json:"-"`  // constructed
 	DoCacheControl string `json:"-"`  // constructed eg. "max-age=60"
@@ -111,23 +113,24 @@ type Image struct {
 
 type ImageNodes struct {
 	Nodes []*Image `json:"imageNodes" validate:"dive"`
+	Gjson gjson.Result
 }
 
-func (s *ImageNodes) Load(fileBuffer []byte) {
-	var err error
-	json.Unmarshal(fileBuffer, &s)
+func (s *ImageNodes) Load(fileBuffer *[]byte) (err error){
+	json.Unmarshal(*fileBuffer, &s)
 	if err != nil {
-		log.Print("Image.Load() ", err)
+		return fmt.Errorf("Image.Load %s", err)
 	}
+    return nil
 }
 
-func (s *ImageNodes) Validate() {
-	var err error
+func (s *ImageNodes) Validate() (err error) {
 	validate := validator.New()
 	err = validate.Struct(s)
 	if err != nil {
-		log.Print("Image.Validate() ", err)
+		return fmt.Errorf("Image.Validate %s", err)
 	}
+    return nil
 }
 
 func (s *ImageNodes) RecordOriginalImage(db *sql.DB) (err error) {
@@ -228,7 +231,7 @@ func (s *ImageNodes) Resize() (err error) {
                 newFileName,
             )
             uploadPath := CreateUploadPath(node.UploadPrefix,
-                node.UserDir, newFileName, node.Date)
+                node.AccountDir, newFileName, node.Date)
             // create local dir
             // if successful, the created file can be used for I/O
             var f *os.File
@@ -260,41 +263,111 @@ func (s *ImageNodes) Resize() (err error) {
 	return err
 }
 
-func (s *ImageNodes) Upsert(db *sql.DB) (err error) {
+func (s *ImageNodes) Upsert(accountId string, db *sql.DB) (err error) {
 	// now add the resizeImg.NewSizes to the image table
     for _, node := range s.Nodes {
-        if node.Process == 0 {
-            continue
-        }
-        for _, i := range node.ResizedImages {
-            // creates unique id on url, size
-            idHash := Md5Hasher([]string{i.url, i.size})
-            documentMap := map[string]interface{}{
-                "url": i.url, 
-                "title": node.Title,
-                "alt": node.Alt,
-                "caption": node.Caption,
-                "position": node.Position,
-                "height": i.height,
-                "width": i.width,
-                "size": i.size,
+        if node.Process == 1 {
+            for _, i := range node.ResizedImages {
+                // creates unique id on url, size
+                idHash := Md5Hasher([]string{i.url, i.size})
+                documentMap := map[string]interface{}{
+                    "url": i.url, 
+                    "title": node.Title,
+                    "alt": node.Alt,
+                    "caption": node.Caption,
+                    "position": node.Position,
+                    "height": i.height,
+                    "width": i.width,
+                    "size": i.size,
+                }
+                documentJson, _ := json.Marshal(documentMap)
+                qstr := `
+                    INSERT INTO image (id, account_id, parent_id, document)
+                    values ($1, $2, $3, $4)
+                    ON CONFLICT (id) DO UPDATE
+                    SET account_id = $2,
+                        parent_id = $3,
+                        document = $4
+                    WHERE image.id = $1;`
+                _, err = db.Exec(
+                    qstr, idHash, accountId, node.urlHash, string(documentJson))
+                if err != nil {
+                    return fmt.Errorf("Image.Upsert %s", err)
+                }
             }
-            documentJson, _ := json.Marshal(documentMap)
-            qstr := `
-                INSERT INTO image (id, parent_id, document)
-                values ($1, $2, $3)
-                ON CONFLICT (id) DO UPDATE
-                SET parent_id = $2,
-                    document = $3
-                WHERE image.id = $1;`
-            _, err = db.Exec(qstr, idHash, node.urlHash, string(documentJson))
+        } else {
+            fmt.Println("Not implemented.")
+        }
+    }
+	return nil
+}
+
+func (s *ImageNodes) ForeignKeyUpdate(db *sql.DB) (err error) {
+	for _, node := range s.Nodes {
+		if node.ParentId == "" {
+			continue
+		}
+		qstr := `
+            UPDATE image
+            SET parent_id = $2
+            WHERE image.id = $1;`
+		_, err = db.Exec(qstr, node.Id, node.ParentId)
+		if err != nil {
+			return fmt.Errorf("ImageNodes.ForeignKeyUpdate() %s", err)
+		}
+	}
+	return nil
+}
+
+func (s *ImageNodes) RelatedTableUpsert(accountId string, db *sql.DB) (err error) {
+    for i, node := range s.Nodes {
+        ascendentColumn := "image_id"
+        structArray := []Upserter{}
+        if node.CollectionIdNodes.Nodes != nil {
+            node.CollectionIdNodes.ascendentColumn = ascendentColumn
+            node.CollectionIdNodes.ascendentNodeId = node.Id
+            structArray = append(structArray, &node.CollectionIdNodes)
+        }
+        if node.ContentIdNodes.Nodes != nil {
+            node.contentJson = s.Gjson.Array()[i].Get("contentIdNodes")
+            node.ContentIdNodes.ascendentColumn = ascendentColumn
+            node.ContentIdNodes.ascendentNodeId = node.Id
+            structArray = append(structArray, &node.ContentIdNodes)
+        }
+        //if node.ImageIdNodes.Nodes != nil {
+            //node.imageJson = s.Gjson.Array()[i].Get("imageIdNodes")
+            //node.ImageIdNodes.ascendentColumn = ascendentColumn
+            //node.ImageIdNodes.ascendentNodeId = node.Id
+            //structArray = append(structArray, &node.ImageIdNodes)
+        //}
+        if node.ItemIdNodes.Nodes != nil {
+            node.itemJson = s.Gjson.Array()[i].Get("itemIdNodes")
+            node.ItemIdNodes.ascendentColumn = ascendentColumn
+            node.ItemIdNodes.ascendentNodeId = node.Id
+            structArray = append(structArray, &node.ItemIdNodes)
+        }
+        if node.PlaceIdNodes.Nodes != nil {
+            node.placeJson = s.Gjson.Array()[i].Get("placeIdNodes")
+            node.PlaceIdNodes.ascendentColumn = ascendentColumn
+            node.PlaceIdNodes.ascendentNodeId = node.Id
+            structArray = append(structArray, &node.PlaceIdNodes)
+        }
+        if node.PersonIdNodes.Nodes != nil {
+            node.placeJson = s.Gjson.Array()[i].Get("personIdNodes")
+            node.PersonIdNodes.ascendentColumn = ascendentColumn
+            node.PersonIdNodes.ascendentNodeId = node.Id
+            structArray = append(structArray, &node.PersonIdNodes)
+        }
+        for _, sa := range structArray {
+            err = UpsertHandler(sa, accountId, db)
             if err != nil {
-                return fmt.Errorf("Image.Upsert %s", err)
+                return fmt.Errorf("ImageNodes.RelatedTableUpsert %s", err)
             }
         }
     }
 	return nil
 }
+
 
 func (s *ImageNodes) UploadToSpaces() (err error) {
 	//img {0=tempFilePath, 1=key 2=url, 3=width, 4=height, 5=size eg "LG"]
@@ -438,10 +511,10 @@ func CreateNewFileName(fileName string, w, h int) string {
 //}
 
 func CreateUploadPath(
-	uploadPrefix, userDir, fileName, date string) string {
+	uploadPrefix, accountDir, fileName, date string) string {
 	//CreateUploadPath creates a new path based on uploadPrefix eg. "media"
-	//userDir eg. "d91216fbb4d4" and fileName.
-	//Path fomat /<uploadPrefix>/<userPath>/year/month/data/filename
+	//accountDir eg. "d91216fbb4d4" and fileName.
+	//Path fomat /<uploadPrefix>/<accountPath>/year/month/data/filename
 	//Date should be in string format "2022-06-02"
 
 	//year, month, day := time.Now().Date()
@@ -449,7 +522,7 @@ func CreateUploadPath(
 	y := dateSlice[0]
 	m := dateSlice[1]
 	d := dateSlice[2]
-	key := filepath.Join(uploadPrefix, userDir, y, m, d, fileName)
+	key := filepath.Join(uploadPrefix, accountDir, y, m, d, fileName)
 	return key
 }
 

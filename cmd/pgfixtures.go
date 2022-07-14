@@ -41,52 +41,78 @@ var pgfixturesCmd = &cobra.Command{
         //conf := configs.Config{}
         //err := configs.Load(&conf)
 
+        aid := "f8b0f997-1dcc-4e56-915c-9f62f52345ee"
         fixturesFile, err := os.ReadFile(
             path.Join(os.Getenv("ROOTDR"), "cmd/data/fixtures.json"))
         if err != nil {
-            log.Printf("pgfixturesCmd %s", err)
+            log.Println("pgfixturesCmd %s", err)
         }
-
-        //instantiate the model structs
-        //user := models.User{}
-        //users := models.Users{}
-        //place := models.Place{}
-        //places := models.Places{}
-        //priceClass := models.PriceClass{}
-        //priceClasses := models.PriceClasses{}
-        //unit := models.Unit{}
-        //units := models.Units{}
-        collectionNodes := models.CollectionNodes{}
-        contentNodes := models.ContentNodes{}
-        //item := models.Item{}
-        //items := models.Items{}
-
-        // loads and validates the nodes (singular versions of structs)
-        loaderNodes := []models.LoaderProcesserUpserter {
-            //&user,
-            //&users,
-            //&place,
-            //&places,
-            //&priceClass,
-            //&priceClasses,
-            //&unit,
-            //&units,
-            &collectionNodes,
-            &contentNodes,
-            //&item,
-            //&items,
-        }
-
 
         // open the db
         devPostgres := postgres.PostgresDb{}
         pgDb, err := postgres.Open(&devPostgres)
-        userId := "f8b0f997-1dcc-4e56-915c-9f62f52345ee"
 
-        for _, node := range loaderNodes {
-            err = models.JsonLoaderUpserterHandler(
-                node, userId, &fixturesFile, pgDb)
+
+
+        // instantiate the structs
+        collectionNodes := models.CollectionNodes{}
+        itemNodes := models.ItemNodes{}
+        contentNodes := models.ContentNodes{}
+
+        // loader validator
+        lvNodes := []models.LoaderValidator{
+            &collectionNodes,
+            &itemNodes,
+            &contentNodes,
         }
+        for _, node := range lvNodes {
+            err = models.LoadValidateHandler(node, &fixturesFile)
+            if err != nil {
+                log.Println("pgfixtures 01", err)
+            }
+        }
+
+        // upsert
+        upsertNodes := []models.Upserter{
+            &collectionNodes,
+            &itemNodes,
+            &contentNodes,
+        }
+        for _, node := range upsertNodes {
+            err = models.UpsertHandler(node, aid, pgDb)
+            if err != nil {
+                log.Println("pgfixtures 02", err)
+            }
+        }
+
+        // foreign key update
+        fkNodes := []models.ForeignKeyUpdater{
+            &collectionNodes,
+            &itemNodes,
+            &contentNodes,
+        }
+        for _, node := range fkNodes {
+            err = models.ForeignKeyUpdateHandler(node, pgDb)
+            if err != nil {
+                log.Println("pgfixtures 03", err)
+            }
+        }
+
+        // related table upsert
+        rtNodes := []models.RelatedTableUpserter{
+            &collectionNodes,
+            &itemNodes,
+            &contentNodes,
+        }
+        for _, node := range rtNodes {
+            err = models.RelatedTableUpsertHandler(node, aid, pgDb)
+            if err != nil {
+                log.Println("pgfixtures 04", err)
+            }
+        }
+
+
+
         pgDb.Close()
 	},
 }

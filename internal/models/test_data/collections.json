@@ -1,39 +1,24 @@
 {
-    "collection": {
-        "id": "9b82c1cc-d303-418e-adbb-fca176a847ab",
-        "type": "brand",
-        "parentId": "",
-        "name": "Test Brand",
-        "description": "Test Description",
-        "keywords": "test, keyword",
-        "linkUrl": "https://www.testbrand.com",
-        "linkText": "This is a link text.",
-        "itemIds": [
-            "2940d429-9d97-4d9e-a80f-67d56e42d226",
-            "a4ce7648-e499-40d1-8e6b-0c2ef0a7856e"
-        ],
-        "contentIds": [
-            "2f877877-7669-42b6-abed-6ebc20ba4c5b",
-            "cdd96446-7dbc-437d-a7c1-1621761f1465"
-        ],
-        "imageIds": [
-            "",
-            ""
-        ],
-        "imageNodes": [
-            {
-                "url": "https://cdn-stage.sodavault.com/media/111111111111/svLogo.png",
-                "title": "Gabriels Clothing Company Logo",
-                "alt": "Gabriels Clothing Company Logo",
-                "caption": "America's clothing comapany since 1889.",
-                "position": 0,
-                "bypassProcessing": 1
-            }
-        ]
-    },
     "collectionNodes": [
-
         {
+            "id": "f9758d28-f580-4da5-bcbf-097d101f8270",
+            "parentId": "",
+            "type": "priceClass",
+            "hello": "world",
+            "one": "two"
+        },{
+            "id": "2580a316-4f0a-4e9a-9812-90b221798c83",
+            "parentId": "",
+            "type": "priceClass",
+            "hello": "world",
+            "one": "two"
+        },{
+            "id": "da7fc9fb-c6f7-4a4e-81b4-5436910348dc",
+            "parentId": "",
+            "type": "unit",
+            "hello": "world",
+            "one": "two"
+        },{
             "id": "eeb75266-7f4a-4d8e-9a8a-2c0ada73e7b1",
             "type": "brand",
             "parentId": "",
@@ -42,26 +27,58 @@
             "keywords": "Gabriels, american, denim, jeans",
             "linkUrl": "https://www.gabriels.com",
             "linkText": "Gabriels Clothing Company",
-            "itemIds": [
-                "2940d429-9d97-4d9e-a80f-67d56e42d226",
-                "a4ce7648-e499-40d1-8e6b-0c2ef0a7856e"
-            ],
-            "contentIds": [
-                "2f877877-7669-42b6-abed-6ebc20ba4c5b",
-                "cdd96446-7dbc-437d-a7c1-1621761f1465"
-            ],
-            "imageIds": [
-                "",
-                ""
-            ],
-            "imageNodes": [
+            "itemIdNodes": [
                 {
-                    "url": "https://cdn-stage.sodavault.com/media/111111111111/svLogo.png",
-                    "title": "Gabriels Clothing Company Logo",
-                    "alt": "Gabriels Clothing Company Logo",
-                    "caption": "America's clothing comapany since 1889.",
-                    "position": 0,
-                    "bypassProcessing": 1
+
+                    "id": "2940d429-9d97-4d9e-a80f-67d56e42d226",
+                    "attributes": {
+                        "attr1": "hello",
+                        "attr2": "world"
+                    }
+                },{
+
+                   "id": "a4ce7648-e499-40d1-8e6b-0c2ef0a7856e",
+                    "attributes": {
+                        "attr3": "value"
+                    }
+                }
+            ],
+            "contentIdNodes": [
+                {
+                    "id": "2f877877-7669-42b6-abed-6ebc20ba4c5b",
+                    "attributes": {
+                        "attr4": "value"
+                    }
+                },{
+                    "id": "cdd96446-7dbc-437d-a7c1-1621761f1465",
+                    "attributes": {
+                        "attr5": "value"
+                    }
+                }
+            ]
+        },{
+
+            "id": "9b82c1cc-d303-418e-adbb-fca176a847ab",
+            "type": "brand",
+            "parentId": "",
+            "name": "Test Brand",
+            "description": "Test Description",
+            "keywords": "test, keyword",
+            "linkUrl": "https://www.testbrand.com",
+            "linkText": "This is a link text.",
+            "contentIdNodes": [
+                {
+                    "id": "2f877877-7669-42b6-abed-6ebc20ba4c5b",
+                    "attributes": ""
+                },{
+                    "id": "cdd96446-7dbc-437d-a7c1-1621761f1465",
+                    "attributes": ""
+                }
+            ],
+            "itemIdNodes": [
+                {
+                    "id": "a4ce7648-e499-40d1-8e6b-0c2ef0a7856e",
+                    "attributes": ""
                 }
             ]
         },{
@@ -72,20 +89,7 @@
             "description": "100% Cotton",
             "keywords": "natural, materials, cotton",
             "linkUrl": "",
-            "linkText": "",
-            "imageNodes": [
-                {
-                    "url": "https://example.com/cotton.jpg",
-                    "title": "100% Cotton",
-                    "alt": "Cotton being processed in a textile mill.",
-                    "caption": "Nature makes clothes with cotton.",
-                    "bypassProcessing": 1,
-                    "position": 0,
-                    "size": "LG",
-                    "height": "40",
-                    "width": "40"
-                }
-            ]
+            "linkText": ""
         },{
             "id": "58ec8f06-fb10-4103-84a4-eafbfc6d45ae",
             "type": "brand",
@@ -94,27 +98,7 @@
             "description": "Rooted in authenticity, powered by positivity.",
             "keywords": "american, sparrow, apparel",
             "linkUrl": "https://www.americansparrow.com",
-            "linkText": "American Sparrow Clothing Company",
-            "imageNodes": [
-                {
-                    "url": "https://cdn-stage.sodavault.com/media/111111111111/svLogo.png",
-                    "title": "American Sparrow Clothing Company Logo",
-                    "alt": "American Sparrow Clothing Company Logo",
-                    "caption": "American Sparrow rooted in positivity.",
-                    "position": 0
-                },
-                {
-                    "url": "https://example.com/noprocessing/test.jpg",
-                    "title": "This image should not be processed.",
-                    "alt": "It is only recorded in the database.",
-                    "caption": "A great image that is not processed.",
-                    "position": 1,
-                    "width": "20",
-                    "height": "20",
-                    "size": "LG",
-                    "bypassProcessing": 1
-                }
-            ]
+            "linkText": "American Sparrow Clothing Company"
         },{
             "id": "3df59d48-c673-4c4b-986a-eaf4d254cfc2",
             "type": "brand",
@@ -123,17 +107,7 @@
             "description": "American clothing brand and retailer.",
             "keywords": "answer, american, denim, jeans, apparel",
             "linkUrl": "https://www.answerapparel.com",
-            "linkText": "Answer Clothing Company",
-            "imageNodes": [
-                {
-                    "url": "https://cdn-stage.sodavault.com/media/111111111111/svLogo.png",
-                    "title": "Answer Clothing Company",
-                    "alt": "Answer Clothing Company",
-                    "caption": "You have questions, we have the Answer.",
-                    "position": 0,
-                    "bypassProcessing": 1
-                }
-            ]
+            "linkText": "Answer Clothing Company"
         },{
             "id": "79419d9d-6320-45a7-89f3-fa6215359cf8",
             "type": "brand",
@@ -142,68 +116,25 @@
             "description": "German fashion house established in 1968.",
             "keywords": "leather, accessories, german, fashion",
             "linkUrl": "https://www.ckclothing.com",
-            "linkText": "Calvin Klause Clothing Company",
-            "imageNodes": [
-                {
-                    "url": "https://cdn-stage.sodavault.com/media/111111111111/svLogo.png",
-                    "title": "Calvin Klause Clothing Company Logo",
-                    "alt": "Calvin Klause Clothing Company Logo",
-                    "caption": "Calvin Klause modern German style.",
-                    "position": 0,
-                    "bypassProcessing": 1
-                }
-            ]
+            "linkText": "Calvin Klause Clothing Company"
         },{
             "id": "cadbb643-57d5-44b9-acdb-7253a1e10e5c",
             "type": "department",
             "name": "Shoes",
             "description": "Shoes for the entire family.",
-            "keywords": "shoes",
-            "imageNodes": [
-                {
-                    "url": "https://example.com/shoe_department.jpg",
-                    "title": "Shoe Department",
-                    "alt": "Photograph of person shopping for shoes.",
-                    "caption": "Exmaple.com shoe department.",
-                    "position": 0,
-                    "size": "LG",
-                    "bypassProcessing": 1
-                }
-            ]
+            "keywords": "shoes"
         },{
             "id": "520f2266-c6ac-4b3b-b4da-056cc330b86e",
             "type": "productCategory",
             "name": "Boots",
             "description": "Boots",
-            "keywords": "boots",
-            "imageNodes": [
-                {
-                    "url": "https://example.com/boots.jpg",
-                    "title": "Boots",
-                    "alt": "Person walking in boots.",
-                    "caption": "Boots for the entire family.",
-                    "position": 0,
-                    "size": "LG",
-                    "bypassProcessing": 1
-                }
-            ]
+            "keywords": "boots"
         },{
             "id": "988170a9-330c-4501-b2a1-20cd7bfcaa93",
             "type": "productTag",
             "name": "Made in the USA",
             "description": "Made in the USA",
-            "keywords": "america, usa",
-            "imageNodes": [
-                {
-                    "url": "https://example.com/madeinusa.jpg",
-                    "title": "Made in the USA",
-                    "alt": "American flag.",
-                    "caption": "Proudly made in the USA.",
-                    "position": 0,
-                    "size": "LG",
-                    "bypassProcessing": 1
-                }
-            ]
+            "keywords": "america, usa"
         }
     ]
 }

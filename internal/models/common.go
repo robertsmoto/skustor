@@ -5,13 +5,210 @@ import (
 	"database/sql"
 	"fmt"
 	"io"
+
+    "github.com/tidwall/gjson"
 )
 
 type BaseData struct {
 	Id       string `json:"id" validate:"required,uuid4"`
 	ParentId string `json:"parentId" validate:"omitempty,uuid4"`
+    Type string `json:"type" validate:"omitempty,lte=20"`
 	SvUserId string
 	Document string
+}
+
+type BaseIdData struct {
+    Id string `json:"id" validate:"uuid4"`
+    Attributes string `json:"attributes" validate:"omitempty,json"`
+}
+
+type CollectionIds struct {
+    BaseIdData
+}
+
+type CollectionIdNodes struct {
+    Nodes []CollectionIds `json:"collectionIdNodes" validate:"dive,omitempty"`
+    ascendentColumn string  // corresponding columns eg. "content_id"
+    ascendentNodeId string  // parent object
+    collectionJson gjson.Result
+}
+
+func (s *CollectionIdNodes) Upsert(accountId string, db *sql.DB) (err error) {
+    ascendentColumn := "collection_id"
+    for i, node := range s.Nodes {
+        node.Attributes = s.collectionJson.Array()[i].Get("attributes").String()
+        j := NewJoinTable(
+            s.ascendentColumn,
+            s.ascendentNodeId,
+            ascendentColumn,
+            node.Id,
+            node.Attributes,
+        )
+        err = UpsertHandler(j, accountId, db)
+        if err != nil {
+            return fmt.Errorf("CollectionIdNodes.Upsert %s", err)
+        }
+    }
+    return nil
+}
+
+type ContentIds struct {
+    BaseIdData
+}
+
+type ContentIdNodes struct {
+    Nodes []ContentIds `json:"contentIdNodes" validate:"dive,omitempty"`
+    ascendentColumn string  // corresponding columns eg. "content_id"
+    ascendentNodeId string  // parent object
+    contentJson gjson.Result
+}
+
+func (s *ContentIdNodes) Upsert(accountId string, db *sql.DB) (err error) {
+    ascendentColumn := "content_id"
+    for i, node := range s.Nodes {
+        node.Attributes = s.contentJson.Array()[i].Get("attributes").String()
+        j := NewJoinTable(
+            s.ascendentColumn,
+            s.ascendentNodeId,
+            ascendentColumn,
+            node.Id,
+            node.Attributes,
+        )
+        err = UpsertHandler(j, accountId, db)
+        if err != nil {
+            return fmt.Errorf("ContentIdNodes.Upsert %s", err)
+        }
+    }
+    return nil
+}
+
+type ImageIds struct {
+    BaseIdData
+}
+
+type ImageIdNodes struct {
+    Nodes []ImageIds `json:"imageIdNodes" validate:"dive,omitempty"`
+    ascendentColumn string  // corresponding columns eg. "content_id"
+    ascendentNodeId string  // parent object
+    imageJson gjson.Result
+}
+
+func (s *ImageIdNodes) Upsert(accountId string, db *sql.DB) (err error) {
+    ascendentColumn := "image_id"
+    for i, node := range s.Nodes {
+        node.Attributes = s.imageJson.Array()[i].Get("attributes").String()
+        j := NewJoinTable(
+            s.ascendentColumn,
+            s.ascendentNodeId,
+            ascendentColumn,
+            node.Id,
+            node.Attributes,
+        )
+        err = UpsertHandler(j, accountId, db)
+        if err != nil {
+            return fmt.Errorf("ImageIdNodes.Upsert %s", err)
+        }
+    }
+    return nil
+}
+
+type ItemIds struct {
+    BaseIdData
+}
+
+type ItemIdNodes struct {
+    Nodes []ItemIds `json:"itemIdNodes" validate:"dive,omitempty"`
+    ascendentColumn string  // corresponding columns eg. "content_id"
+    ascendentNodeId string  // parent object
+    itemJson gjson.Result
+}
+
+func (s *ItemIdNodes) Upsert(accountId string, db *sql.DB) (err error) {
+    ascendentColumn := "item_id"
+    for i, node := range s.Nodes {
+        node.Attributes = s.itemJson.Array()[i].Get("attributes").String()
+        j := NewJoinTable(
+            s.ascendentColumn,
+            s.ascendentNodeId,
+            ascendentColumn,
+            node.Id,
+            node.Attributes,
+        )
+        err = UpsertHandler(j, accountId, db)
+        if err != nil {
+            return fmt.Errorf("ItemIdNodes.Upsert %s", err)
+        }
+    }
+    return nil
+}
+
+type PersonIds struct {
+    BaseIdData
+}
+
+type PersonIdNodes struct {
+    Nodes []PersonIds `json:"personIdNodes" validate:"dive,omitempty"`
+    ascendentColumn string  // corresponding columns eg. "content_id"
+    ascendentNodeId string  // parent object
+    personJson gjson.Result
+}
+
+func (s *PersonIdNodes) Upsert(accountId string, db *sql.DB) (err error) {
+    ascendentColumn := "person_id"
+    for i, node := range s.Nodes {
+        node.Attributes = s.personJson.Array()[i].Get("attributes").String()
+        j := NewJoinTable(
+            s.ascendentColumn,
+            s.ascendentNodeId,
+            ascendentColumn,
+            node.Id,
+            node.Attributes,
+        )
+        err = UpsertHandler(j, accountId, db)
+        if err != nil {
+            return fmt.Errorf("PersonIdNodes.Upsert %s", err)
+        }
+    }
+    return nil
+}
+
+type PlaceIds struct {
+    BaseIdData
+}
+
+type PlaceIdNodes struct {
+    Nodes []PlaceIds `json:"placeIdNodes" validate:"dive,omitempty"`
+    ascendentColumn string  // corresponding columns eg. "content_id"
+    ascendentNodeId string  // parent object
+    placeJson gjson.Result
+}
+
+func (s *PlaceIdNodes) Upsert(accountId string, db *sql.DB) (err error) {
+    ascendentColumn := "place_id"
+    for i, node := range s.Nodes {
+        node.Attributes = s.placeJson.Array()[i].Get("attributes").String()
+        j := NewJoinTable(
+            s.ascendentColumn,
+            s.ascendentNodeId,
+            ascendentColumn,
+            node.Id,
+            node.Attributes,
+        )
+        err = UpsertHandler(j, accountId, db)
+        if err != nil {
+            return fmt.Errorf("PersonIdNodes.Upsert %s", err)
+        }
+    }
+    return nil
+}
+
+type AllIdNodes struct {
+    CollectionIdNodes
+    ContentIdNodes
+    ItemIdNodes
+    ImageIdNodes
+    PlaceIdNodes
+    PersonIdNodes
 }
 
 type loader interface {
@@ -22,32 +219,24 @@ type validater interface {
 	Validate() (err error)
 }
 
-type upserter interface {
-	Upsert(userId string, db *sql.DB) (err error)
+type LoaderValidator interface {
+	loader
+	validater
 }
 
-type foreignKeyUpdater interface {
+type Upserter interface {
+	Upsert(accountId string, db *sql.DB) (err error)
+}
+
+type ForeignKeyUpdater interface {
 	ForeignKeyUpdate(db *sql.DB) (err error)
 }
 
-type relatedTableUpserter interface {
-	RelatedTableUpsert(userId string, db *sql.DB) (err error)
+type RelatedTableUpserter interface {
+	RelatedTableUpsert(accountId string, db *sql.DB) (err error)
 }
 
-type LoaderProcesserUpserter interface {
-	loader
-	validater
-	upserter
-	foreignKeyUpdater
-	relatedTableUpserter
-}
-
-func JsonLoaderUpserterHandler(
-	data LoaderProcesserUpserter,
-	userId string,
-	fileBuffer *[]byte,
-	db *sql.DB) (err error) {
-
+func LoadValidateHandler(data LoaderValidator, fileBuffer *[]byte) (err error) {
 	err = data.Load(fileBuffer)
 	if err != nil {
 		return err
@@ -56,38 +245,67 @@ func JsonLoaderUpserterHandler(
 	if err != nil {
 		return err
 	}
-	err = data.Upsert(userId, db)
-	if err != nil {
-		return err
-	}
-	err = data.ForeignKeyUpdate(db)
-	if err != nil {
-		return err
-	}
-	err = data.RelatedTableUpsert(userId, db)
+	return nil
+}
+
+func UpsertHandler(data Upserter, accountId string, db *sql.DB) (err error) {
+	err = data.Upsert(accountId, db)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func JoinCollectionItemUpsert(db *sql.DB, svUserId, collectionId, itemId string) (err error) {
-	var data []string
-
-	data = append(data, svUserId, collectionId, itemId)
-    jid := Md5Hasher(data)
-
-	qstr := `
-        INSERT INTO join_collection_item (id, sv_user_id, collection_id, item_id)
-        VALUES ($1, $2, $3, $4)
-        ON CONFLICT (id)
-        DO UPDATE SET sv_user_id = $2, collection_id = $3, item_id = $4;
-        `
-	_, err = db.Exec(qstr, jid, svUserId, collectionId, itemId)
+func ForeignKeyUpdateHandler(data ForeignKeyUpdater, db *sql.DB) (err error) {
+	err = data.ForeignKeyUpdate(db)
 	if err != nil {
-		fmt.Println("JoinCollectionItemUpsert() ", err)
+		return err
 	}
-	return err
+	return nil
+}
+
+func RelatedTableUpsertHandler(data RelatedTableUpserter, accountId string, db *sql.DB) (err error) {
+	err = data.RelatedTableUpsert(accountId, db)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type JoinTable struct {
+    col1 []string  // {colName, id}
+    col2 []string  // {colName, id}
+    attributes string // json document
+}
+
+func NewJoinTable(ascCol, ascId, nodeCol, nodeId, nodeAttr string) *JoinTable {
+    j := new(JoinTable)
+    j.col1 = []string{ascCol, ascId}
+    j.col2 = []string{nodeCol, nodeId}
+    j.attributes = nodeAttr
+    return j
+}
+
+func (s *JoinTable) Upsert(accountId string, db *sql.DB) (err error) {
+	var strArr []string
+	strArr = append(strArr, accountId, s.col1[1], s.col2[1])
+    tid := Md5Hasher(strArr)
+    if s.attributes == "" {
+        s.attributes = "{}"
+    }
+
+	qstr := fmt.Sprintf(`
+        INSERT INTO joins (id, account_id, %s, %s, attributes)
+        VALUES ($1, $2, $3, $4, $5)
+        ON CONFLICT (id)
+        DO UPDATE SET account_id = $2, %s = $3, %s = $4, attributes = $5;
+        `, s.col1[0], s.col2[0], s.col1[0], s.col2[0])
+	_, err = db.Exec(qstr, tid, accountId, s.col1[1], s.col2[1], s.attributes)
+    fmt.Println("## doc ", s.attributes)
+	if err != nil {
+		return fmt.Errorf("JoinTableUpsert() %s", err)
+	}
+	return nil
 }
 
 func JoinCollectionContentUpsert(db *sql.DB, svUserId, collectionId, contentId string) (err error) {
@@ -97,10 +315,10 @@ func JoinCollectionContentUpsert(db *sql.DB, svUserId, collectionId, contentId s
     jid := Md5Hasher(data)
 
 	qstr := `
-        INSERT INTO join_collection_content (id, sv_user_id, collection_id, content_id)
+        INSERT INTO join_collection_content (id, sv_account_id, collection_id, content_id)
         VALUES ($1, $2, $3, $4)
         ON CONFLICT (id)
-        DO UPDATE SET sv_user_id = $2, collection_id = $3, content_id = $4;
+        DO UPDATE SET sv_account_id = $2, collection_id = $3, content_id = $4;
         `
 	_, err = db.Exec(qstr, jid, svUserId, collectionId, contentId)
 	if err != nil {

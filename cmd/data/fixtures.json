@@ -1,5 +1,5 @@
 {
-    "svUserNodes": [
+    "accountNodes": [
         {
             "id": "f8b0f997-1dcc-4e56-915c-9f62f52345ee",
             "auth": "b9a3c679-cbc3-4e7b-8fd7-6aad20d5b2c4",
@@ -67,51 +67,50 @@
             "domain": "ecommerce.com"
         }
     ],
-    "priceClassNodes": [
+    "collectionNodes": [
         {
             "id": "a6c4ff7d-b4d4-4c91-8618-fae5f8df436d",
-            "type": "grossMargin",
+            "type": "priceClass",
+            "class": "grossMargin",
             "name": "GM 25",
             "amount": 25,
             "note": "25% gross margin."
         },{
             "id": "ce814ddf-21f6-41d0-a295-072301b877f7",
-            "type": "grossMargin",
+            "type": "priceClass",
+            "class": "grossMargin",
             "name": "GM 50",
             "amount": 50,
             "note": "50% gross margin."
         },{
             "id": "cdc1a0b8-2add-4241-898c-a4a80e75f653",
-            "type": "markup",
+            "type": "priceClass",
+            "class": "markup",
             "name": "MU 50",
             "amount": 50,
             "note": "50% markup."
-        }
-
-    ],
-    "unitNodes": [
-        {
+        },{
             "id": "72476692-e51c-460b-844f-8d46df1bcc1a",
+            "type": "unit",
             "singular": "piece",
             "singularDisplay": "pc",
             "plural": "pieces",
             "pluralDisplay": "pcs"
         },{
             "id": "6bc227f9-1ccc-4413-a064-320aefd1b038",
+            "type": "unit",
             "singular": "gram",
             "singularDisplay": "g",
             "plural": "grams",
             "pluralDisplay": "g"
         },{
             "id": "1bbaebdb-1c1d-4099-8d79-b7b740012e1b",
+            "type": "unit",
             "singular": "centimeter",
             "singularDisplay": "cm",
             "plural": "centimeters",
             "pluralDisplay": "cm"
-        }
-    ],
-    "collectionNodes": [
-        {
+        },{
             "id": "eeb75266-7f4a-4d8e-9a8a-2c0ada73e7b1",
             "type": "brand",
             "name": "Gabriels",
