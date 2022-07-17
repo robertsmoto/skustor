@@ -1,34 +1,44 @@
 package models
 
 import (
+    //"fmt"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/robertsmoto/skustor/internal/configs"
 	"github.com/robertsmoto/skustor/internal/postgres"
+	"github.com/tidwall/gjson"
 )
 
 func SetEnvConfig() (err error) {
-	conf := configs.Config{}
-	configs.Load(&conf)
-	return err
+	configs.Load(&configs.Config{})
+	return nil
 }
 
 func Test_CheckProcessed(t *testing.T) {
     // check manually in db to see if record was created
+
+    accountId := "f8b0f997-1dcc-4e56-915c-9f62f52345ee"
+    
+    i := Image{}
+    i.Url = "http://www.example.com/test01.jpg"
+    i.Id = Md5Hasher([]string{accountId, i.Url})
+    i.Type = "testImage"
+    i.Process = 0
+    
     imageNodes := ImageNodes{}
-    i := Image{
-        Url: "https://www.example.com/test_processed.jpg",
-        Process: 0,
-    }
+    // need to mock the doc
+    request := `{"url": "http://www.example.com/test01.jpg"}`
+    imageNodes.Gjson = gjson.Parse(request)
+
     imageNodes.Nodes = append(imageNodes.Nodes, &i)
-	devPostgres := postgres.PostgresDb{}
-	pgDb, err := postgres.Open(&devPostgres)
+    devPostgres := postgres.PostgresDb{}
+    pgDb, err := postgres.Open(&devPostgres)
     defer pgDb.Close()
-    imageNodes.RecordOriginalImage(pgDb)
+    err = imageNodes.Upsert(accountId, pgDb)
     if err != nil {
-		t.Error("Db error.")
+        t.Error("Db error.", err)
     }
 }
 
@@ -63,6 +73,35 @@ func TestGetFileName(t *testing.T) {
 	if fullFileName != "logos.jpg" || baseFileName != "logos" {
 		t.Error("Error parsing string in func GetFileName")
 	}
+}
+
+func Test_ExistingUrlCheck(t *testing.T) {
+    var exists int8
+    var err error
+    accountId := "f8b0f997-1dcc-4e56-915c-9f62f52345ee"
+    // open database
+    db, err := postgres.Open(&postgres.PostgresDb{})
+    if err != nil {
+        t.Error("Test_ExistingUrlCheck 01", err)
+    }
+    // check does not exist
+    i1 := Image{}
+    i1.Url = "http://www.example.com"
+    i1.Id = Md5Hasher([]string{accountId, i1.Url})
+    exists, err = i1.RecordValidate(i1.Id, db)
+    if exists != 0 {
+        t.Errorf("Test_ExistingUrlCheck exists %d != 0", exists)
+    }
+    // check exists
+    i2 := Image{}
+    i2.Url = "http://www.example.com/test01.jpg"
+    i2.Id = Md5Hasher([]string{accountId, i2.Url})
+    exists, err = i2.RecordValidate(i2.Id, db)
+    if exists != 1 {
+        t.Errorf("Test_ExistingUrlCheck exists %d != 1", exists)
+    }
+    // close db
+    db.Close()
 }
 
 func TestDownloadFile(t *testing.T) {
@@ -130,90 +169,168 @@ func TestCalcNewSize(t *testing.T) {
 	}
 }
 
-func TestWebImage(t *testing.T) {
+func Test_WebImage(t *testing.T) {
 
-	// create the env variables
-	_ = SetEnvConfig()
+    // create the env variables
+    _ = SetEnvConfig()
 
-	// instantiate the WebImage struct and assign variables
-	i := Image{}
+    // instantiate the WebImage struct and assign variables
+    i := Image{}
 
-	lgSize := ImgSize{1.0, "LG"}
-	mdSize := ImgSize{0.5, "MD"}
-	smSize := ImgSize{0.25, "SM"}
-	i.ImgSizes = append(
-		i.ImgSizes,
-		lgSize,
-		mdSize,
-		smSize,
-	)
+    lgSize := ImgSize{1.0, "LG"}
+    mdSize := ImgSize{0.5, "MD"}
+    smSize := ImgSize{0.25, "SM"}
+    i.ImgSizes = append(
+        i.ImgSizes,
+        lgSize,
+        mdSize,
+        smSize,
+    )
 
-	i.Url = "https://cdn-stage.sodavault.com/media/111111111111/svLogo.png"
+    i.Url = "https://cdn-stage.sodavault.com/media/111111111111/svLogo.png"
     i.Process = 1
 
-	i.TempFileDir = os.Getenv("TMPDIR")
-	i.UploadPrefix = os.Getenv("ULOADP")
-	i.AccountDir = "111111111111"
-	i.Date = "2022-06-01"
-	i.DoCacheControl = "max-age=2592000" // one month
-	i.DoContentType = "image/webp"
-	i.DoBucket = os.Getenv("DOBCKT")
-	i.DoEndpointUrl = os.Getenv("DOENDU")
-	i.DoAccessKey = os.Getenv("DOAKEY")
-	i.DoSecret = os.Getenv("DOSECR")
-	i.DoRegionName = os.Getenv("DOREGN")
-	i.VanityUrl = os.Getenv("DOVANU")
+    i.TempFileDir = os.Getenv("TMPDIR")
+    i.UploadPrefix = os.Getenv("ULOADP")
+    i.AccountDir = "111111111111"
+    i.Date = "2022-06-01"
+    i.DoCacheControl = "max-age=2592000" // one month
+    i.DoContentType = "image/webp"
+    i.DoBucket = os.Getenv("DOBCKT")
+    i.DoEndpointUrl = os.Getenv("DOENDU")
+    i.DoAccessKey = os.Getenv("DOAKEY")
+    i.DoSecret = os.Getenv("DOSECR")
+    i.DoRegionName = os.Getenv("DOREGN")
+    i.VanityUrl = os.Getenv("DOVANU")
+    i.Type = "testImage"
 
+    // Little Johnnie account
+    accountId := "f8b0f997-1dcc-4e56-915c-9f62f52345ee"
 
     iNodes := ImageNodes{}
+
+    // need to mock the request
+    request := `{"mock": "for testing"}`
+    iNodes.Gjson = gjson.Parse(request)
+
     iNodes.Nodes = append(iNodes.Nodes, &i)
     var err error
 
-    // check database
-    devPostgres := postgres.PostgresDb{}
-    pgDb, err := postgres.Open(&devPostgres)
-    defer pgDb.Close()
+    // open database
+    pgDb, err := postgres.Open(&postgres.PostgresDb{})
 
-    err = iNodes.RecordOriginalImage(pgDb)
+    // preProcess imageNodes
+    err = iNodes.PreProcess(accountId, pgDb)
     if err != nil {
-        t.Error("CheckProcessed error: ", err)
+        t.Error("Test_WebImage 01 ", err)
     }
 
-    err = iNodes.Download()
+    // upsert imageNodes
+    err = iNodes.Upsert(accountId, pgDb)
     if err != nil {
-        t.Error("Download error: ", err)
+        t.Error("Test_WebImage 01 ", err)
     }
-    //_, err = os.Stat(iNodes.filePath)
-    //if err != nil {
-        //t.Errorf("Download file does not exist: %s", err)
-    //}
-    err = iNodes.Resize()
-    if err != nil {
-        t.Error("Resize image ", err)
-    }
-    //lgImg {0=tempFilePath, 1=key 2=url, 3=width, 4=height, 5=size eg "LG"]
-    for _, rsi := range i.ResizedImages {
-        _, err = os.Stat(rsi.tempFilePath)
 
+    // work on Image.Process == 1
+    for _, node := range iNodes.Nodes {
+        if node.Process == 0 {
+            continue
+        }
+
+        err = node.Download()
         if err != nil {
-            t.Errorf("Error making new image size: %s", err)
+            t.Error("Download error: ", err)
+        }
+
+        err = node.Resize()
+        if err != nil {
+            t.Error("Resize image ", err)
+        }
+
+        // upsert new sizes to db
+        err = node.ResizedImageUpsert(accountId, pgDb)
+        if err != nil {
+            t.Errorf("Upsert %s", err)
+        }
+
+        // upload to cdn
+        err = node.UploadToSpaces()
+        if err != nil {
+            t.Errorf("Upload to spaces %s", err)
+        }
+
+        // delete temp file
+        err = node.RemoveTempFile()
+        if err != nil {
+            t.Errorf("Upload to spaces %s", err)
         }
     }
-    // upsert new sizes to db
-    err = iNodes.Upsert(pgDb)
-    if err != nil {
-        t.Errorf("Upsert %s", err)
-    }
-    // upload to cdn
-    err = iNodes.UploadToSpaces()
-    if err != nil {
-        t.Errorf("Upload to spaces %s", err)
-    }
-    // delete temp file
-    err = iNodes.RemoveTempFile()
-    if err != nil {
-        t.Errorf("Upload to spaces %s", err)
-    }
+    pgDb.Close()
 }
 
+func Test_ImageInterfaces(t *testing.T) {
+    var err error
+
+    // loading env variables (will eventually be loaded by main)
+    configs.Load(&configs.Config{})
+    if err != nil {
+        t.Errorf("Test_ImageInterfaces %s", err)
+    }
+
+    // read file (will eventually come from the request)
+    testFile, err := os.ReadFile("./test_data/images.json")
+    if err != nil {
+        t.Errorf("Test_ImagesInterfaces %s", err)
+    }
+
+    // open the db connections
+    pgDb, err := postgres.Open(&postgres.PostgresDb{})
+
+    // instantiate the structs
+    cNodes := ImageNodes{}
+
+    // Little Johnnie account
+    accountId := "f8b0f997-1dcc-4e56-915c-9f62f52345ee"
+
+    err = LoadValidateHandler(&cNodes, &testFile)
+    if err != nil {
+        t.Errorf("Test_ImageInterfaces 01 %s", err)
+    }
+
+    // special preProcessing
+    err = PreProcessHandler(&cNodes, accountId, pgDb)
+    if err != nil {
+        t.Errorf("Test_ImageInterfaces 02 %s", err)
+    }
+
+    err = UpsertHandler(&cNodes, accountId, pgDb)
+    if err != nil {
+        t.Errorf("Test_ImageInterfaces 03 %s", err)
+    }
+
+    err = ForeignKeyUpdateHandler(&cNodes, pgDb)
+    if err != nil {
+        t.Errorf("Test_ImageInterfaces 04 %s", err)
+    }
+
+    err = RelatedTableUpsertHandler(&cNodes, accountId, pgDb)
+    if err != nil {
+        t.Errorf("Test_ImageInterfaces 05 %s", err)
+    }
+
+    // works on image.ResizedImages if image.Process == 1
+    for _, node := range cNodes.Nodes {
+
+        node.Date = "2022-06-01"
+        node.AccountDir = "111111111111"
+        if node.Process == 0 {
+            continue
+        }
+
+        err = ResizedImgHandler(node, accountId, pgDb)
+        if err != nil {
+            t.Errorf("Test_ImageInterfaces 05 %s", err)
+        }
+    }
+}
 

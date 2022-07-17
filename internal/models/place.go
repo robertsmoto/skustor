@@ -71,17 +71,24 @@ func (s *PlaceNodes) Upsert(accountId string, db *sql.DB) (err error) {
 
 func (s *PlaceNodes) ForeignKeyUpdate(db *sql.DB) (err error) {
 	for _, node := range s.Nodes {
-		if node.ParentId == "" {
-			continue
-		}
-		qstr := `
-            UPDATE place
-            SET parent_id = $2
-            WHERE place.id = $1;`
+        var qstr string
+        if node.ParentId != "" {
+            qstr = `
+                UPDATE place
+                SET parent_id = $2
+                WHERE place.id = $1;`
 
-		_, err = db.Exec(
-			qstr, node.Id, node.ParentId,
-		)
+            _, err = db.Exec(qstr, node.Id, node.ParentId)
+
+		} else {
+            // need this query to set fk uuid to null
+            qstr = `
+                UPDATE place
+                SET parent_id = null
+                WHERE place.id = $1;`
+            _, err = db.Exec(qstr, node.Id)
+        }
+
 		if err != nil {
 			return fmt.Errorf("PlaceNodes.ForeignKeyUpdate %s", err)
 		}
@@ -94,9 +101,10 @@ func (s *PlaceNodes) RelatedTableUpsert(accountId string, db *sql.DB) (err error
         structArray := []Upserter{}
         ascendentColumn := "place_id"
         if node.CollectionIdNodes.Nodes != nil {
-            node.CollectionIdNodes.ascendentColumn = ascendentColumn
-            node.CollectionIdNodes.ascendentNodeId = node.Id
-            structArray = append(structArray, &node.CollectionIdNodes)
+            node.collectionJson = s.Gjson.Array()[i].Get("collectionIdNodes")
+            node.ContentIdNodes.ascendentColumn = ascendentColumn
+            node.ContentIdNodes.ascendentNodeId = node.Id
+            structArray = append(structArray, &node.ContentIdNodes)
         }
         if node.ContentIdNodes.Nodes != nil {
             node.contentJson = s.Gjson.Array()[i].Get("contentIdNodes")
@@ -140,6 +148,15 @@ func (s *PlaceNodes) RelatedTableUpsert(accountId string, db *sql.DB) (err error
 }
 
 func (s *PlaceNodes) Delete(db *sql.DB) (err error) {
-	fmt.Println("PlaceNodes.Delete() Not implemented.")
+	for _, node := range s.Nodes {
+		qstr := `
+            DELETE FROM place
+            WHERE place.id = $1;
+            `
+		_, err = db.Exec(qstr, node.Id)
+		if err != nil {
+			return fmt.Errorf("PlaceNodes.Delete %s", err)
+		}
+	}
 	return nil
 }

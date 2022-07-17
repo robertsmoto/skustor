@@ -10,6 +10,7 @@
             "keywords": "keyword, keyword, keyword",
             "title": "Title 01",
             "excerpt": "<p>This is an html paragraph \"Excerpt 01\"</p>",
+            "excerptLg": "<p>This is a longer excerpt</p>",
             "body": "<p>This is an html paragraph \"Body 01\"</p>",
             "footer": "<p>This is an html paragraph \"Footer 01\"</p>"
         },{
@@ -22,6 +23,7 @@
             "keywords": "keyword, keyword, keyword",
             "title": "Title 02",
             "excerpt": "<p>This is an html paragraph \"Excerpt 02\"</p>",
+            "excerptLg": "<p>This is a large excerpt \"Excerpt 02\"</p>",
             "body": "<p>This is an html paragraph \"Body 02\"</p>",
             "footer": "<p>This is an html paragraph \"Footer 02\"</p>"
         },{
@@ -34,6 +36,7 @@
             "keywords": "keyword, keyword, keyword",
             "title": "Title 03",
             "excerpt": "<p>This is an html paragraph \"Excerpt 03\"</p>",
+            "excerptLg": "<p>This is a large excerpt \"Excerpt 03\"</p>",
             "body": "<p>This is an html paragraph \"Body 03\"</p>",
             "footer": "<p>This is an html paragraph \"Footer 03\"</p>"
         }

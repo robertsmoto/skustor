@@ -1,37 +1,48 @@
 {
     "imageNodes": [
         {
-            "id": "3d503266-50b7-488f-b953-c18f592543ba",
+            "url": "https://cdn-stage.sodavault.com/media/111111111111/testTree.jpg",
+            "process": 1,
+            "type": "testImage",
+            "title": "Green Tree",
+            "alt": "A green tree in a field.",
+            "caption": "A nice tree"
+        },{
             "url": "https://www.example.com/image01.webp",
+            "type": "testImage",
             "title": "Image 01 Title",
             "alt": "Image 01 Alt",
             "caption": "Image 01 Caption",
             "position": 1,
-            "featured": 1
+            "featured": 1,
+            "process": 0
         },{
-            "id": "987ca9f0-cec7-4587-aed3-fe531aa03898",
             "url": "https://www.example.com/image02.webp",
+            "type": "testImage",
             "title": "Image 02 Title",
             "alt": "Image 02 Alt",
             "caption": "Image 02 Caption",
             "position": 2,
-            "featured": 0
+            "featured": 0,
+            "process": 0
         },{
-            "id": "9a25e491-7f8a-453c-8283-9eab8a671f59",
             "url": "https://www.example.com/image03.webp",
+            "type": "testImage",
             "title": "Image 03 Title",
             "alt": "Image 03 Alt",
             "caption": "Image 03 Caption",
             "position": 3,
-            "featured": 0
+            "featured": 0,
+            "process": 0
         },{
-            "id": "a95cc951-b269-4975-a26e-63baad1c7f0a",
-            "url": "https://www.example.com/image03.webp",
+            "url": "https://www.example.com/image04.webp",
+            "type": "testImage",
             "title": "Image 04 Title",
             "alt": "Image 04 Alt",
             "caption": "Image 04 Caption",
             "position": 4,
-            "featured": 0
+            "featured": 0,
+            "process": 0
         }
     ]
 }

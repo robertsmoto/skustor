@@ -65,19 +65,26 @@ func (s *CollectionNodes) Upsert(accountId string, db *sql.DB) (err error) {
 
 func (s *CollectionNodes) ForeignKeyUpdate(db *sql.DB) (err error) {
 	for _, node := range s.Nodes {
-		if node.ParentId == "" {
-			continue
-		}
-		qstr := `
-            UPDATE collection
-            SET parent_id = $2
-            WHERE collection.id = $1;`
+        var qstr string
+        if node.ParentId != "" {
+            qstr = `
+                UPDATE collection
+                SET parent_id = $2
+                WHERE collection.id = $1;`
 
-		_, err = db.Exec(
-			qstr, node.Id, node.ParentId,
-		)
+            _, err = db.Exec(qstr, node.Id, node.ParentId)
+
+		} else {
+            // need this query to set fk uuid to null
+            qstr = `
+                UPDATE collection
+                SET parent_id = null
+                WHERE collection.id = $1;`
+            _, err = db.Exec(qstr, node.Id)
+        }
+
 		if err != nil {
-			return fmt.Errorf("CollectionNodes.ForeignKeyUpdate() %s", err)
+			return fmt.Errorf("CollectionNodes.ForeignKeyUpdate %s", err)
 		}
 	}
 	return nil
@@ -133,6 +140,15 @@ func (s *CollectionNodes) RelatedTableUpsert(accountId string, db *sql.DB) (err 
 }
 
 func (s *CollectionNodes) Delete(db *sql.DB) (err error) {
-	fmt.Println("CollectionNodes.Delete() Not implemented.")
+	for _, node := range s.Nodes {
+		qstr := `
+            DELETE FROM collection
+            WHERE collection.id = $1;
+            `
+		_, err = db.Exec(qstr, node.Id)
+		if err != nil {
+			return fmt.Errorf("CollectionNodes.Delete %s", err)
+		}
+	}
 	return nil
 }

@@ -31,7 +31,7 @@ func Test_CollectionInterfaces(t *testing.T) {
     //collection := Collection{}
     cNodes := CollectionNodes{}
 
-    // Little Johnnie user
+    // Little Johnnie account
     accountId := "f8b0f997-1dcc-4e56-915c-9f62f52345ee"
 
     err = LoadValidateHandler(&cNodes, &testFile)
@@ -67,8 +67,6 @@ func Test_CollectionLoadAndValidate(t *testing.T) {
 	collections.Load(&testFile)
 	collections.Validate()
 
-	//fmt.Println("### collection", collection)
-	//fmt.Println("##id ", collection.Id)
 	//if collection.Id != "0f93a63a-13db-40e8-aa65-eecd37a86e8e" {
 	//t.Error("Collection.Id 01 ", err, collection.Id)
 	//}

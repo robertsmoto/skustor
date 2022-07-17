@@ -94,8 +94,8 @@ var pgbuilderCmd = &cobra.Command{
         CREATE INDEX IF NOT EXISTS image_id_idx ON image (id);
         CREATE INDEX IF NOT EXISTS image_parent_id_idx ON image (parent_id);
         CREATE INDEX IF NOT EXISTS image_account_id_idx ON image (account_id);
-        CREATE INDEX IF NOT EXISTS image_type_idx ON collection (type);
-        
+        CREATE INDEX IF NOT EXISTS image_type_idx ON image (type);
+
         -- ##################################
         --  table: content
         -- ##################################
@@ -116,7 +116,7 @@ var pgbuilderCmd = &cobra.Command{
         CREATE INDEX IF NOT EXISTS content_id_idx ON content (id);
         CREATE INDEX IF NOT EXISTS content_parent_id_idx ON content (parent_id);
         CREATE INDEX IF NOT EXISTS content_account_id_idx ON content (account_id);
-        CREATE INDEX IF NOT EXISTS content_type_idx ON collection (type);
+        CREATE INDEX IF NOT EXISTS content_type_idx ON content (type);
         
         -- ##################################
         --  table: place
@@ -138,7 +138,7 @@ var pgbuilderCmd = &cobra.Command{
         CREATE INDEX IF NOT EXISTS place_id_idx ON place (id);
         CREATE INDEX IF NOT EXISTS place_parent_id_idx ON place (parent_id);
         CREATE INDEX IF NOT EXISTS place_account_id_idx ON place (account_id);
-        CREATE INDEX IF NOT EXISTS place_type_idx ON collection (type);
+        CREATE INDEX IF NOT EXISTS place_type_idx ON place (type);
 
         -- ##################################
         --  table: person
@@ -164,7 +164,7 @@ var pgbuilderCmd = &cobra.Command{
         CREATE INDEX IF NOT EXISTS person_id_idx ON person (id);
         CREATE INDEX IF NOT EXISTS person_parent_id_idx ON person (parent_id);
         CREATE INDEX IF NOT EXISTS person_account_id_idx ON person (account_id);
-        CREATE INDEX IF NOT EXISTS person_type_idx ON collection (type);
+        CREATE INDEX IF NOT EXISTS person_type_idx ON person (type);
 
         -- ##################################
         --  table: item
@@ -185,7 +185,7 @@ var pgbuilderCmd = &cobra.Command{
         CREATE INDEX IF NOT EXISTS item_id_idx ON item (id);
         CREATE INDEX IF NOT EXISTS item_account_id_idx ON item (account_id);
         CREATE INDEX IF NOT EXISTS item_parent_id_idx ON item (parent_id);
-        CREATE INDEX IF NOT EXISTS item_type_idx ON collection (type);
+        CREATE INDEX IF NOT EXISTS item_type_idx ON item (type);
 
         -- ##################################
         -- table: joins

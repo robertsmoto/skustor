@@ -13,7 +13,7 @@ type BaseData struct {
 	Id       string `json:"id" validate:"required,uuid4"`
 	ParentId string `json:"parentId" validate:"omitempty,uuid4"`
     Type string `json:"type" validate:"omitempty,lte=20"`
-	SvUserId string
+	AccountId string
 	Document string
 }
 
@@ -83,7 +83,8 @@ func (s *ContentIdNodes) Upsert(accountId string, db *sql.DB) (err error) {
 }
 
 type ImageIds struct {
-    BaseIdData
+    Id string `json:"id" validate:"omitempty"`
+    Attributes string `json:"attributes" validate:"omitempty,json"`
 }
 
 type ImageIdNodes struct {
@@ -224,6 +225,10 @@ type LoaderValidator interface {
 	validater
 }
 
+type PreProcessor interface {
+    PreProcess(accountId string, db *sql.DB) (err error)
+}
+
 type Upserter interface {
 	Upsert(accountId string, db *sql.DB) (err error)
 }
@@ -239,11 +244,19 @@ type RelatedTableUpserter interface {
 func LoadValidateHandler(data LoaderValidator, fileBuffer *[]byte) (err error) {
 	err = data.Load(fileBuffer)
 	if err != nil {
-		return err
+		return fmt.Errorf("LoadValidateHandler 01 %s", err)
 	}
 	err = data.Validate()
 	if err != nil {
-		return err
+		return fmt.Errorf("LoadValidateHandler 01 %s", err)
+	}
+	return nil
+}
+
+func PreProcessHandler(data PreProcessor, accountId string, db *sql.DB) (err error) {
+	err = data.PreProcess(accountId, db)
+	if err != nil {
+		return fmt.Errorf("PreProcessHandler 01 %s", err)
 	}
 	return nil
 }
@@ -251,7 +264,7 @@ func LoadValidateHandler(data LoaderValidator, fileBuffer *[]byte) (err error) {
 func UpsertHandler(data Upserter, accountId string, db *sql.DB) (err error) {
 	err = data.Upsert(accountId, db)
 	if err != nil {
-		return err
+		return fmt.Errorf("UpsertHandler 01 %s", err)
 	}
 	return nil
 }
@@ -259,15 +272,28 @@ func UpsertHandler(data Upserter, accountId string, db *sql.DB) (err error) {
 func ForeignKeyUpdateHandler(data ForeignKeyUpdater, db *sql.DB) (err error) {
 	err = data.ForeignKeyUpdate(db)
 	if err != nil {
-		return err
+		return fmt.Errorf("ForeignKeyUpdateHandler 01 %s", err)
 	}
 	return nil
 }
 
+type Deleter interface {
+    Delete(db *sql.DB) (err error)
+}
+
+func DeleteHandler(data Deleter, db *sql.DB) (err error) {
+	err = data.Delete(db)
+	if err != nil {
+		return fmt.Errorf("DeleteHandler 01 %s", err)
+	}
+	return nil
+}
+
+
 func RelatedTableUpsertHandler(data RelatedTableUpserter, accountId string, db *sql.DB) (err error) {
 	err = data.RelatedTableUpsert(accountId, db)
 	if err != nil {
-		return err
+		return fmt.Errorf("RelatedTableUpsertHandler 01 %s", err)
 	}
 	return nil
 }
@@ -301,7 +327,6 @@ func (s *JoinTable) Upsert(accountId string, db *sql.DB) (err error) {
         DO UPDATE SET account_id = $2, %s = $3, %s = $4, attributes = $5;
         `, s.col1[0], s.col2[0], s.col1[0], s.col2[0])
 	_, err = db.Exec(qstr, tid, accountId, s.col1[1], s.col2[1], s.attributes)
-    fmt.Println("## doc ", s.attributes)
 	if err != nil {
 		return fmt.Errorf("JoinTableUpsert() %s", err)
 	}
@@ -322,9 +347,9 @@ func JoinCollectionContentUpsert(db *sql.DB, svUserId, collectionId, contentId s
         `
 	_, err = db.Exec(qstr, jid, svUserId, collectionId, contentId)
 	if err != nil {
-		fmt.Println("JoinCollectionContentUpsert() ", err)
+		return fmt.Errorf("JoinCollectionContentUpsert 01 %s", err)
 	}
-	return err
+	return nil
 }
 
 func Md5Hasher(data []string) (out string) {
